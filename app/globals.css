@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.35;
+  --text-sm: 1rem;
+  --text-sm--line-height: 1.45;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.55;
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.45;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.35;
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 1.25;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root,
+[data-tema="light"] {
+  --bg: #ffffff;
+  --surface: #f7f7f8;
+  --border: #e4e4e7;
+  --fg: #18181b;
+  --muted: #71717a;
+  --brand: #18181b;
+  --brand-fg: #ffffff;
+}
+
+[data-tema="dark"] {
+  --bg: #0b0b0d;
+  --surface: #17171a;
+  --border: #2a2a30;
+  --fg: #fafafa;
+  --muted: #a1a1aa;
+  --brand: #fafafa;
+  --brand-fg: #0b0b0d;
+}
+
+[data-tema="areia"] {
+  --bg: #fffbf5;
+  --surface: #fff3e2;
+  --border: #f0dcc0;
+  --fg: #2b1a08;
+  --muted: #8a6a45;
+  --brand: #c2410c;
+  --brand-fg: #ffffff;
+}
+
+[data-tema="menta"] {
+  --bg: #f6fdfa;
+  --surface: #e7f7f0;
+  --border: #c9e9db;
+  --fg: #0d2b21;
+  --muted: #4c7566;
+  --brand: #0f766e;
+  --brand-fg: #ffffff;
+}
+
+[data-tema="oceano"] {
+  --bg: #f5f9ff;
+  --surface: #e6f0fd;
+  --border: #c6dcf6;
+  --fg: #0b1f38;
+  --muted: #4a6785;
+  --brand: #1d4ed8;
+  --brand-fg: #ffffff;
+}
+
+[data-tema="rosa"] {
+  --bg: #fff7fa;
+  --surface: #fdeaf1;
+  --border: #f6cfdd;
+  --fg: #2e0d1b;
+  --muted: #8a5468;
+  --brand: #be185d;
+  --brand-fg: #ffffff;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 1.0625rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+button:not(:disabled),
+[role="button"]:not(:disabled),
+label:has(input[type="checkbox"]),
+select {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

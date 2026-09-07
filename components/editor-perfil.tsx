@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { atualizarProfile } from '@/lib/actions/profile'
+import { Assinatura } from '@/components/assinatura'
 import { CampoTelefone } from '@/components/campo-telefone'
 import { IDIOMAS } from '@/lib/i18n/dicionarios'
 import { juntarTelefone, separarTelefone } from '@/lib/paises'
@@ -16,10 +17,24 @@ export type PerfilForm = {
   city: string
   whatsapp: string
   locale: string
+  plan: string
 }
 
 
-export function EditorPerfil({ inicial }: { inicial: PerfilForm }) {
+type DadosAssinatura = {
+  temAssinatura: boolean
+  renovaEm: string | null
+  stripeAtivo: boolean
+  retorno: 'ok' | 'cancelada' | null
+}
+
+export function EditorPerfil({
+  inicial,
+  assinatura,
+}: {
+  inicial: PerfilForm
+  assinatura: DadosAssinatura
+}) {
   const t = useT()
   const router = useRouter()
   const [form, setForm] = useState(inicial)
@@ -42,7 +57,14 @@ export function EditorPerfil({ inicial }: { inicial: PerfilForm }) {
     if (!podeSalvar || !digitos) return
 
     iniciar(async () => {
-      const r = await atualizarProfile({ ...form, whatsapp: digitos })
+      const r = await atualizarProfile({
+        displayName: form.displayName,
+        headline: form.headline,
+        bio: form.bio,
+        city: form.city,
+        whatsapp: digitos,
+        locale: form.locale,
+      })
       if ('erro' in r && r.erro) {
         setErro(r.erro)
         return
@@ -128,6 +150,8 @@ export function EditorPerfil({ inicial }: { inicial: PerfilForm }) {
       </section>
 
 
+
+      <Assinatura plano={inicial.plan} {...assinatura} />
 
       {erro && (
         <p role="alert" className="text-sm text-red-600">

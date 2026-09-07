@@ -1,10 +1,25 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
 import { MAX_FOTOS } from '@/lib/constants'
 import { caminhoDaUrl } from '@/lib/storage'
+
+type Supabase = Awaited<ReturnType<typeof createClient>>
+
+async function revalidarPublico(supabase: Supabase, userId: string) {
+  const { data } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (data?.username) {
+    revalidatePath(`/${data.username}`)
+    revalidateTag(`catalogo:${data.username}`)
+  }
+}
 
 export async function registrarFoto(itemId: string, url: string) {
   const userId = await getUserId()
@@ -38,6 +53,7 @@ export async function registrarFoto(itemId: string, url: string) {
   if (error || !data) return { erro: 'Não foi possível registrar a foto.' }
 
   revalidatePath(`/painel/item/${itemId}`)
+  await revalidarPublico(supabase, userId)
   return { ok: true as const, foto: data }
 }
 
@@ -73,6 +89,7 @@ export async function removerFoto(photoId: string) {
   }
 
   revalidatePath(`/painel/item/${foto.item_id}`)
+  await revalidarPublico(supabase, userId)
   return { ok: true as const }
 }
 
@@ -113,5 +130,6 @@ export async function moverFoto(photoId: string, direcao: 'antes' | 'depois') {
   }
 
   revalidatePath(`/painel/item/${foto.item_id}`)
+  await revalidarPublico(supabase, userId)
   return { ok: true as const }
 }

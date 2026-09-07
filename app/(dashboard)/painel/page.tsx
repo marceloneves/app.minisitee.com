@@ -1,7 +1,9 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { ItemCardAdmin, type ItemResumo } from '@/components/item-card-admin'
 import { getUserId } from '@/lib/auth'
+import { MAX_ITENS_FREE } from '@/lib/constants'
 import { getT } from '@/lib/i18n/servidor'
 import { createClient } from '@/lib/supabase/server'
 
@@ -14,14 +16,14 @@ export default async function PainelPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username')
+    .select('username, plan')
     .eq('id', userId)
     .maybeSingle()
 
   const { data } = await supabase
     .from('items')
     .select(
-      'id, slug, title, kind, status, category, location, price_cents, price_note, position, url, item_photos(url, position)'
+      'id, slug, title, kind, status, category, location, price_cents, price_note, position, url, data, item_photos(url, position)'
     )
     .eq('profile_id', userId)
     .order('position')
@@ -37,6 +39,7 @@ export default async function PainelPage() {
       kind: it.kind,
       status: it.status,
       url: it.url,
+      data: it.data,
       category: it.category,
       location: it.location,
       price_cents: it.price_cents,
@@ -45,17 +48,24 @@ export default async function PainelPage() {
     }
   })
 
+  const ehFree = (profile?.plan ?? 'free') === 'free'
+  const noLimite = ehFree && itens.length >= MAX_ITENS_FREE
+
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold tracking-tight">{t('meusItens')}</h1>
-        <Link
-          href="/painel/novo"
-          className="shrink-0 rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-brand-fg"
-        >
-          {t('novoItem')}
-        </Link>
-      </div>
+      <CabecalhoPainel
+        titulo={t('meusItens')}
+        subtitulo={
+          ehFree ? t('limiteContador', { n: itens.length, max: MAX_ITENS_FREE }) : undefined
+        }
+        podeCriar={!noLimite}
+      />
+
+      {noLimite && (
+        <p className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {t('erroLimiteFree', { max: MAX_ITENS_FREE })}
+        </p>
+      )}
 
       {itens.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-dashed border-border px-6 py-12 text-center">

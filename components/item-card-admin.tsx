@@ -6,13 +6,17 @@ import { useState, useTransition } from 'react'
 import { StatusBadge } from '@/components/status-badge'
 import { duplicarItem, excluirItem, moverItem } from '@/lib/actions/items'
 import { formatBRL } from '@/lib/format'
-import { useT } from '@/lib/i18n/contexto'
+import { IconeSecao } from '@/components/icone-secao'
+import { RedeIcone, nomeDaRede } from '@/components/rede-icone'
+import { useIdioma, useT } from '@/lib/i18n/contexto'
+import { TIPOS } from '@/lib/i18n/dicionarios'
 
 export type ItemResumo = {
   id: string
   slug: string
   title: string
   kind: string
+  data: { links?: { rede: string; url: string }[] } | null
   status: string
   url: string | null
   category: string | null
@@ -36,6 +40,7 @@ export function ItemCardAdmin({
   ultimo: boolean
 }) {
   const t = useT()
+  const idioma = useIdioma()
   const [pendente, iniciar] = useTransition()
   const [confirmando, setConfirmando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -49,11 +54,15 @@ export function ItemCardAdmin({
   }
 
   const ehProduto = item.kind === 'produto'
+  const nomeDoTipo = TIPOS[idioma][item.kind]?.nome ?? item.kind
+  const redes = (item.data?.links ?? []).filter((l) => l.rede)
   const contexto = ehProduto
-    ? [item.category, item.location].filter(Boolean).join(' · ')
-    : item.kind === 'whatsapp'
-      ? 'Botão WhatsApp'
-      : (item.url ?? 'Link')
+    ? [item.category, item.location].filter(Boolean).join(' · ') || nomeDoTipo
+    : item.kind === 'link' && item.url
+      ? item.url
+      : item.kind === 'redes' && redes.length
+        ? redes.map((l) => nomeDaRede(l.rede)).join(', ')
+        : nomeDoTipo
 
   return (
     <li
@@ -66,8 +75,19 @@ export function ItemCardAdmin({
           {item.cover_url ? (
             <Image src={item.cover_url} alt="" fill sizes="80px" className="object-cover" />
           ) : (
-            <span className="flex h-full items-center justify-center px-1 text-center text-xs text-muted">
-              {ehProduto ? t('semFoto') : item.kind === 'whatsapp' ? 'WhatsApp' : 'Link'}
+            <span className="flex h-full flex-col items-center justify-center gap-1 px-1 text-center">
+              {item.kind === 'whatsapp' || item.kind === 'telefone' ? (
+                <RedeIcone rede={item.kind} tamanho="size-7" />
+              ) : item.kind === 'redes' && redes.length ? (
+                <span className="flex items-center gap-1">
+                  {redes.slice(0, 2).map((l, i) => (
+                    <RedeIcone key={i} rede={l.rede} tamanho="size-7" />
+                  ))}
+                </span>
+              ) : (
+                <IconeSecao tipo={item.kind} tamanho="size-7" />
+              )}
+              {ehProduto && <span className="text-xs text-muted">{t('semFoto')}</span>}
             </span>
           )}
         </div>

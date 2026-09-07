@@ -7,7 +7,13 @@ import { useIdioma, useT } from '@/lib/i18n/contexto'
 import { ROTULO_ESTILO } from '@/lib/i18n/dicionarios'
 import { ESTILOS } from '@/lib/types'
 
-export function EditorEstilo({ inicial }: { inicial: string }) {
+export function EditorEstilo({
+  inicial,
+  previa,
+}: {
+  inicial: string
+  previa?: React.ReactNode
+}) {
   const t = useT()
   const idioma = useIdioma()
   const router = useRouter()
@@ -74,6 +80,15 @@ export function EditorEstilo({ inicial }: { inicial: string }) {
       >
         {salvando ? t('salvando') : t('salvar')}
       </button>
+
+      {previa && (
+        <div
+          data-tema={tema}
+          className="mt-8 overflow-hidden rounded-2xl border border-border bg-bg text-fg"
+        >
+          {previa}
+        </div>
+      )}
     </div>
   )
 }

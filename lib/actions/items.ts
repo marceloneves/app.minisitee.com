@@ -1,13 +1,29 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
+import { MAX_ITENS_FREE } from '@/lib/constants'
 import { slugify } from '@/lib/slug'
 import { horarioPadrao, type DadosItem, type TipoItem } from '@/lib/types'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
+
+// A pagina publica e cacheada: toda mutacao precisa invalidar ela tambem,
+// senao a alteracao so aparece quando o revalidate de 1h expirar.
+async function revalidarPublico(supabase: Supabase, userId: string) {
+  const { data } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (data?.username) {
+    revalidatePath(`/${data.username}`)
+    revalidateTag(`catalogo:${data.username}`)
+  }
+}
 
 async function exigirDono(supabase: Supabase, itemId: string, userId: string) {
   const { data } = await supabase
@@ -88,9 +104,13 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
     .select('id')
     .single()
 
+  if (error?.code === '54000') {
+    return { erro: `O plano free permite ${MAX_ITENS_FREE} itens.`, limite: true as const }
+  }
   if (error || !data) return { erro: 'Não foi possível criar o item.' }
 
   revalidatePath('/painel')
+  await revalidarPublico(supabase, userId)
   redirect(`/painel/item/${data.id}`)
 }
 
@@ -134,6 +154,7 @@ export async function salvarItem(id: string, patch: PatchItem) {
 
   revalidatePath('/painel')
   revalidatePath(`/painel/item/${id}`)
+  await revalidarPublico(supabase, userId)
   return { ok: true as const, slug: dados.slug }
 }
 
@@ -168,7 +189,11 @@ export async function duplicarItem(id: string) {
     .select('id')
     .single()
 
+  if (error?.code === '54000') {
+    return { erro: `O plano free permite ${MAX_ITENS_FREE} itens.`, limite: true as const }
+  }
   if (error || !novo) return { erro: 'Não foi possível duplicar.' }
+  await revalidarPublico(supabase, userId)
 
   const { data: fotos } = await supabase
     .from('item_photos')
@@ -212,6 +237,7 @@ export async function excluirItem(id: string) {
   if (error) return { erro: 'Não foi possível excluir.' }
 
   revalidatePath('/painel')
+  await revalidarPublico(supabase, userId)
   return { ok: true as const }
 }
 
@@ -249,5 +275,6 @@ export async function moverItem(id: string, direcao: 'cima' | 'baixo') {
   }
 
   revalidatePath('/painel')
+  await revalidarPublico(supabase, userId)
   return { ok: true as const }
 }

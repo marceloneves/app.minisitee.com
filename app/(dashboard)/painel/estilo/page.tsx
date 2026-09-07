@@ -1,8 +1,15 @@
 import { redirect } from 'next/navigation'
+import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { EditorEstilo } from '@/components/editor-estilo'
+import { MinisiteeConteudo } from '@/components/minisitee-conteudo'
 import { getUserId } from '@/lib/auth'
+import { podeCriarItem } from '@/lib/limite'
+import { idiomaValido } from '@/lib/i18n/dicionarios'
 import { getT } from '@/lib/i18n/servidor'
 import { createClient } from '@/lib/supabase/server'
+import type { PaginaCatalogo } from '@/lib/types'
+
+export const dynamic = 'force-dynamic'
 
 export default async function EstiloPage() {
   const userId = await getUserId()
@@ -10,21 +17,42 @@ export default async function EstiloPage() {
 
   const t = await getT()
   const supabase = await createClient()
+
   const { data: profile } = await supabase
     .from('profiles')
-    .select('theme')
+    .select('theme, username')
     .eq('id', userId)
     .maybeSingle()
 
   if (!profile) redirect('/painel/comecar')
 
+  const { data } = await supabase.rpc('get_catalog_page', {
+    p_username: profile.username,
+  })
+  const pagina = data as PaginaCatalogo | null
+
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-6">
-      <h1 className="text-xl font-semibold tracking-tight">{t('estiloTitulo')}</h1>
-      <p className="mt-1 mb-6 text-sm text-muted">
-{t('estiloSubtitulo')}
-      </p>
-      <EditorEstilo inicial={profile.theme ?? 'light'} />
+    <main className="mx-auto w-full max-w-3xl px-4 py-6">
+      <CabecalhoPainel
+        titulo={t('estiloTitulo')}
+        subtitulo={t('estiloSubtitulo')}
+        podeCriar={await podeCriarItem(userId)}
+      />
+
+      <div className="mt-6" />
+
+      <EditorEstilo
+        inicial={profile.theme ?? 'light'}
+        previa={
+          pagina?.profile ? (
+            <MinisiteeConteudo
+              profile={pagina.profile}
+              items={pagina.items}
+              idioma={idiomaValido(pagina.profile.locale)}
+            />
+          ) : null
+        }
+      />
     </main>
   )
 }

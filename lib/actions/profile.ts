@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
 
@@ -135,7 +135,10 @@ export async function atualizarProfile(input: AtualizarProfileInput) {
   }
 
   revalidatePath('/painel', 'layout')
-  if (atual?.username) revalidatePath(`/${atual.username}`)
+  if (atual?.username) {
+    revalidatePath(`/${atual.username}`)
+    revalidateTag(`catalogo:${atual.username}`)
+  }
   return { ok: true as const }
 }
 
@@ -158,7 +161,10 @@ export async function atualizarEstilo(theme: string) {
   if (error) return { erro: 'Não foi possível salvar o estilo.' }
 
   revalidatePath('/painel', 'layout')
-  if (perfil?.username) revalidatePath(`/${perfil.username}`)
+  if (perfil?.username) {
+    revalidatePath(`/${perfil.username}`)
+    revalidateTag(`catalogo:${perfil.username}`)
+  }
   return { ok: true as const }
 }
 

@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
+import { caminhoDaUrl } from '@/lib/storage'
 
 const USERNAME_RE = /^[a-z0-9_-]{7,30}$/
 
@@ -168,3 +169,69 @@ export async function atualizarEstilo(theme: string) {
   return { ok: true as const }
 }
 
+
+function revalidarPerfil(username: string | null) {
+  revalidatePath('/painel', 'layout')
+  if (username) {
+    revalidatePath(`/${username}`)
+    revalidateTag(`catalogo:${username}`)
+  }
+}
+
+export async function definirAvatar(url: string) {
+  const userId = await getUserId()
+  if (!userId) return { erro: 'Sessão expirada. Entre novamente.' }
+
+  // So aceita arquivo do proprio usuario no bucket: a URL vem do cliente.
+  const caminho = caminhoDaUrl(url)
+  if (!caminho || !caminho.startsWith(`${userId}/`)) {
+    return { erro: 'Imagem inválida.' }
+  }
+
+  const supabase = await createClient()
+  const { data: atual } = await supabase
+    .from('profiles')
+    .select('username, avatar_url')
+    .eq('id', userId)
+    .maybeSingle()
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_url: url })
+    .eq('id', userId)
+
+  if (error) return { erro: 'Não foi possível salvar a imagem.' }
+
+  const anterior = atual?.avatar_url ? caminhoDaUrl(atual.avatar_url) : null
+  if (anterior && anterior !== caminho) {
+    await supabase.storage.from('media').remove([anterior])
+  }
+
+  revalidarPerfil(atual?.username ?? null)
+  return { ok: true as const }
+}
+
+export async function removerAvatar() {
+  const userId = await getUserId()
+  if (!userId) return { erro: 'Sessão expirada. Entre novamente.' }
+
+  const supabase = await createClient()
+  const { data: atual } = await supabase
+    .from('profiles')
+    .select('username, avatar_url')
+    .eq('id', userId)
+    .maybeSingle()
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_url: null })
+    .eq('id', userId)
+
+  if (error) return { erro: 'Não foi possível remover a imagem.' }
+
+  const caminho = atual?.avatar_url ? caminhoDaUrl(atual.avatar_url) : null
+  if (caminho) await supabase.storage.from('media').remove([caminho])
+
+  revalidarPerfil(atual?.username ?? null)
+  return { ok: true as const }
+}

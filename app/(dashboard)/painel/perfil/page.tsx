@@ -18,7 +18,7 @@ export default async function PerfilPage({
   const supabase = await createClient()
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, display_name, headline, bio, city, whatsapp, locale, plan, stripe_subscription_id, current_period_end')
+    .select('username, display_name, headline, bio, city, whatsapp, locale, plan, avatar_url, stripe_subscription_id, current_period_end')
     .eq('id', userId)
     .maybeSingle()
 
@@ -26,6 +26,7 @@ export default async function PerfilPage({
 
   const inicial: PerfilForm = {
     username: profile.username,
+    avatarUrl: profile.avatar_url ?? null,
     displayName: profile.display_name ?? '',
     headline: profile.headline ?? '',
     bio: profile.bio ?? '',

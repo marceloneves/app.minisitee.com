@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { atualizarProfile } from '@/lib/actions/profile'
 import { Assinatura } from '@/components/assinatura'
+import { AvatarUploader } from '@/components/avatar-uploader'
 import { CampoTelefone } from '@/components/campo-telefone'
 import { IDIOMAS } from '@/lib/i18n/dicionarios'
 import { juntarTelefone, separarTelefone } from '@/lib/paises'
@@ -11,6 +12,7 @@ import { useT } from '@/lib/i18n/contexto'
 
 export type PerfilForm = {
   username: string
+  avatarUrl: string | null
   displayName: string
   headline: string
   bio: string
@@ -78,6 +80,8 @@ export function EditorPerfil({
     <div className="space-y-8">
       <section className="space-y-4">
         <h2 className="text-sm font-semibold text-muted">{t('seusDados')}</h2>
+
+        <AvatarUploader inicial={inicial.avatarUrl} />
 
         <Campo
           id="nome"

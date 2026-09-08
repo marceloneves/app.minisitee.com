@@ -45,6 +45,8 @@ export default async function VisualizarPage() {
         />
         <Link
           href={`/${profile.username}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="mt-3 inline-block text-sm text-muted underline underline-offset-4"
         >
           {t('abrirPublico')}

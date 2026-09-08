@@ -11,6 +11,7 @@ export function FormularioLogin() {
   const [linkEnviado, setLinkEnviado] = useState(false)
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [senhaVisivel, setSenhaVisivel] = useState(false)
   const [ocupado, setOcupado] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 
@@ -105,23 +106,59 @@ export function FormularioLogin() {
       >
         {t('senha')}
       </label>
-      <input
-        id="senha"
-        type="password"
-        autoComplete={criando ? 'new-password' : 'current-password'}
-        value={senha}
-        onChange={(e) => {
-          setSenha(e.target.value)
-          setErro(null)
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !ocupado) enviar()
-        }}
-        disabled={ocupado}
-        className={`mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg disabled:opacity-60 ${
-          recuperando ? 'hidden' : ''
-        }`}
-      />
+      <div className={`relative mt-2 ${recuperando ? 'hidden' : ''}`}>
+        <input
+          id="senha"
+          type={senhaVisivel ? 'text' : 'password'}
+          autoComplete={criando ? 'new-password' : 'current-password'}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          value={senha}
+          onChange={(e) => {
+            setSenha(e.target.value)
+            setErro(null)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !ocupado) enviar()
+          }}
+          disabled={ocupado}
+          className="w-full rounded-xl border border-border bg-bg py-3 pl-4 pr-12 text-base outline-none focus:border-fg disabled:opacity-60"
+        />
+        <button
+          type="button"
+          onClick={() => setSenhaVisivel((v) => !v)}
+          aria-label={senhaVisivel ? t('ocultarSenha') : t('mostrarSenha')}
+          aria-pressed={senhaVisivel}
+          title={senhaVisivel ? t('ocultarSenha') : t('mostrarSenha')}
+          disabled={ocupado}
+          className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-muted hover:text-fg disabled:opacity-60"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="size-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            {senhaVisivel ? (
+              <>
+                <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z" />
+                <circle cx="12" cy="12" r="2.75" />
+                <path d="m4 20 16-16" />
+              </>
+            ) : (
+              <>
+                <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z" />
+                <circle cx="12" cy="12" r="2.75" />
+              </>
+            )}
+          </svg>
+        </button>
+      </div>
 
       {erro && (
         <p role="alert" className="mt-2 text-sm text-red-600">

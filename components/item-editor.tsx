@@ -7,7 +7,7 @@ import { ArquivoUploader } from '@/components/arquivo-uploader'
 import { RedeIcone } from '@/components/rede-icone'
 import { useIdioma, useT } from '@/lib/i18n/contexto'
 import { DIAS, ROTULO_STATUS, TIPOS } from '@/lib/i18n/dicionarios'
-import { salvarItem, type PatchItem } from '@/lib/actions/items'
+import { excluirItem, salvarItem, type PatchItem } from '@/lib/actions/items'
 import { currencyToCents, maskCurrency } from '@/lib/mask'
 import { slugify } from '@/lib/slug'
 import {
@@ -43,11 +43,13 @@ export function ItemEditor({
   username,
   fotosIniciais,
   slugManualInicial,
+  ehNovo,
 }: {
   inicial: ItemForm
   username: string
   fotosIniciais: Foto[]
   slugManualInicial: boolean
+  ehNovo: boolean
 }) {
   const t = useT()
   const idioma = useIdioma()
@@ -118,6 +120,21 @@ export function ItemEditor({
     return () => window.removeEventListener('beforeunload', avisar)
   }, [estado])
 
+  // Um item nasce gravado no banco (o upload de foto precisa do id).
+  // Cancelar a criação tem que apagar esse rascunho; cancelar a edição
+  // de um item que já existia só volta sem salvar.
+  function cancelar() {
+    if (ehNovo && estado !== 'salvo') {
+      setEstado('salvando')
+      void excluirItem(form.id).then(() => {
+        router.push('/painel')
+        router.refresh()
+      })
+      return
+    }
+    router.push('/painel')
+  }
+
   function mudarDados(patch: Partial<DadosItem>) {
     setEstado('sujo')
     setForm((f) => ({ ...f, dados: { ...f.dados, ...patch } }))
@@ -140,6 +157,16 @@ export function ItemEditor({
         <span className="text-xs text-muted">{TIPOS[idioma][form.kind].nome}</span>
         <div className="flex items-center gap-3">
           <IndicadorSalvamento estado={estado} erro={erro} />
+
+          <button
+            type="button"
+            disabled={estado === 'salvando'}
+            onClick={cancelar}
+            className="rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-50"
+          >
+            {t('cancelar')}
+          </button>
+
           <button
             type="button"
             onClick={() => void salvar(form)}

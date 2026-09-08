@@ -58,13 +58,34 @@ export default async function PainelPage() {
         subtitulo={
           ehFree ? t('limiteContador', { n: itens.length, max: MAX_ITENS_FREE }) : undefined
         }
-        podeCriar={!noLimite}
       />
 
-      {noLimite && (
+      {noLimite ? (
         <p className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {t('erroLimiteFree', { max: MAX_ITENS_FREE })}
         </p>
+      ) : (
+        itens.length > 0 && (
+          <div className="mt-5 flex justify-end">
+            <Link
+              href="/painel/novo"
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand py-2 pl-3 pr-4 text-sm font-medium text-brand-fg"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="size-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              >
+                <path d="M12 5.5v13M5.5 12h13" />
+              </svg>
+              {t('novoItem')}
+            </Link>
+          </div>
+        )
       )}
 
       {itens.length === 0 ? (

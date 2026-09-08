@@ -1,5 +1,6 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { SeletorTipoItem } from '@/components/seletor-tipo-item'
 import { getUserId } from '@/lib/auth'
 import { MAX_ITENS_FREE } from '@/lib/constants'
@@ -30,17 +31,17 @@ export default async function NovoItemPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-6">
-      <Link href="/painel" className="text-sm text-muted underline underline-offset-4">
-        {t('voltar')}
-      </Link>
-
-      <h1 className="mt-4 text-xl font-semibold tracking-tight">
-        {t('oQueAdicionar')}
-      </h1>
-      <p className="mt-1 text-sm text-muted">{t('escolhaTipo')}</p>
+    <main className="mx-auto w-full max-w-3xl px-4 py-6">
+      <CabecalhoPainel titulo={t('oQueAdicionar')} subtitulo={t('escolhaTipo')} />
 
       <SeletorTipoItem idioma={idioma} />
+
+      <Link
+        href="/painel"
+        className="mt-4 block rounded-xl border border-border px-4 py-2.5 text-center text-sm"
+      >
+        {t('cancelar')}
+      </Link>
     </main>
   )
 }

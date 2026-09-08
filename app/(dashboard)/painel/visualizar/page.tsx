@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { MinisiteeConteudo } from '@/components/minisitee-conteudo'
 import { getUserId } from '@/lib/auth'
-import { podeCriarItem } from '@/lib/limite'
 import { idiomaValido } from '@/lib/i18n/dicionarios'
 import { getT } from '@/lib/i18n/servidor'
 import { createClient } from '@/lib/supabase/server'
@@ -43,7 +42,6 @@ export default async function VisualizarPage() {
         <CabecalhoPainel
           titulo={t('verSite')}
           subtitulo={t('previaTexto')}
-          podeCriar={await podeCriarItem(userId)}
         />
         <Link
           href={`/${profile.username}`}

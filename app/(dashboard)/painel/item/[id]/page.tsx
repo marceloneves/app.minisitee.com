@@ -61,6 +61,7 @@ export default async function EditorItemPage({
       username={profile?.username ?? ''}
       fotosIniciais={(fotos ?? []) as Foto[]}
       slugManualInicial={item.slug !== slugify(item.title ?? '')}
+      ehNovo={item.created_at === item.updated_at}
     />
   )
 }

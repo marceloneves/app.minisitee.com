@@ -1,6 +1,7 @@
 import { headers } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { EnderecoCopiavel } from '@/components/endereco-copiavel'
 import { LogoMarca } from '@/components/logo'
 import { NavPainel } from '@/components/nav-painel'
 import { ehAdmin } from '@/lib/admin'
@@ -39,17 +40,20 @@ export default async function PainelLayout({
         {profile && (
           <header className="sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur">
             <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-              <Link href="/painel" className="flex min-w-0 items-center gap-2">
-                <LogoMarca className="size-8 shrink-0" />
+              <div className="flex min-w-0 items-center gap-2">
+                <Link href="/painel" className="shrink-0">
+                  <LogoMarca className="size-8" />
+                </Link>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold">
+                  <Link
+                    href="/painel"
+                    className="block truncate text-sm font-semibold"
+                  >
                     {profile.display_name}
-                  </span>
-                  <span className="block truncate text-xs text-muted">
-                    minisitee.com/{profile.username}
-                  </span>
+                  </Link>
+                  <EnderecoCopiavel username={profile.username} />
                 </span>
-              </Link>
+              </div>
 
               <NavPainel admin={admin} />
             </div>

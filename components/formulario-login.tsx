@@ -7,7 +7,8 @@ import { createClient } from '@/lib/supabase/client'
 
 export function FormularioLogin() {
   const t = useT()
-  const [modo, setModo] = useState<'entrar' | 'criar'>('entrar')
+  const [modo, setModo] = useState<'entrar' | 'criar' | 'recuperar'>('entrar')
+  const [linkEnviado, setLinkEnviado] = useState(false)
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [ocupado, setOcupado] = useState(false)
@@ -20,6 +21,19 @@ export function FormularioLogin() {
       setErro(t('emailInvalido'))
       return
     }
+    if (modo === 'recuperar') {
+      setOcupado(true)
+      setErro(null)
+      const base = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
+      await createClient().auth.resetPasswordForEmail(valor, {
+        redirectTo: `${base}/auth/recuperar`,
+      })
+      // Resposta igual com ou sem conta: não revela quem existe na base.
+      setOcupado(false)
+      setLinkEnviado(true)
+      return
+    }
+
     if (senha.length < 6) {
       setErro(modo === 'criar' ? t('senhaCurta') : t('preenchaEmailSenha'))
       return
@@ -49,16 +63,21 @@ export function FormularioLogin() {
   }
 
   const criando = modo === 'criar'
+  const recuperando = modo === 'recuperar'
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6">
       <Logo className="mb-6" />
 
       <h1 className="text-2xl font-semibold tracking-tight">
-        {criando ? t('criarConta') : t('entrar')}
+        {recuperando ? t('recuperarTitulo') : criando ? t('criarConta') : t('entrar')}
       </h1>
       <p className="mt-2 text-sm text-muted">
-        {criando ? t('loginSubtituloCriar') : t('loginSubtituloEntrar')}
+        {recuperando
+          ? t('recuperarSubtitulo')
+          : criando
+            ? t('loginSubtituloCriar')
+            : t('loginSubtituloEntrar')}
       </p>
 
       <label htmlFor="email" className="mt-8 block text-sm font-medium">
@@ -80,7 +99,10 @@ export function FormularioLogin() {
         className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg disabled:opacity-60"
       />
 
-      <label htmlFor="senha" className="mt-4 block text-sm font-medium">
+      <label
+        htmlFor="senha"
+        className={`mt-4 block text-sm font-medium ${recuperando ? 'hidden' : ''}`}
+      >
         {t('senha')}
       </label>
       <input
@@ -96,12 +118,19 @@ export function FormularioLogin() {
           if (e.key === 'Enter' && !ocupado) enviar()
         }}
         disabled={ocupado}
-        className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg disabled:opacity-60"
+        className={`mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg disabled:opacity-60 ${
+          recuperando ? 'hidden' : ''
+        }`}
       />
 
       {erro && (
         <p role="alert" className="mt-2 text-sm text-red-600">
           {erro}
+        </p>
+      )}
+      {linkEnviado && (
+        <p role="status" className="mt-2 text-sm text-green-700">
+          {t('linkSenhaEnviado')}
         </p>
       )}
 
@@ -112,24 +141,45 @@ export function FormularioLogin() {
         className="mt-6 w-full rounded-xl bg-brand px-4 py-3 text-base font-medium text-brand-fg disabled:opacity-60"
       >
         {ocupado
-          ? criando
-            ? t('criandoConta')
-            : t('entrando')
-          : criando
-            ? t('criarConta')
-            : t('entrar')}
+          ? recuperando
+            ? t('enviando')
+            : criando
+              ? t('criandoConta')
+              : t('entrando')
+          : recuperando
+            ? t('enviarLinkSenha')
+            : criando
+              ? t('criarConta')
+              : t('entrar')}
       </button>
 
-      <button
-        type="button"
-        onClick={() => {
-          setModo(criando ? 'entrar' : 'criar')
-          setErro(null)
-        }}
-        className="mt-4 text-sm text-muted underline underline-offset-4"
-      >
-        {criando ? t('jaTenhoConta') : t('naoTenhoConta')}
-      </button>
+      <div className="mt-4 flex flex-col items-start gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            setModo(criando || recuperando ? 'entrar' : 'criar')
+            setErro(null)
+            setLinkEnviado(false)
+          }}
+          className="text-sm text-muted underline underline-offset-4"
+        >
+          {criando || recuperando ? t('jaTenhoConta') : t('naoTenhoConta')}
+        </button>
+
+        {!recuperando && (
+          <button
+            type="button"
+            onClick={() => {
+              setModo('recuperar')
+              setErro(null)
+              setLinkEnviado(false)
+            }}
+            className="text-sm text-muted underline underline-offset-4"
+          >
+            {t('esqueciSenha')}
+          </button>
+        )}
+      </div>
     </main>
   )
 }

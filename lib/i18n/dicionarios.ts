@@ -180,8 +180,6 @@ const pt = {
   fechado: 'Fechado',
   as: 'às',
 
-  voceEstaVendo: 'Você está vendo seu minisitee como um visitante vê.',
-  voltarPainel: 'Voltar ao painel',
   nenhumItem: 'Nenhum item publicado ainda.',
   verRota: 'Ver rota no mapa',
   feitoCom: 'Feito com minisitee.com',
@@ -360,8 +358,6 @@ const en: Dicionario = {
   fechado: 'Closed',
   as: 'to',
 
-  voceEstaVendo: 'You are seeing your minisitee the way a visitor sees it.',
-  voltarPainel: 'Back to dashboard',
   nenhumItem: 'Nothing published yet.',
   verRota: 'Get directions',
   feitoCom: 'Made with minisitee.com',
@@ -538,8 +534,6 @@ const es: Dicionario = {
   fechado: 'Cerrado',
   as: 'a',
 
-  voceEstaVendo: 'Estás viendo tu minisitee como lo ve un visitante.',
-  voltarPainel: 'Volver al panel',
   nenhumItem: 'Todavía no hay nada publicado.',
   verRota: 'Cómo llegar',
   feitoCom: 'Hecho con minisitee.com',

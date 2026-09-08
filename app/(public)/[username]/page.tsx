@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
-import { BarraDono } from '@/components/barra-dono'
 import { MinisiteeConteudo } from '@/components/minisitee-conteudo'
 import { montarSchema, serializarSchema } from '@/lib/schema'
 import { createPublicClient } from '@/lib/supabase/publico'
@@ -96,7 +95,6 @@ export default async function CatalogoPage({
           __html: serializarSchema(montarSchema(profile, items, base)),
         }}
       />
-      <BarraDono profileId={profile.id} />
       <MinisiteeConteudo profile={profile} items={items} idioma={idioma} />
       </div>
     </ProvedorIdioma>

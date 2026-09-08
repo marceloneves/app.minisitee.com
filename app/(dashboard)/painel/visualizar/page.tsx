@@ -6,6 +6,7 @@ import { getUserId } from '@/lib/auth'
 import { idiomaValido } from '@/lib/i18n/dicionarios'
 import { getT } from '@/lib/i18n/servidor'
 import { createClient } from '@/lib/supabase/server'
+import { urlPublica } from '@/lib/site'
 import { temaValido, type PaginaCatalogo } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -44,7 +45,7 @@ export default async function VisualizarPage() {
           subtitulo={t('previaTexto')}
         />
         <Link
-          href={`/${profile.username}`}
+          href={urlPublica(profile.username)}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-3 inline-block text-sm text-muted underline underline-offset-4"

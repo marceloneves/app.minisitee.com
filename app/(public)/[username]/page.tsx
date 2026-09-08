@@ -7,6 +7,7 @@ import { montarSchema, serializarSchema } from '@/lib/schema'
 import { createPublicClient } from '@/lib/supabase/publico'
 import { ProvedorIdioma } from '@/lib/i18n/contexto'
 import { idiomaValido } from '@/lib/i18n/dicionarios'
+import { basePublica } from '@/lib/site'
 import { temaValido, type PaginaCatalogo } from '@/lib/types'
 
 export const revalidate = 3600
@@ -84,7 +85,7 @@ export default async function CatalogoPage({
   const { profile, items } = pagina
   const idioma = idiomaValido(profile.locale)
 
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://minisitee.com'
+  const base = basePublica()
 
   return (
     <ProvedorIdioma idioma={idioma}>

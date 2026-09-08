@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Logo } from '@/components/logo'
 import { useT } from '@/lib/i18n/contexto'
+import { basePainel } from '@/lib/site'
 import { createClient } from '@/lib/supabase/client'
 
 export function FormularioLogin() {
@@ -25,7 +26,7 @@ export function FormularioLogin() {
     if (modo === 'recuperar') {
       setOcupado(true)
       setErro(null)
-      const base = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
+      const base = basePainel(window.location.origin)
       await createClient().auth.resetPasswordForEmail(valor, {
         redirectTo: `${base}/auth/recuperar`,
       })

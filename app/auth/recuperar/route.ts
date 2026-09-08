@@ -1,11 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { basePainel } from '@/lib/site'
 import { createClient } from '@/lib/supabase/server'
 
 // Route Handler porque a troca do código precisa gravar cookie de sessão,
 // coisa que Server Component não faz.
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? origin
+  const base = basePainel(origin)
   const code = searchParams.get('code')
 
   if (!code) {

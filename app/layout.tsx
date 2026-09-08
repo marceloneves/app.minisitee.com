@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { basePublica } from '@/lib/site'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(basePublica()),
   title: { default: 'minisitee', template: '%s · minisitee' },
   description: 'Seu minisitee: seu catálogo em um link, pronto para o Instagram.',
 }

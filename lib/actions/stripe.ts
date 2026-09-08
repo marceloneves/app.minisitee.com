@@ -4,10 +4,11 @@ import { redirect } from 'next/navigation'
 import { getUserId } from '@/lib/auth'
 import { createStripe, stripeConfigurado } from '@/lib/stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { basePainel } from '@/lib/site'
 import { createClient } from '@/lib/supabase/server'
 
 function base() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001'
+  return basePainel()
 }
 
 async function perfilComEmail(userId: string) {

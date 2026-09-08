@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useT } from '@/lib/i18n/contexto'
+import { enderecoPublico, urlPublica } from '@/lib/site'
 
 export function EnderecoCopiavel({ username }: { username: string }) {
   const t = useT()
@@ -14,9 +15,8 @@ export function EnderecoCopiavel({ username }: { username: string }) {
   }, [estado])
 
   async function copiar() {
-    const base = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
     try {
-      await navigator.clipboard.writeText(`${base}/${username}`)
+      await navigator.clipboard.writeText(urlPublica(username))
       setEstado('copiado')
     } catch {
       setEstado('erro')
@@ -32,7 +32,7 @@ export function EnderecoCopiavel({ username }: { username: string }) {
         title={t('copiarEndereco')}
         className="flex max-w-full items-center gap-1 text-xs text-muted hover:text-fg"
       >
-        <span className="truncate">minisitee.com/{username}</span>
+        <span className="truncate">{enderecoPublico(username)}</span>
         <svg
           viewBox="0 0 24 24"
           aria-hidden="true"

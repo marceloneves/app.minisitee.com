@@ -5,6 +5,9 @@ const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
   : undefined
 
 const nextConfig: NextConfig = {
+  // Permite conferir o build sem derrubar o `next dev`, que serve da mesma
+  // pasta: NEXT_DIST_DIR=.next-build npm run build.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   images: {
     remotePatterns: supabaseHost
       ? [

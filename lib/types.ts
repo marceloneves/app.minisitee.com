@@ -121,13 +121,14 @@ export const STATUS_ITEM = [
   ['encerrado', 'Encerrado'],
 ] as const
 
+// O fundo da pagina e branco em todo estilo; a amostra do seletor mostra a
+// cor de superficie, que e o que de fato muda de um estilo para outro.
 export const ESTILOS = [
-  ['light', 'Claro', '#ffffff', '#18181b'],
-  ['dark', 'Escuro', '#0b0b0d', '#fafafa'],
-  ['areia', 'Areia', '#fffbf5', '#c2410c'],
-  ['menta', 'Menta', '#f6fdfa', '#0f766e'],
-  ['oceano', 'Oceano', '#f5f9ff', '#1d4ed8'],
-  ['rosa', 'Rosa', '#fff7fa', '#be185d'],
+  ['light', 'Claro', '#f7f7f8', '#18181b'],
+  ['areia', 'Areia', '#fff3e2', '#c2410c'],
+  ['menta', 'Menta', '#e7f7f0', '#0f766e'],
+  ['oceano', 'Oceano', '#e6f0fd', '#1d4ed8'],
+  ['rosa', 'Rosa', '#fdeaf1', '#be185d'],
 ] as const
 
 export function temaValido(theme: string | undefined) {

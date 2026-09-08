@@ -608,9 +608,9 @@ export const ROTULO_STATUS: Record<Idioma, Record<string, string>> = {
 }
 
 export const ROTULO_ESTILO: Record<Idioma, Record<string, string>> = {
-  pt: { light: 'Claro', dark: 'Escuro', areia: 'Areia', menta: 'Menta', oceano: 'Oceano', rosa: 'Rosa' },
-  en: { light: 'Light', dark: 'Dark', areia: 'Sand', menta: 'Mint', oceano: 'Ocean', rosa: 'Rose' },
-  es: { light: 'Claro', dark: 'Oscuro', areia: 'Arena', menta: 'Menta', oceano: 'Océano', rosa: 'Rosa' },
+  pt: { light: 'Claro', areia: 'Areia', menta: 'Menta', oceano: 'Oceano', rosa: 'Rosa' },
+  en: { light: 'Light', areia: 'Sand', menta: 'Mint', oceano: 'Ocean', rosa: 'Rose' },
+  es: { light: 'Claro', areia: 'Arena', menta: 'Menta', oceano: 'Océano', rosa: 'Rosa' },
 }
 
 export const DIAS: Record<Idioma, Record<string, string>> = {

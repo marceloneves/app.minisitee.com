@@ -60,7 +60,9 @@ for (const { username } of perfis) {
     continue
   }
 
-  const destino = join(DIR, `${username}.html`)
+  const pasta = join(DIR, username)
+  await mkdir(pasta, { recursive: true })
+  const destino = join(pasta, 'index.html')
   await writeFile(`${destino}.tmp`, await pagina.text(), 'utf8')
   await rename(`${destino}.tmp`, destino)
   feitos++

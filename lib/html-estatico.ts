@@ -1,6 +1,6 @@
 import 'server-only'
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 
 // O link publico nao pode consultar o banco a cada visita. Quando o minisite
 // muda, a pagina e gravada como HTML na pasta da landing e o proprio servidor
@@ -10,18 +10,21 @@ import { dirname, join } from 'node:path'
 const DIR = process.env.HTML_DIR
 const ORIGEM = process.env.HTML_ORIGEM ?? 'http://127.0.0.1:3001'
 
-function arquivoDe(username: string) {
+// Uma pasta por minisite: minisites/<username>/index.html. Assim cada um fica
+// isolado e pode ganhar arquivos proprios depois.
+function pastaDe(username: string) {
   // username so tem [a-z0-9_-], mas o caminho vem de dado do banco: barra ou
   // ponto-ponto aqui sairiam da pasta.
   if (!/^[a-z0-9_-]+$/.test(username)) return null
-  return join(DIR!, `${username}.html`)
+  return join(DIR!, username)
 }
 
 export async function publicarHtml(username: string) {
   if (!DIR) return
 
-  const destino = arquivoDe(username)
-  if (!destino) return
+  const pasta = pastaDe(username)
+  if (!pasta) return
+  const destino = join(pasta, 'index.html')
 
   try {
     const resposta = await fetch(`${ORIGEM}/${username}`, {
@@ -37,7 +40,7 @@ export async function publicarHtml(username: string) {
     }
 
     const html = await resposta.text()
-    await mkdir(dirname(destino), { recursive: true })
+    await mkdir(pasta, { recursive: true })
 
     // Grava em arquivo temporario e renomeia: quem pedir a pagina no meio da
     // troca recebe a versao antiga inteira, nunca um HTML pela metade.
@@ -52,7 +55,7 @@ export async function publicarHtml(username: string) {
 
 export async function removerHtml(username: string) {
   if (!DIR) return
-  const destino = arquivoDe(username)
-  if (!destino) return
-  await rm(destino, { force: true }).catch(() => {})
+  const pasta = pastaDe(username)
+  if (!pasta) return
+  await rm(pasta, { force: true, recursive: true }).catch(() => {})
 }

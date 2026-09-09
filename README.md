@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# minisitee
 
-## Getting Started
+Catálogo em um link. Next.js 15 (App Router, Turbopack), Supabase e Stripe.
 
-First, run the development server:
+## Rodando local
 
 ```bash
+npm install
+cp .env.local.example .env.local   # preencha as chaves
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O `next dev` e o `next build` gravam na mesma pasta `.next`, e um derruba o
+outro. Para conferir um build com o servidor de desenvolvimento no ar:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_DIST_DIR=.next-build npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Domínios
 
-## Learn More
+São dois, servidos pelo mesmo app:
 
-To learn more about Next.js, take a look at the following resources:
+- `minisitee.com` — a landing (arquivos estáticos) e os perfis públicos
+  (`minisitee.com/usuario`). É o valor de `NEXT_PUBLIC_SITE_URL`, usado no link
+  público, no canonical e no OG.
+- `app.minisitee.com` — o painel. É o `NEXT_PUBLIC_APP_URL`, usado na volta do
+  Stripe e no link de recuperar senha. Vazio, cai na origem da requisição.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+No domínio raiz, o LiteSpeed serve o arquivo quando ele existe em
+`public_html` e repassa o resto para o app na `127.0.0.1:3001`
+(regra em `public_html/.htaccess`).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Publicando
 
-## Deploy on Vercel
+Push na `main` → webhook do GitHub chama `deploy.php` → `deploy-minisitee.sh`,
+que faz `fetch`, `reset --hard`, `npm install`, `npm run build` e
+`pm2 restart app-minisitee`. O andamento fica em `deploy.log`, na raiz do
+projeto no servidor.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Para publicar na mão, na VPS:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+/usr/local/bin/deploy-minisitee.sh && tail -5 deploy.log
+```
+
+## Banco
+
+Migrations em `supabase/migrations/`, aplicadas com `supabase db push` ou pelo
+SQL editor do painel do Supabase.

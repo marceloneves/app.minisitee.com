@@ -60,8 +60,9 @@ export function FormularioLogin() {
       return
     }
 
-    const proxima = new URLSearchParams(window.location.search).get('redirect')
-    window.location.assign(proxima?.startsWith('/') ? proxima : '/painel')
+    // Entrar abre sempre a edicao do minisitee, mesmo para quem chegou no
+    // login vindo de uma tela mais funda do painel.
+    window.location.assign('/painel')
   }
 
   const criando = modo === 'criar'

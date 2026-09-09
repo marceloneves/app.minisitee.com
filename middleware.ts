@@ -58,7 +58,6 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.search = ''
-    url.searchParams.set('redirect', request.nextUrl.pathname)
 
     const redirect = NextResponse.redirect(url)
     for (const cookie of response.cookies.getAll()) {

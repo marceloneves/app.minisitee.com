@@ -219,6 +219,9 @@ export function FormularioLogin() {
           </button>
         )}
       </div>
+      <p className="mt-8 text-center text-xs text-muted">
+        {t('versao', { n: process.env.NEXT_PUBLIC_VERSAO ?? '' })}
+      </p>
     </main>
   )
 }

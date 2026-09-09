@@ -41,3 +41,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 !.env.local.example
+
+# log da geracao automatica do HTML dos minisites
+publicar-html.log

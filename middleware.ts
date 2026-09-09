@@ -27,6 +27,17 @@ function soDoPainel(pathname: string) {
   )
 }
 
+// So estas rotas tem sessao. O minisite publico nao tem usuario logado, e
+// perguntar ao Supabase quem e o visitante custava uma ida na rede em toda
+// visita — a parte mais cara da resposta, para jogar fora o resultado.
+const ROTAS_COM_SESSAO = ['/login', '/nova-senha', '/painel', '/auth', '/api']
+
+function precisaDeSessao(pathname: string) {
+  return ROTAS_COM_SESSAO.some(
+    (r) => pathname === r || pathname.startsWith(`${r}/`)
+  )
+}
+
 export async function middleware(request: NextRequest) {
   const host = request.headers.get('host')?.replace(/^www\./, '')
   if (HOST_PAINEL && host === HOST_PAINEL && !soDoPainel(request.nextUrl.pathname)) {
@@ -37,6 +48,8 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
 
   let response = NextResponse.next({ request: { headers: requestHeaders } })
+
+  if (!precisaDeSessao(request.nextUrl.pathname)) return response
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

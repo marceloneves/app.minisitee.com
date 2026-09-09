@@ -1,4 +1,5 @@
 import 'server-only'
+import { after } from 'next/server'
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -17,6 +18,19 @@ function pastaDe(username: string) {
   // ponto-ponto aqui sairiam da pasta.
   if (!/^[a-z0-9_-]+$/.test(username)) return null
   return join(DIR!, username)
+}
+
+// O `after` do Next roda a funcao depois que a resposta ja foi entregue: quem
+// clicou em salvar nao espera a pagina publica ser montada e gravada, que e
+// meio segundo de trabalho que ninguem esta esperando ver.
+export function agendarPublicacao(username: string) {
+  after(async () => {
+    try {
+      await publicarHtml(username)
+    } catch {
+      // publicarHtml ja engole os proprios erros; isto e so a rede de seguranca
+    }
+  })
 }
 
 export async function publicarHtml(username: string) {

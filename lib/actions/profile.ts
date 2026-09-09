@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
+import { MAX_BIO } from '@/lib/constants'
 import { publicarHtml } from '@/lib/html-estatico'
 import { caminhoDaUrl } from '@/lib/storage'
 
@@ -123,7 +124,7 @@ export async function atualizarProfile(input: AtualizarProfileInput) {
     .update({
       display_name: input.displayName.trim(),
       headline: input.headline.trim() || null,
-      bio: input.bio.trim() || null,
+      bio: input.bio.trim().slice(0, MAX_BIO) || null,
       city: input.city.trim() || null,
       whatsapp: input.whatsapp,
       locale: ['pt', 'en', 'es'].includes(input.locale) ? input.locale : 'pt',

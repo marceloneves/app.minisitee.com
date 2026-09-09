@@ -1,38 +1,29 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
-import { unstable_cache } from 'next/cache'
-import { cache } from 'react'
 import { MinisiteeConteudo } from '@/components/minisitee-conteudo'
+import { buscarPagina } from '@/lib/catalogo'
 import { montarSchema, serializarSchema } from '@/lib/schema'
-import { createPublicClient } from '@/lib/supabase/publico'
 import { ProvedorIdioma } from '@/lib/i18n/contexto'
-import { idiomaValido } from '@/lib/i18n/dicionarios'
+import { DICIONARIOS, OG_LOCALE, idiomaValido } from '@/lib/i18n/dicionarios'
+import { MAX_BIO } from '@/lib/constants'
 import { basePublica } from '@/lib/site'
-import { temaValido, type PaginaCatalogo } from '@/lib/types'
+import { temaValido } from '@/lib/types'
 
 export const revalidate = 3600
 
-// unstable_cache guarda o resultado entre requisicoes. Sem isso cada visita
-// faz um POST na RPC, e POST o Next nunca cacheia sozinho.
-const buscarNoBanco = (username: string) =>
-  unstable_cache(
-    async (): Promise<PaginaCatalogo | null> => {
-      const supabase = createPublicClient()
-      const { data, error } = await supabase.rpc('get_catalog_page', {
-        p_username: username,
-      })
+// O fundo do minisite e branco em todo estilo. Sem theme-color a barra do
+// navegador no Android fica cinza em cima da pagina.
+export const viewport: Viewport = { themeColor: '#ffffff' }
 
-      if (error || !data) return null
-      const pagina = data as PaginaCatalogo
-      return pagina.profile ? pagina : null
-    },
-    ['catalogo', username],
-    { tags: [`catalogo:${username}`], revalidate: 3600 }
-  )()
-
-// cache() do React deduplica dentro da mesma requisicao: generateMetadata e a
-// pagina compartilham a chamada.
-const buscarPagina = cache((username: string) => buscarNoBanco(username))
+// Descricoes gravadas antes do limite podem passar de MAX_BIO; o Google corta
+// por volta disso, entao o corte sai aqui e cai numa palavra inteira.
+function resumir(texto: string) {
+  const limpo = texto.trim()
+  if (limpo.length <= MAX_BIO) return limpo
+  const corte = limpo.slice(0, MAX_BIO)
+  const espaco = corte.lastIndexOf(' ')
+  return `${(espaco > MAX_BIO / 2 ? corte.slice(0, espaco) : corte).trimEnd()}…`
+}
 
 export async function generateMetadata({
   params,
@@ -42,32 +33,61 @@ export async function generateMetadata({
   const { username } = await params
   const pagina = await buscarPagina(username)
 
-  if (!pagina?.profile) return { title: 'Página não encontrada' }
+  if (!pagina?.profile) return { title: { absolute: 'Página não encontrada' } }
 
   const { profile, items } = pagina
+  const idioma = idiomaValido(profile.locale)
+  const d = DICIONARIOS[idioma]
   const nome = profile.display_name ?? profile.username
-  const local = profile.city ? ` em ${profile.city}` : ''
-  const titulo = profile.headline ? `${nome} — ${profile.headline}` : nome
+  const local = profile.city ? ` ${d.emCidade} ${profile.city}` : ''
+  // Quem procura negocio local busca pelo lugar: o title segue o padrao
+  // "tipo de negocio em <cidade>", que e como a pessoa digita na busca.
+  const titulo = profile.headline
+    ? `${nome} — ${profile.headline}${local}`
+    : `${nome}${local}`
+  // A descricao do negocio e o que o dono escreveu para aparecer na busca. So
+  // quando ela esta vazia o resumo do catalogo entra no lugar.
   const descricao =
-    profile.bio?.trim() ||
+    resumir(profile.bio ?? '') ||
     `${items.length} ${items.length === 1 ? 'item disponível' : 'itens disponíveis'}${local}. Fale direto no WhatsApp.`
 
   return {
-    title: titulo,
+    // absolute derruba o template do layout: o minisite e da pessoa, o nome
+    // do produto nao entra no title nem gasta o espaco que o Google mostra.
+    title: { absolute: titulo },
     description: descricao,
     alternates: { canonical: `/${profile.username}` },
+    // O padrao do Google ja e indexar, mas sem max-image-preview grande a foto
+    // do negocio sai como miniatura na busca e no Discover.
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    // A aba e o atalho na tela de inicio ficam com a cara do negocio, nao com
+    // o icone do minisitee.
+    icons: profile.avatar_url
+      ? { icon: profile.avatar_url, apple: profile.avatar_url }
+      : undefined,
+    // Sem `images` aqui, o Next preenche og:image e twitter:image com o cartao
+    // de opengraph-image.tsx, ja com largura, altura e tipo.
     openGraph: {
       type: 'profile',
+      siteName: nome,
+      locale: OG_LOCALE[idioma],
       title: titulo,
       description: descricao,
       url: `/${profile.username}`,
-      images: profile.avatar_url ? [{ url: profile.avatar_url }] : undefined,
     },
     twitter: {
-      card: 'summary',
+      card: 'summary_large_image',
       title: titulo,
       description: descricao,
-      images: profile.avatar_url ? [profile.avatar_url] : undefined,
     },
   }
 }
@@ -89,7 +109,13 @@ export default async function CatalogoPage({
 
   return (
     <ProvedorIdioma idioma={idioma}>
-      <div data-tema={temaValido(profile.theme)} className="min-h-dvh bg-bg text-fg">
+      {/* O <html> do layout raiz e sempre pt-BR; o minisite pode estar em
+          outro idioma, e o lang aqui manda no leitor de tela e na busca. */}
+      <div
+        lang={idioma}
+        data-tema={temaValido(profile.theme)}
+        className="min-h-dvh bg-bg text-fg"
+      >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

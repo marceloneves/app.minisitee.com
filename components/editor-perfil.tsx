@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { atualizarProfile } from '@/lib/actions/profile'
+import { MAX_BIO } from '@/lib/constants'
 import { Assinatura } from '@/components/assinatura'
 import { AvatarUploader } from '@/components/avatar-uploader'
 import { CampoTelefone } from '@/components/campo-telefone'
@@ -114,8 +115,14 @@ export function EditorPerfil({
             value={form.bio}
             onChange={(e) => mudar('bio', e.target.value)}
             rows={3}
+            maxLength={MAX_BIO}
+            aria-describedby="bio-ajuda"
             className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
           />
+          <p id="bio-ajuda" className="mt-2 flex justify-between gap-4 text-xs text-muted">
+            <span>{t('bioAjuda')}</span>
+            <span>{form.bio.length}/{MAX_BIO}</span>
+          </p>
         </div>
 
         <CampoTelefone

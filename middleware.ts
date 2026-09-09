@@ -8,7 +8,17 @@ const HOST_PAINEL = process.env.NEXT_PUBLIC_APP_URL
   ? new URL(process.env.NEXT_PUBLIC_APP_URL).host
   : null
 
-const ROTAS_DO_PAINEL = ['/login', '/nova-senha', '/painel', '/auth', '/api']
+// robots.txt e sitemap.xml valem nos dois dominios: no do painel eles sao a
+// unica forma de dizer ao buscador para nao rastrear a area logada.
+const ROTAS_DO_PAINEL = [
+  '/login',
+  '/nova-senha',
+  '/painel',
+  '/auth',
+  '/api',
+  '/robots.txt',
+  '/sitemap.xml',
+]
 
 function soDoPainel(pathname: string) {
   return (

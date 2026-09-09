@@ -6,6 +6,13 @@ export const IDIOMAS = [
 
 export type Idioma = (typeof IDIOMAS)[number][0]
 
+// O Facebook e o WhatsApp querem o locale no formato idioma_PAIS.
+export const OG_LOCALE: Record<Idioma, string> = {
+  pt: 'pt_BR',
+  en: 'en_US',
+  es: 'es_ES',
+}
+
 export function idiomaValido(v: string | null | undefined): Idioma {
   return v === 'en' || v === 'es' ? v : 'pt'
 }
@@ -127,7 +134,8 @@ const pt = {
   nome: 'Nome',
   oQueVoceFaz: 'O que você faz',
   cidade: 'Cidade',
-  bio: 'Bio',
+  bio: 'Bio / Descrição do negócio',
+  bioAjuda: 'Aparece no Google e quando alguém compartilha o link.',
   whatsapp: 'WhatsApp',
   telefone: 'Número',
   enderecoSite: 'Endereço do minisitee',
@@ -187,6 +195,7 @@ const pt = {
   fechado: 'Fechado',
   as: 'às',
 
+  emCidade: 'em',
   nenhumItem: 'Nenhum item publicado ainda.',
   verRota: 'Ver rota no mapa',
   feitoCom: 'Feito com minisitee.com',
@@ -312,7 +321,8 @@ const en: Dicionario = {
   nome: 'Name',
   oQueVoceFaz: 'What you do',
   cidade: 'City',
-  bio: 'Bio',
+  bio: 'Bio / Business description',
+  bioAjuda: 'Shows on Google and when someone shares the link.',
   whatsapp: 'WhatsApp',
   telefone: 'Number',
   enderecoSite: 'Minisitee address',
@@ -372,6 +382,7 @@ const en: Dicionario = {
   fechado: 'Closed',
   as: 'to',
 
+  emCidade: 'in',
   nenhumItem: 'Nothing published yet.',
   verRota: 'Get directions',
   feitoCom: 'Made with minisitee.com',
@@ -495,7 +506,8 @@ const es: Dicionario = {
   nome: 'Nombre',
   oQueVoceFaz: 'A qué te dedicas',
   cidade: 'Ciudad',
-  bio: 'Bio',
+  bio: 'Bio / Descripción del negocio',
+  bioAjuda: 'Aparece en Google y cuando alguien comparte el enlace.',
   whatsapp: 'WhatsApp',
   telefone: 'Número',
   enderecoSite: 'Dirección del minisitee',
@@ -555,6 +567,7 @@ const es: Dicionario = {
   fechado: 'Cerrado',
   as: 'a',
 
+  emCidade: 'en',
   nenhumItem: 'Todavía no hay nada publicado.',
   verRota: 'Cómo llegar',
   feitoCom: 'Hecho con minisitee.com',

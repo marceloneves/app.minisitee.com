@@ -30,12 +30,13 @@ export function MinisiteeConteudo({
   const nome = profile.display_name ?? profile.username
 
   return (
+    <>
         <main className="mx-auto w-full max-w-3xl px-4 py-8">
           <header className="flex flex-col items-center text-center">
             {profile.avatar_url && (
               <Image
                 src={profile.avatar_url}
-                alt={nome}
+                alt=""
                 width={96}
                 height={96}
                 priority
@@ -60,9 +61,7 @@ export function MinisiteeConteudo({
           </header>
 
           {items.length === 0 ? (
-            <p className="mt-12 text-center text-sm text-muted">
-  {d.nenhumItem}
-            </p>
+            <p className="mt-12 text-center text-sm text-muted">{d.nenhumItem}</p>
           ) : (
             <div className="mt-8 space-y-4">
               {agrupar(items).map((bloco, b) =>
@@ -91,19 +90,21 @@ export function MinisiteeConteudo({
             </div>
           )}
 
-          {profile.plan === 'free' && (
-            <footer className="mt-12 pb-4 text-center">
-              <a
-                href={`https://minisitee.com?ref=${profile.username}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-muted underline underline-offset-4"
-              >
-                {d.feitoCom}
-              </a>
-            </footer>
-          )}
         </main>
+
+        {profile.plan === 'free' && (
+          <footer className="mx-auto w-full max-w-3xl px-4 pb-6 text-center">
+            <a
+              href={`https://minisitee.com?ref=${profile.username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted underline underline-offset-4"
+            >
+              {d.feitoCom}
+            </a>
+          </footer>
+        )}
+    </>
   )
 }
 
@@ -238,7 +239,13 @@ function BlocoHorario({ item, idioma, d }: { item: ItemPublico; idioma: Idioma; 
             <li key={chave} className="flex justify-between gap-4 text-base">
               <span>{DIAS[idioma][chave]}</span>
               <span className={dia.fechado ? 'text-muted' : 'font-medium'}>
-                {dia.fechado ? d.fechado : `${dia.abre} ${d.as} ${dia.fecha}`}
+                {dia.fechado ? (
+                  d.fechado
+                ) : (
+                  <>
+                    <time>{dia.abre}</time> {d.as} <time>{dia.fecha}</time>
+                  </>
+                )}
               </span>
             </li>
           )
@@ -261,7 +268,9 @@ function BlocoEndereco({ item, d }: { item: ItemPublico; d: Dicionario }) {
           <IconeSecao tipo="endereco" />
           {item.title}
         </h2>
-        <p className="mt-1 text-base">{endereco}</p>
+        <address className="mt-1 whitespace-pre-line text-base not-italic">
+          {endereco}
+        </address>
       </div>
 
       <iframe

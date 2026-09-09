@@ -38,6 +38,27 @@ if (!SUPABASE || !CHAVE) {
   process.exit(1)
 }
 
+// Chamado logo depois do `pm2 restart`, o app ainda esta subindo. Sem esperar,
+// o script gravaria o HTML do build velho — ou nada — e os minisites ficariam
+// apontando para arquivos /_next que o build novo ja apagou.
+async function esperarApp() {
+  for (let tentativa = 1; tentativa <= 30; tentativa++) {
+    try {
+      const r = await fetch(ORIGEM, { cache: 'no-store' })
+      if (r.ok || r.status === 404) return true
+    } catch {
+      // ainda nao esta escutando
+    }
+    await new Promise((ok) => setTimeout(ok, 2000))
+  }
+  return false
+}
+
+if (!(await esperarApp())) {
+  console.error(`O app nao respondeu em ${ORIGEM}. Nada foi gerado.`)
+  process.exit(1)
+}
+
 const resposta = await fetch(`${SUPABASE}/rest/v1/profiles?select=username`, {
   headers: { apikey: CHAVE, Authorization: `Bearer ${CHAVE}` },
 })

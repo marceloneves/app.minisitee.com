@@ -4,6 +4,7 @@
 //
 //   HTML_DIR=/home/minisitee.com/public_html node scripts/publicar-html.mjs
 import { readFile, mkdir, rename, rm, stat, writeFile } from 'node:fs/promises'
+import { rmSync } from 'node:fs'
 import { join } from 'node:path'
 
 async function carregarEnv() {
@@ -46,10 +47,15 @@ const TRAVA = join(DIR, '.publicando')
 
 try {
   const { mtimeMs } = await stat(TRAVA)
-  if (Date.now() - mtimeMs < 5 * 60 * 1000) {
-    console.log('Ja tem uma publicacao em andamento. Saindo.')
+  const minutos = (Date.now() - mtimeMs) / 60000
+
+  // Uma trava velha e sinal de rodada que morreu no meio, nao de rodada em
+  // andamento: seguir em frente e melhor do que deixar o site quebrado.
+  if (minutos >= 0 && minutos < 2) {
+    console.log(`Outra publicacao comecou ha ${minutos.toFixed(1)} min. Saindo.`)
     process.exit(0)
   }
+  console.log(`Trava de ${minutos.toFixed(0)} min ignorada: rodada anterior morreu.`)
 } catch {
   // sem trava e o caso normal
 }
@@ -89,6 +95,16 @@ if (!resposta.ok) {
 
 const perfis = await resposta.json()
 
+// Qualquer saida daqui para baixo tira a trava: sem isto, um erro no meio
+// deixaria o proximo restart preso.
+process.on('exit', () => {
+  try {
+    rmSync(TRAVA, { force: true })
+  } catch {
+    // nada a fazer no encerramento
+  }
+})
+
 let feitos = 0
 for (const { username } of perfis) {
   if (!/^[a-z0-9_-]+$/.test(username ?? '')) continue
@@ -109,4 +125,6 @@ for (const { username } of perfis) {
 
 await rm(TRAVA, { force: true })
 
-console.log(`HTML gerado para ${feitos} de ${perfis.length} minisites.`)
+console.log(
+  `[${new Date().toISOString()}] HTML gerado para ${feitos} de ${perfis.length} minisites.`
+)

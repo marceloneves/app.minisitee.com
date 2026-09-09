@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
+import { publicarHtml } from '@/lib/html-estatico'
 import { caminhoDaUrl } from '@/lib/storage'
 
 const USERNAME_RE = /^[a-z0-9_-]{7,30}$/
@@ -86,6 +87,7 @@ export async function criarProfile(input: CriarProfileInput) {
   }
 
   revalidatePath('/painel', 'layout')
+  await publicarHtml(username)
   return { ok: true as const }
 }
 
@@ -139,6 +141,7 @@ export async function atualizarProfile(input: AtualizarProfileInput) {
   if (atual?.username) {
     revalidatePath(`/${atual.username}`)
     revalidateTag(`catalogo:${atual.username}`)
+    await publicarHtml(atual.username)
   }
   return { ok: true as const }
 }
@@ -165,16 +168,18 @@ export async function atualizarEstilo(theme: string) {
   if (perfil?.username) {
     revalidatePath(`/${perfil.username}`)
     revalidateTag(`catalogo:${perfil.username}`)
+    await publicarHtml(perfil.username)
   }
   return { ok: true as const }
 }
 
 
-function revalidarPerfil(username: string | null) {
+async function revalidarPerfil(username: string | null) {
   revalidatePath('/painel', 'layout')
   if (username) {
     revalidatePath(`/${username}`)
     revalidateTag(`catalogo:${username}`)
+    await publicarHtml(username)
   }
 }
 
@@ -207,7 +212,7 @@ export async function definirAvatar(url: string) {
     await supabase.storage.from('media').remove([anterior])
   }
 
-  revalidarPerfil(atual?.username ?? null)
+  await revalidarPerfil(atual?.username ?? null)
   return { ok: true as const }
 }
 
@@ -232,6 +237,6 @@ export async function removerAvatar() {
   const caminho = atual?.avatar_url ? caminhoDaUrl(atual.avatar_url) : null
   if (caminho) await supabase.storage.from('media').remove([caminho])
 
-  revalidarPerfil(atual?.username ?? null)
+  await revalidarPerfil(atual?.username ?? null)
   return { ok: true as const }
 }

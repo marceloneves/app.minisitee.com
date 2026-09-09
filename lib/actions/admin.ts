@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { ehAdmin } from '@/lib/admin'
+import { publicarHtml, removerHtml } from '@/lib/html-estatico'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function trocarSenha(userId: string, senha: string) {
@@ -81,6 +82,8 @@ export async function trocarUsername(userId: string, novo: string) {
     revalidatePath(`/${nome}`)
     revalidateTag(`catalogo:${nome}`)
   }
+  await removerHtml(antes.username)
+  await publicarHtml(username)
   revalidatePath('/painel', 'layout')
   revalidatePath('/painel/admin')
 

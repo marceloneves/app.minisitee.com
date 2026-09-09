@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath, revalidateTag } from 'next/cache'
+import { publicarHtml } from '@/lib/html-estatico'
 import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
 import { MAX_FOTOS } from '@/lib/constants'
@@ -18,6 +19,7 @@ async function revalidarPublico(supabase: Supabase, userId: string) {
   if (data?.username) {
     revalidatePath(`/${data.username}`)
     revalidateTag(`catalogo:${data.username}`)
+    await publicarHtml(data.username)
   }
 }
 

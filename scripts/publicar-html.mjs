@@ -3,7 +3,7 @@
 // primeiro carregamento, quando ainda nao existe arquivo nenhum.
 //
 //   HTML_DIR=/home/minisitee.com/public_html node scripts/publicar-html.mjs
-import { readFile, mkdir, rename, writeFile } from 'node:fs/promises'
+import { readFile, mkdir, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 async function carregarEnv() {
@@ -38,6 +38,25 @@ if (!SUPABASE || !CHAVE) {
   process.exit(1)
 }
 
+// O app chama este script sozinho toda vez que sobe (instrumentation.ts).
+// Se o pm2 estiver reiniciando em sequencia, uma execucao ja em andamento
+// segura as outras: sem isso, uma sequencia de restarts empilharia copias
+// gravando os mesmos arquivos ao mesmo tempo.
+const TRAVA = join(DIR, '.publicando')
+
+try {
+  const { mtimeMs } = await stat(TRAVA)
+  if (Date.now() - mtimeMs < 5 * 60 * 1000) {
+    console.log('Ja tem uma publicacao em andamento. Saindo.')
+    process.exit(0)
+  }
+} catch {
+  // sem trava e o caso normal
+}
+
+await mkdir(DIR, { recursive: true })
+await writeFile(TRAVA, String(Date.now()), 'utf8')
+
 // Chamado logo depois do `pm2 restart`, o app ainda esta subindo. Sem esperar,
 // o script gravaria o HTML do build velho — ou nada — e os minisites ficariam
 // apontando para arquivos /_next que o build novo ja apagou.
@@ -69,7 +88,6 @@ if (!resposta.ok) {
 }
 
 const perfis = await resposta.json()
-await mkdir(DIR, { recursive: true })
 
 let feitos = 0
 for (const { username } of perfis) {
@@ -88,5 +106,7 @@ for (const { username } of perfis) {
   await rename(`${destino}.tmp`, destino)
   feitos++
 }
+
+await rm(TRAVA, { force: true })
 
 console.log(`HTML gerado para ${feitos} de ${perfis.length} minisites.`)

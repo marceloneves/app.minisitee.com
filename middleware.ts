@@ -1,7 +1,28 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// O dominio do painel hospeda so a aplicacao. O perfil publico nao existe la:
+// ele e criado uma vez, no dominio publico. Sem NEXT_PUBLIC_APP_URL definido
+// nada muda, entao uma configuracao faltando nao derruba o site.
+const HOST_PAINEL = process.env.NEXT_PUBLIC_APP_URL
+  ? new URL(process.env.NEXT_PUBLIC_APP_URL).host
+  : null
+
+const ROTAS_DO_PAINEL = ['/login', '/nova-senha', '/painel', '/auth', '/api']
+
+function soDoPainel(pathname: string) {
+  return (
+    pathname === '/' ||
+    ROTAS_DO_PAINEL.some((r) => pathname === r || pathname.startsWith(`${r}/`))
+  )
+}
+
 export async function middleware(request: NextRequest) {
+  const host = request.headers.get('host')?.replace(/^www\./, '')
+  if (HOST_PAINEL && host === HOST_PAINEL && !soDoPainel(request.nextUrl.pathname)) {
+    return new NextResponse(null, { status: 404 })
+  }
+
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
 

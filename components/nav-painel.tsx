@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { LogoutButton } from '@/components/logout-button'
 import { useT } from '@/lib/i18n/contexto'
 
-export function NavPainel({ admin }: { admin: boolean }) {
+export function NavPainel({ admin, cubo }: { admin: boolean; cubo: boolean }) {
   const t = useT()
   const pathname = usePathname()
 
@@ -15,7 +15,7 @@ export function NavPainel({ admin }: { admin: boolean }) {
 
   // Perfil e Admin sao secoes proprias. Todo o resto de /painel/* — estilo,
   // visualizar, novo, editor de item — continua sendo o Painel.
-  const SECOES = ['/painel/perfil', '/painel/admin']
+  const SECOES = ['/painel/perfil', '/painel/admin', '/painel/cubo']
   const emOutraSecao = SECOES.some((s) => pathname.startsWith(s))
 
   function classe(href: string) {
@@ -35,6 +35,11 @@ export function NavPainel({ admin }: { admin: boolean }) {
       {admin && (
         <Link href="/painel/admin" className={classe('/painel/admin')}>
           Admin
+        </Link>
+      )}
+      {cubo && (
+        <Link href="/painel/cubo" className={classe('/painel/cubo')}>
+          Cubo
         </Link>
       )}
       <LogoutButton />

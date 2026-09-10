@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { EnderecoCopiavel } from '@/components/endereco-copiavel'
 import { LogoMarca } from '@/components/logo'
 import { NavPainel } from '@/components/nav-painel'
-import { ehAdmin } from '@/lib/admin'
+import { ehAdmin, ehDonoDoCubo } from '@/lib/admin'
 import { getUserId } from '@/lib/auth'
 import { ProvedorIdioma } from '@/lib/i18n/contexto'
 import { getIdioma } from '@/lib/i18n/servidor'
@@ -32,6 +32,7 @@ export default async function PainelLayout({
   if (profile && naOnboarding) redirect('/painel')
 
   const admin = await ehAdmin()
+  const cubo = await ehDonoDoCubo()
   const idioma = await getIdioma()
 
   return (
@@ -55,7 +56,7 @@ export default async function PainelLayout({
                 </span>
               </div>
 
-              <NavPainel admin={admin} />
+              <NavPainel admin={admin} cubo={cubo} />
             </div>
           </header>
         )}

@@ -68,9 +68,35 @@ export const MEDIDAS: Record<
   ],
 }
 
-export const PADRAO: Record<Base, { linha: string; coluna: string; medida: string }> = {
-  usuarios: { linha: 'plano', coluna: 'idioma', medida: 'contas' },
-  itens: { linha: 'tipo', coluna: 'status', medida: 'itens' },
+// Cada eixo aceita varias dimensoes empilhadas, na ordem em que foram soltas.
+export type Zonas = {
+  linhas: string[]
+  colunas: string[]
+  fatias: string[]
+}
+
+export const PADRAO: Record<Base, { zonas: Zonas; medida: string }> = {
+  usuarios: {
+    zonas: { linhas: ['plano'], colunas: ['idioma'], fatias: [] },
+    medida: 'contas',
+  },
+  itens: {
+    zonas: { linhas: ['tipo'], colunas: ['status'], fatias: [] },
+    medida: 'itens',
+  },
+}
+
+// Separadores que nao aparecem em nenhum valor vindo do banco: servem para
+// virar uma combinacao de dimensoes numa chave de mapa.
+const NIVEL = '\u0001'
+const EIXO = '\u0002'
+
+export const chave = (valores: string[]) => valores.join(NIVEL)
+export const chaveCelula = (linha: string[], coluna: string[]) =>
+  `${chave(linha)}${EIXO}${chave(coluna)}`
+
+export function valoresDe(fato: LinhaFato, dims: string[]) {
+  return dims.map((d) => fato.dim[d] ?? VAZIO)
 }
 
 export function calcular(medida: string, fatos: LinhaFato[]): number | null {

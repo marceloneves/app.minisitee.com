@@ -8,8 +8,9 @@ const HOST_PAINEL = process.env.NEXT_PUBLIC_APP_URL
   ? new URL(process.env.NEXT_PUBLIC_APP_URL).host
   : null
 
-// robots.txt e sitemap.xml valem nos dois dominios: no do painel eles sao a
-// unica forma de dizer ao buscador para nao rastrear a area logada.
+// O robots.txt vale nos dois dominios: no do painel ele e a unica forma de
+// dizer ao buscador para nao rastrear a area logada. O sitemap dos minisites
+// nao entra aqui — ele lista enderecos de minisitee.com e so faz sentido la.
 const ROTAS_DO_PAINEL = [
   '/login',
   '/nova-senha',
@@ -17,7 +18,6 @@ const ROTAS_DO_PAINEL = [
   '/auth',
   '/api',
   '/robots.txt',
-  '/sitemap.xml',
 ]
 
 function soDoPainel(pathname: string) {

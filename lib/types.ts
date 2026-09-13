@@ -106,6 +106,8 @@ export type ItemPublico = {
   slug: string
   title: string
   kind: TipoItem
+  // Pode faltar em HTML gerado antes da RPC devolver a descricao.
+  description?: string | null
   category: string | null
   status: string
   price_cents: number | null

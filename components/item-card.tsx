@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { ReactNode } from 'react'
 import { formatBRL } from '@/lib/format'
+import { textoDaImagem } from '@/lib/texto-imagem'
 import { DICIONARIOS, type Idioma } from '@/lib/i18n/dicionarios'
 import type { ItemPublico } from '@/lib/types'
 
@@ -24,7 +25,8 @@ export function ItemCard({
           {item.cover_url ? (
             <Image
               src={item.cover_url}
-              alt={item.title}
+              alt={textoDaImagem(item.title, item.description)}
+              title={textoDaImagem(item.title, item.description)}
               fill
               priority={prioridade}
               sizes="(min-width: 768px) 50vw, 100vw"

@@ -6,6 +6,7 @@ import { ContagemRegressiva } from '@/components/contagem-regressiva'
 import { IconeSecao } from '@/components/icone-secao'
 import { QrCode, urlDoQrCode } from '@/components/qr-code'
 import { RedeIcone, RedeIconeQuadrado, nomeDaRede } from '@/components/rede-icone'
+import { textoDaImagem } from '@/lib/texto-imagem'
 import {
   DICIONARIOS,
   DIAS,
@@ -45,7 +46,8 @@ export function MinisiteeConteudo({
                 // Logo em retangulo aparece inteira, sem corte.
                 <Image
                   src={profile.avatar_url}
-                  alt=""
+                  alt={textoDaImagem(nome, profile.bio)}
+                  title={textoDaImagem(nome, profile.bio)}
                   width={240}
                   height={96}
                   priority
@@ -55,7 +57,8 @@ export function MinisiteeConteudo({
               ) : (
                 <Image
                   src={profile.avatar_url}
-                  alt=""
+                  alt={textoDaImagem(nome, profile.bio)}
+                  title={textoDaImagem(nome, profile.bio)}
                   width={96}
                   height={96}
                   priority
@@ -387,7 +390,8 @@ function BlocoGaleria({ item }: { item: ItemPublico }) {
           >
             <Image
               src={url}
-              alt=""
+              alt={textoDaImagem(item.title, item.description)}
+              title={textoDaImagem(item.title, item.description)}
               fill
               sizes="(min-width: 640px) 33vw, 50vw"
               loading={i < 3 ? undefined : 'lazy'}

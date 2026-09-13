@@ -83,7 +83,7 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
   if (!userId) redirect('/login')
 
   const supabase = await createClient()
-  const titulo = TITULO_PADRAO[kind] ?? 'Novo item'
+  const titulo = TITULO_PADRAO[kind] ?? 'Nova ferramenta'
   const slug = await slugDisponivel(supabase, userId, slugify(titulo))
 
   const { count } = await supabase
@@ -121,9 +121,9 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
   // 23514 e violacao de check: o kind_valido do banco nao conhece o tipo.
   // Quer dizer que a migracao que abriu esse tipo ainda nao rodou.
   if (error?.code === '23514') {
-    return { erro: 'Esse tipo de item ainda não existe no banco: falta aplicar a migração.' }
+    return { erro: 'Essa ferramenta ainda não existe no banco: falta aplicar a migração.' }
   }
-  if (error || !data) return { erro: 'Não foi possível criar o item.' }
+  if (error || !data) return { erro: 'Não foi possível criar a ferramenta.' }
 
   revalidatePath('/painel')
   await revalidarPublico(supabase, userId)
@@ -150,7 +150,7 @@ export async function salvarItem(id: string, patch: PatchItem) {
 
   const supabase = await createClient()
   if (!(await exigirDono(supabase, id, userId))) {
-    return { erro: 'Item não encontrado.' }
+    return { erro: 'Ferramenta não encontrada.' }
   }
 
   const dados: PatchItem = { ...patch }
@@ -186,7 +186,7 @@ export async function duplicarItem(id: string) {
     .eq('profile_id', userId)
     .maybeSingle()
 
-  if (!origem) return { erro: 'Item não encontrado.' }
+  if (!origem) return { erro: 'Ferramenta não encontrada.' }
 
   const slug = await slugDisponivel(supabase, userId, origem.slug)
   const descartar = new Set(['id', 'created_at', 'updated_at'])
@@ -236,7 +236,7 @@ export async function excluirItem(id: string) {
 
   const supabase = await createClient()
   if (!(await exigirDono(supabase, id, userId))) {
-    return { erro: 'Item não encontrado.' }
+    return { erro: 'Ferramenta não encontrada.' }
   }
 
   const pasta = `${userId}/${id}`

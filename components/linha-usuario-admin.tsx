@@ -51,7 +51,7 @@ export function LinhaUsuarioAdmin({ usuario }: { usuario: UsuarioAdmin }) {
               'sem perfil'
             )}
             {' · '}
-            {usuario.itens} {usuario.itens === 1 ? 'item' : 'itens'}
+            {usuario.itens} {usuario.itens === 1 ? 'ferramenta' : 'ferramentas'}
             {usuario.locale ? ` · ${usuario.locale}` : ''}
           </p>
           <p className="mt-0.5 text-xs text-muted">

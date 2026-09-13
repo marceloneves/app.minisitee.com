@@ -34,7 +34,7 @@ export default async function CuboPage() {
       <h1 className="text-xl font-semibold tracking-tight">Cubo</h1>
       <p className="mt-1 text-sm text-muted">
         {dados.usuarios.length} {dados.usuarios.length === 1 ? 'conta' : 'contas'} ·{' '}
-        {dados.itens.length} {dados.itens.length === 1 ? 'item' : 'itens'} · lido às{' '}
+        {dados.itens.length} {dados.itens.length === 1 ? 'ferramenta' : 'ferramentas'} · lido às{' '}
         {hora}
       </p>
 

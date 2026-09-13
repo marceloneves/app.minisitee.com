@@ -14,14 +14,15 @@ import { slugify } from '@/lib/slug'
 import {
   DIAS_SEMANA,
   REDES,
-  STATUS_ITEM,
   horarioPadrao,
+  statusDoTipo,
   type DadosItem,
   type TipoItem,
 } from '@/lib/types'
 import { CampoTelefone } from '@/components/campo-telefone'
 import { QrCode, urlDoQrCode } from '@/components/qr-code'
 import { ANTECEDENCIAS, DIAS_A_FRENTE, DURACOES, configAgenda } from '@/lib/agenda'
+import { corHexValida } from '@/lib/cor'
 
 export type ItemForm = {
   id: string
@@ -386,7 +387,7 @@ export function ItemEditor({
                 onChange={(e) => mudar('status', e.target.value)}
                 className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
               >
-                {STATUS_ITEM.map(([v]) => (
+                {statusDoTipo(form.kind).map(([v]) => (
                   <option key={v} value={v}>
                     {ROTULO_STATUS[idioma][v]}
                   </option>
@@ -446,7 +447,7 @@ export function ItemEditor({
             value={form.description}
             onChange={(e) => mudar('description', e.target.value)}
             rows={6}
-            placeholder="Conte o que faz esse item valer a mensagem."
+            placeholder="Conte o que faz esse produto valer a mensagem."
             className="w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
           />
         </Secao>
@@ -740,6 +741,32 @@ function EditorAgenda({
             ))}
           </select>
         </label>
+      </div>
+
+      <div>
+        <label htmlFor="agenda-cor" className="block text-sm font-medium">
+          {t('agendaCorFundo')}
+        </label>
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <input
+            id="agenda-cor"
+            type="color"
+            value={corHexValida(dados.corFundo) ?? '#ffffff'}
+            onChange={(e) => aoMudar({ corFundo: e.target.value })}
+            className="h-11 w-16 cursor-pointer rounded-lg border border-border bg-bg p-1"
+          />
+          {corHexValida(dados.corFundo) ? (
+            <button
+              type="button"
+              onClick={() => aoMudar({ corFundo: undefined })}
+              className="text-sm text-muted underline underline-offset-4"
+            >
+              {t('agendaCorDoEstilo')}
+            </button>
+          ) : (
+            <span className="text-sm text-muted">{t('agendaUsandoCorEstilo')}</span>
+          )}
+        </div>
       </div>
 
       <Link href="/painel/agenda" className="inline-block text-sm underline underline-offset-4">

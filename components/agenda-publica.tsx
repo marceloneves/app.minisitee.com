@@ -199,6 +199,9 @@ function Calendario({
           const aberto =
             diaNaJanela(config, celula, agora) && horariosDoDia(config, celula).length > 0
           const selecionado = celula === dia
+          // Dia aberto ganha um tom da cor do texto por cima do fundo do cartao,
+          // e o selecionado um contorno: assim os dois se destacam com qualquer
+          // cor escolhida, inclusive uma igual a cor de destaque do estilo.
           return (
             <button
               key={celula}
@@ -209,9 +212,9 @@ function Calendario({
               onClick={() => aoEscolher(celula)}
               className={`aspect-square rounded-lg text-sm tabular-nums transition-colors disabled:opacity-30 ${
                 selecionado
-                  ? 'bg-brand font-semibold text-brand-fg'
+                  ? 'bg-brand font-semibold text-brand-fg ring-2 ring-fg/70'
                   : aberto
-                    ? 'border border-border font-medium hover:border-fg'
+                    ? 'border border-fg/25 bg-fg/10 font-semibold hover:border-fg'
                     : ''
               }`}
             >
@@ -247,7 +250,7 @@ function ListaHorarios({
             aria-pressed={h === hora}
             onClick={() => aoEscolher(h)}
             className={`w-full rounded-lg px-2 py-2 text-sm font-medium tabular-nums ${
-              h === hora ? 'bg-brand text-brand-fg' : 'border border-border hover:border-fg'
+              h === hora ? 'bg-brand text-brand-fg ring-2 ring-fg/70' : 'border border-fg/25 bg-fg/10 hover:border-fg'
             }`}
           >
             {h}

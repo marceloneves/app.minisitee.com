@@ -28,7 +28,7 @@ export const DIMENSOES: Record<Base, readonly (readonly [string, string])[]> = {
     ['cidade', 'Cidade'],
     ['idioma', 'Idioma'],
     ['estilo', 'Estilo'],
-    ['publicou', 'Publicou item'],
+    ['publicou', 'Publicou ferramenta'],
     ['whatsapp', 'Tem WhatsApp'],
     ['descricao', 'Tem descrição'],
     ['foto', 'Tem foto de perfil'],
@@ -36,7 +36,7 @@ export const DIMENSOES: Record<Base, readonly (readonly [string, string])[]> = {
     ['acesso', 'Último acesso'],
   ],
   itens: [
-    ['tipo', 'Tipo de item'],
+    ['tipo', 'Ferramenta'],
     ['status', 'Status'],
     ['categoria', 'Categoria'],
     ['preco', 'Faixa de preço'],
@@ -56,12 +56,12 @@ export const MEDIDAS: Record<
 > = {
   usuarios: [
     ['contas', 'Contas', 0],
-    ['itens', 'Itens publicados', 0],
-    ['mediaItens', 'Média de itens por conta', 1],
+    ['itens', 'Ferramentas publicadas', 0],
+    ['mediaItens', 'Média de ferramentas por conta', 1],
     ['fotos', 'Fotos', 0],
   ],
   itens: [
-    ['itens', 'Itens', 0],
+    ['itens', 'Ferramentas', 0],
     ['donos', 'Contas distintas', 0],
     ['fotos', 'Fotos', 0],
     ['precoMedio', 'Preço médio (R$)', 2],

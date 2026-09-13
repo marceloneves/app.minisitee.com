@@ -102,19 +102,22 @@ export function nomeDaRede(rede: string) {
 export function RedeIcone({
   rede,
   tamanho = 'size-10',
+  cor,
 }: {
   rede: string
   tamanho?: string
+  // Sobrepoe a cor da marca, ex.: logo branco sobre o botao verde do WhatsApp.
+  cor?: string
 }) {
   const info = GLIFOS[rede] ?? GLIFOS.site
-  const traco = info.gradiente ? 'url(#gradiente-instagram)' : 'currentColor'
+  const traco = info.gradiente && !cor ? 'url(#gradiente-instagram)' : 'currentColor'
 
   return (
     <svg
       viewBox="0 0 24 24"
       aria-hidden="true"
       className={tamanho}
-      style={{ color: info.cor }}
+      style={{ color: cor ?? info.cor }}
       fill="none"
       stroke={traco}
       strokeWidth="1.9"

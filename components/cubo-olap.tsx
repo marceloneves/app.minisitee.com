@@ -206,7 +206,7 @@ export function CuboOlap({ dados }: { dados: DadosCubo }) {
                 : 'border-border hover:border-muted'
             }`}
           >
-            {b === 'usuarios' ? 'Contas' : 'Itens'}
+            {b === 'usuarios' ? 'Contas' : 'Ferramentas'}
             <span className={base === b ? 'ml-1.5 opacity-70' : 'ml-1.5 text-muted'}>
               {(b === 'usuarios' ? dados.usuarios : dados.itens).length}
             </span>
@@ -451,7 +451,7 @@ export function CuboOlap({ dados }: { dados: DadosCubo }) {
                 </span>
                 <span className="shrink-0 text-xs tabular-nums text-muted">
                   {base === 'usuarios'
-                    ? `${f.itens} ${f.itens === 1 ? 'item' : 'itens'}`
+                    ? `${f.itens} ${f.itens === 1 ? 'ferramenta' : 'ferramentas'}`
                     : f.precoCents !== null
                       ? (f.precoCents / 100).toLocaleString('pt-BR', {
                           style: 'currency',

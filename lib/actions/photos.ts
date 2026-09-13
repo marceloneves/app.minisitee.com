@@ -35,7 +35,7 @@ export async function registrarFoto(itemId: string, url: string) {
     .eq('profile_id', userId)
     .maybeSingle()
 
-  if (!item) return { erro: 'Item não encontrado.' }
+  if (!item) return { erro: 'Ferramenta não encontrada.' }
 
   const { count } = await supabase
     .from('item_photos')

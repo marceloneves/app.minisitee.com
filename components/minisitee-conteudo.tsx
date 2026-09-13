@@ -12,6 +12,7 @@ import {
   type Idioma,
 } from '@/lib/i18n/dicionarios'
 import { configAgenda } from '@/lib/agenda'
+import { corHexValida, estiloDeFundo } from '@/lib/cor'
 import {
   DIAS_SEMANA,
   formatarBytes,
@@ -165,7 +166,22 @@ function BlocoItem({
 
   if (!destino) return null
 
-  const comIcone = item.kind === 'whatsapp' || item.kind === 'telefone'
+  // WhatsApp segue a identidade da marca: verde, texto e logo brancos, largura do conteudo.
+  if (item.kind === 'whatsapp') {
+    return (
+      <a
+        href={destino}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mx-auto flex w-fit max-w-full items-center justify-center gap-2.5 rounded-full bg-[#25D366] px-6 py-3.5 text-center text-base font-semibold text-white transition-colors hover:bg-[#1EBE5A]"
+      >
+        <RedeIcone rede="whatsapp" tamanho="size-6 shrink-0" cor="#fff" />
+        {item.title}
+      </a>
+    )
+  }
+
+  const comIcone = item.kind === 'telefone'
 
   return (
     <a
@@ -387,8 +403,13 @@ function BlocoContagem({
 }
 
 function BlocoAgenda({ item }: { item: ItemPublico }) {
+  const cor = corHexValida(item.data?.corFundo)
+
   return (
-    <section className="rounded-2xl border border-border bg-surface px-5 py-4">
+    <section
+      className="rounded-2xl border border-border bg-surface px-5 py-4"
+      style={cor ? estiloDeFundo(cor) : undefined}
+    >
       <h2 className="flex items-center justify-center gap-2 text-sm font-semibold text-muted">
         <IconeSecao tipo="agenda" />
         {item.title}

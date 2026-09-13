@@ -46,6 +46,7 @@ export type DadosItem = {
   duracao?: number
   diasAFrente?: number
   antecedencia?: number
+  corFundo?: string
 }
 
 export const REDES = [
@@ -127,6 +128,14 @@ export const STATUS_ITEM = [
   ['reservado', 'Reservado'],
   ['encerrado', 'Encerrado'],
 ] as const
+
+// Reservado e Encerrado so fazem sentido para produto; as ferramentas
+// (botoes, agenda, faq...) ficam so em Rascunho ou Ativo.
+export function statusDoTipo(kind: string) {
+  return kind === 'produto'
+    ? STATUS_ITEM
+    : STATUS_ITEM.filter(([v]) => v === 'rascunho' || v === 'ativo')
+}
 
 // `superficie` e a cor solida da amostra e do cartao de compartilhamento: o
 // gerador de imagem do Next nao entende url(), entao a foto nunca pode entrar

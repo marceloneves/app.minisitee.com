@@ -54,11 +54,9 @@ export async function generateMetadata({
   const d = DICIONARIOS[idioma]
   const nome = profile.display_name ?? profile.username
   const local = profile.city ? ` ${d.emCidade} ${profile.city}` : ''
-  // Quem procura negocio local busca pelo lugar: o title segue o padrao
-  // "tipo de negocio em <cidade>", que e como a pessoa digita na busca.
-  const titulo = profile.headline
-    ? `${nome} — ${profile.headline}${local}`
-    : `${nome}${local}`
+  // Quem procura negocio local busca pelo lugar: o title leva a cidade. O
+  // "O que voce faz" saiu do painel e nao entra mais aqui.
+  const titulo = `${nome}${local}`
   // A descricao do negocio e o que o dono escreveu para aparecer na busca. So
   // quando ela esta vazia o resumo do catalogo entra no lugar.
   const descricao =

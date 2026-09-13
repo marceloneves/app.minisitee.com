@@ -43,7 +43,8 @@ export default async function ImagemCompartilhamento({
   const nome = profile?.display_name ?? username
   const d = DICIONARIOS[idiomaValido(profile?.locale)]
   const local = profile?.city ? ` ${d.emCidade} ${profile.city}` : ''
-  const linha = profile?.headline ? `${profile.headline}${local}` : local.trim()
+  // "O que voce faz" saiu do painel: o cartao mostra so onde o negocio fica.
+  const linha = local.trim()
 
   return new ImageResponse(
     (

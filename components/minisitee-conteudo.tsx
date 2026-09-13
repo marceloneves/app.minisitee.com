@@ -66,11 +66,9 @@ export function MinisiteeConteudo({
 
             <h1 className="mt-4 text-xl font-bold tracking-tight">{nome}</h1>
 
-            {(profile.headline || profile.city) && (
-              <p className="mt-1 text-sm text-muted">
-                {[profile.headline, profile.city].filter(Boolean).join(' · ')}
-              </p>
-            )}
+            {/* "O que voce faz" saiu do painel: o texto antigo nao aparece mais,
+                senao repetia a bio sem o dono ter onde editar. */}
+            {profile.city && <p className="mt-1 text-sm text-muted">{profile.city}</p>}
 
             {profile.bio && (
               <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted">

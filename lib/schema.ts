@@ -35,7 +35,6 @@ export function montarSchema(
     url,
   }
 
-  if (profile.headline) negocio.description = profile.headline
   if (profile.bio) negocio.description = profile.bio
   if (profile.avatar_url) negocio.image = profile.avatar_url
   if (profile.whatsapp) negocio.telephone = `+${profile.whatsapp}`

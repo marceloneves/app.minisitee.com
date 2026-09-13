@@ -45,7 +45,7 @@ export async function verificarUsername(
 export type CriarProfileInput = {
   username: string
   displayName: string
-  headline: string
+  bio: string
   city: string
   whatsapp: string
   locale: string
@@ -62,6 +62,9 @@ export async function criarProfile(input: CriarProfileInput) {
   if (!input.displayName.trim()) {
     return { erro: 'Informe seu nome completo.' }
   }
+  if (!input.bio.trim()) {
+    return { erro: 'Escreva a bio / descrição do negócio.' }
+  }
   if (!/^[0-9]{10,15}$/.test(input.whatsapp)) {
     return { erro: 'Informe um WhatsApp válido com DDD.' }
   }
@@ -71,7 +74,7 @@ export async function criarProfile(input: CriarProfileInput) {
     id: userId,
     username,
     display_name: input.displayName.trim(),
-    headline: input.headline.trim() || null,
+    bio: input.bio.trim().slice(0, MAX_BIO),
     city: input.city.trim() || null,
     whatsapp: input.whatsapp,
     locale: ['pt', 'en', 'es'].includes(input.locale) ? input.locale : 'pt',
@@ -107,6 +110,9 @@ export async function atualizarProfile(input: AtualizarProfileInput) {
 
   if (!input.displayName.trim()) {
     return { erro: 'Informe seu nome.' }
+  }
+  if (!input.bio.trim()) {
+    return { erro: 'Escreva a bio / descrição do negócio.' }
   }
   if (!/^[0-9]{10,15}$/.test(input.whatsapp)) {
     return { erro: 'Informe um WhatsApp válido com DDD.' }
@@ -248,6 +254,29 @@ export async function removerAvatar() {
 
   const caminho = atual?.avatar_url ? caminhoDaUrl(atual.avatar_url) : null
   if (caminho) await supabase.storage.from('media').remove([caminho])
+
+  await revalidarPerfil(atual?.username ?? null)
+  return { ok: true as const }
+}
+
+// Logo que nao cabe num circulo aparece inteira, em retangulo. Vale na hora,
+// como a propria imagem.
+export async function definirFormatoAvatar(formato: string) {
+  const userId = await getUserId()
+  if (!userId) return { erro: 'Sessão expirada. Entre novamente.' }
+  if (formato !== 'circulo' && formato !== 'retangulo') {
+    return { erro: 'Formato inválido.' }
+  }
+
+  const supabase = await createClient()
+  const { data: atual, error } = await supabase
+    .from('profiles')
+    .update({ avatar_formato: formato })
+    .eq('id', userId)
+    .select('username')
+    .maybeSingle()
+
+  if (error) return { erro: 'Não foi possível salvar o formato.' }
 
   await revalidarPerfil(atual?.username ?? null)
   return { ok: true as const }

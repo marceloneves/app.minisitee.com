@@ -40,17 +40,29 @@ export function MinisiteeConteudo({
     <>
         <main className="mx-auto w-full max-w-3xl px-4 py-8">
           <header className="flex flex-col items-center text-center">
-            {profile.avatar_url && (
-              <Image
-                src={profile.avatar_url}
-                alt=""
-                width={96}
-                height={96}
-                priority
-                sizes="96px"
-                className="size-24 rounded-full object-cover"
-              />
-            )}
+            {profile.avatar_url &&
+              (profile.avatar_formato === 'retangulo' ? (
+                // Logo em retangulo aparece inteira, sem corte.
+                <Image
+                  src={profile.avatar_url}
+                  alt=""
+                  width={240}
+                  height={96}
+                  priority
+                  sizes="240px"
+                  className="h-24 w-auto max-w-60 rounded-lg object-contain"
+                />
+              ) : (
+                <Image
+                  src={profile.avatar_url}
+                  alt=""
+                  width={96}
+                  height={96}
+                  priority
+                  sizes="96px"
+                  className="size-24 rounded-full object-cover"
+                />
+              ))}
 
             <h1 className="mt-4 text-xl font-bold tracking-tight">{nome}</h1>
 

@@ -2,14 +2,22 @@
 
 import Image from 'next/image'
 import { useRef, useState } from 'react'
-import { definirAvatar, removerAvatar } from '@/lib/actions/profile'
+import { definirAvatar, definirFormatoAvatar, removerAvatar } from '@/lib/actions/profile'
 import { useT } from '@/lib/i18n/contexto'
-import { prepararAvatar } from '@/lib/image'
+import { prepararAvatar, prepararLogo } from '@/lib/image'
 import { createClient } from '@/lib/supabase/client'
 
-export function AvatarUploader({ inicial }: { inicial: string | null }) {
+export function AvatarUploader({
+  inicial,
+  formatoInicial,
+}: {
+  inicial: string | null
+  formatoInicial: string
+}) {
   const t = useT()
   const [url, setUrl] = useState(inicial)
+  const [formato, setFormato] = useState(formatoInicial === 'retangulo' ? 'retangulo' : 'circulo')
+  const retangulo = formato === 'retangulo'
   const [ocupado, setOcupado] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -32,7 +40,8 @@ export function AvatarUploader({ inicial }: { inicial: string | null }) {
         return
       }
 
-      const webp = await prepararAvatar(arquivo)
+      // Retangulo guarda a logo inteira; circulo corta o centro em quadrado.
+      const webp = retangulo ? await prepararLogo(arquivo) : await prepararAvatar(arquivo)
       const caminho = `${session.user.id}/perfil/${crypto.randomUUID()}.webp`
 
       const { error } = await supabase.storage
@@ -61,6 +70,18 @@ export function AvatarUploader({ inicial }: { inicial: string | null }) {
     }
   }
 
+  async function mudarFormato(novo: 'circulo' | 'retangulo') {
+    if (novo === formato) return
+    setErro(null)
+    const antes = formato
+    setFormato(novo)
+    const r = await definirFormatoAvatar(novo)
+    if ('erro' in r && r.erro) {
+      setFormato(antes)
+      setErro(r.erro)
+    }
+  }
+
   async function remover() {
     setErro(null)
     setOcupado(true)
@@ -75,15 +96,19 @@ export function AvatarUploader({ inicial }: { inicial: string | null }) {
       <span className="block text-sm font-medium">{t('fotoPerfil')}</span>
 
       <div className="mt-2 flex items-center gap-4">
-        <span className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-surface">
+        <span
+          className={`flex h-20 shrink-0 items-center justify-center overflow-hidden border border-border bg-surface ${
+            retangulo ? 'w-40 rounded-lg' : 'w-20 rounded-full'
+          }`}
+        >
           {url ? (
             <Image
               src={url}
               alt=""
-              width={80}
+              width={retangulo ? 160 : 80}
               height={80}
-              sizes="80px"
-              className="size-20 object-cover"
+              sizes={retangulo ? '160px' : '80px'}
+              className={retangulo ? 'h-20 w-40 object-contain' : 'size-20 object-cover'}
             />
           ) : (
             <svg
@@ -137,6 +162,28 @@ export function AvatarUploader({ inicial }: { inicial: string | null }) {
       </div>
 
       <p className="mt-2 text-xs text-muted">{t('fotoPerfilAjuda')}</p>
+
+      <span className="mt-4 block text-sm font-medium">{t('formatoLogo')}</span>
+      <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label={t('formatoLogo')}>
+        {(['circulo', 'retangulo'] as const).map((f) => (
+          <button
+            key={f}
+            type="button"
+            role="radio"
+            aria-checked={formato === f}
+            onClick={() => void mudarFormato(f)}
+            disabled={ocupado}
+            className={`rounded-xl border px-3 py-2 text-sm disabled:opacity-60 ${
+              formato === f ? 'border-fg font-medium' : 'border-border text-muted'
+            }`}
+          >
+            {f === 'circulo' ? t('formatoCirculo') : t('formatoRetangulo')}
+          </button>
+        ))}
+      </div>
+      {retangulo && url && (
+        <p className="mt-2 text-xs text-muted">{t('formatoRetanguloAjuda')}</p>
+      )}
 
       {erro && (
         <p role="alert" className="mt-2 text-sm text-red-600">

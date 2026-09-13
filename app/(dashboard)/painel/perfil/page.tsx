@@ -18,15 +18,20 @@ export default async function PerfilPage({
   const supabase = await createClient()
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, display_name, headline, bio, city, whatsapp, locale, plan, avatar_url, stripe_subscription_id, current_period_end')
+    .select('username, display_name, headline, bio, city, whatsapp, locale, plan, avatar_url, avatar_formato, stripe_subscription_id, current_period_end')
     .eq('id', userId)
     .maybeSingle()
 
   if (!profile) redirect('/painel/comecar')
 
+  // O e-mail nao mora em profiles: vem do login (claims do Supabase Auth).
+  const { data: sessao } = await supabase.auth.getClaims()
+  const email = typeof sessao?.claims?.email === 'string' ? sessao.claims.email : null
+
   const inicial: PerfilForm = {
     username: profile.username,
     avatarUrl: profile.avatar_url ?? null,
+    avatarFormato: profile.avatar_formato ?? 'circulo',
     displayName: profile.display_name ?? '',
     headline: profile.headline ?? '',
     bio: profile.bio ?? '',
@@ -45,6 +50,7 @@ export default async function PerfilPage({
       <h1 className="mb-6 text-xl font-semibold tracking-tight">{t('meuPerfil')}</h1>
       <EditorPerfil
         inicial={inicial}
+        email={email}
         assinatura={{
           temAssinatura: Boolean(profile.stripe_subscription_id),
           renovaEm,

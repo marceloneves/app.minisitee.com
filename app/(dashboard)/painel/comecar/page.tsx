@@ -8,6 +8,7 @@ import {
   type DisponibilidadeUsername,
 } from '@/lib/actions/profile'
 import { CampoTelefone } from '@/components/campo-telefone'
+import { MAX_BIO } from '@/lib/constants'
 import { juntarTelefone, separarTelefone } from '@/lib/paises'
 import { slugify } from '@/lib/slug'
 import { ProvedorIdioma, useIdioma, useT } from '@/lib/i18n/contexto'
@@ -37,7 +38,7 @@ function FormularioComecar({
   const router = useRouter()
   const [username, setUsername] = useState('')
   const [displayName, setDisplayName] = useState('')
-  const [headline, setHeadline] = useState('')
+  const [bio, setBio] = useState('')
   const [city, setCity] = useState('')
   const [whatsapp, setWhatsapp] = useState('55')
   const [checagem, setChecagem] = useState<Checagem>(null)
@@ -74,6 +75,7 @@ function FormularioComecar({
     )
   }
   if (displayName.trim().length <= 1) faltando.push(t('faltaNome'))
+  if (!bio.trim()) faltando.push(t('faltaBio'))
   if (digitos === null) faltando.push(t('faltaWhatsapp'))
 
   const podeSalvar = faltando.length === 0 && !salvando
@@ -86,7 +88,7 @@ function FormularioComecar({
       const resultado = await criarProfile({
         username: username.trim().toLowerCase(),
         displayName,
-        headline,
+        bio,
         city,
         whatsapp: digitos,
         locale: idioma,
@@ -161,14 +163,26 @@ function FormularioComecar({
           autoComplete="name"
         />
 
-        <Campo
-          id="headline"
-          rotulo={t('oQueVoceFaz')}
-          opcional
-          valor={headline}
-          aoMudar={setHeadline}
-          placeholder="Confeiteira, Personal trainer, Corretora..."
-        />
+        <div>
+          <label htmlFor="bio" className="block text-sm font-medium">
+            {t('bio')}
+          </label>
+          <textarea
+            id="bio"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            rows={3}
+            maxLength={MAX_BIO}
+            aria-describedby="bio-ajuda"
+            className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
+          />
+          <p id="bio-ajuda" className="mt-2 flex justify-between gap-4 text-xs text-muted">
+            <span>{t('bioAjuda')}</span>
+            <span>
+              {bio.length}/{MAX_BIO}
+            </span>
+          </p>
+        </div>
 
         <Campo
           id="cidade"

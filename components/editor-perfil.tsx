@@ -14,6 +14,7 @@ import { useT } from '@/lib/i18n/contexto'
 export type PerfilForm = {
   username: string
   avatarUrl: string | null
+  avatarFormato: string
   displayName: string
   headline: string
   bio: string
@@ -33,9 +34,11 @@ type DadosAssinatura = {
 
 export function EditorPerfil({
   inicial,
+  email,
   assinatura,
 }: {
   inicial: PerfilForm
+  email: string | null
   assinatura: DadosAssinatura
 }) {
   const t = useT()
@@ -53,8 +56,12 @@ export function EditorPerfil({
 
   const { dial, nacional } = separarTelefone(form.whatsapp)
   const digitos = juntarTelefone(dial, nacional)
+  // A bio e obrigatoria: e o texto que sempre aparece no minisite.
   const podeSalvar =
-    form.displayName.trim().length > 1 && digitos !== null && !salvando
+    form.displayName.trim().length > 1 &&
+    form.bio.trim().length > 0 &&
+    digitos !== null &&
+    !salvando
 
   function salvar() {
     if (!podeSalvar || !digitos) return
@@ -82,21 +89,29 @@ export function EditorPerfil({
       <section className="space-y-4">
         <h2 className="text-sm font-semibold text-muted">{t('seusDados')}</h2>
 
-        <AvatarUploader inicial={inicial.avatarUrl} />
+        <AvatarUploader inicial={inicial.avatarUrl} formatoInicial={inicial.avatarFormato} />
+
+        {/* So leitura: o e-mail e o do login e nao se troca por aqui. */}
+        {email && (
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium">
+              {t('email')}
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              readOnly
+              className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base text-muted outline-none"
+            />
+          </div>
+        )}
 
         <Campo
           id="nome"
           rotulo={t('nome')}
           valor={form.displayName}
           aoMudar={(v) => mudar('displayName', v)}
-        />
-        <Campo
-          id="headline"
-          rotulo={t('oQueVoceFaz')}
-          opcional
-          valor={form.headline}
-          aoMudar={(v) => mudar('headline', v)}
-          placeholder="Confeiteira, Personal trainer..."
         />
         <Campo
           id="cidade"
@@ -108,7 +123,7 @@ export function EditorPerfil({
 
         <div>
           <label htmlFor="bio" className="block text-sm font-medium">
-            {t('bio')} <span className="font-normal text-muted">{t('opcional')}</span>
+            {t('bio')}
           </label>
           <textarea
             id="bio"

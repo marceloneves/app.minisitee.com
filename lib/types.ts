@@ -5,6 +5,8 @@ export type PerfilPublico = {
   headline: string | null
   bio: string | null
   avatar_url: string | null
+  // 'circulo' ou 'retangulo'; pode faltar em HTML gerado antes da coluna.
+  avatar_formato?: string | null
   whatsapp: string | null
   city: string | null
   theme: string

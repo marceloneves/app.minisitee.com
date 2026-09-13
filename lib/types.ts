@@ -152,12 +152,9 @@ export const STATUS_ITEM = [
   ['encerrado', 'Encerrado'],
 ] as const
 
-// Reservado e Encerrado so fazem sentido para produto; as ferramentas
-// (botoes, agenda, faq...) ficam so em Rascunho ou Ativo.
-export function statusDoTipo(kind: string) {
-  return kind === 'produto'
-    ? STATUS_ITEM
-    : STATUS_ITEM.filter(([v]) => v === 'rascunho' || v === 'ativo')
+// Toda ferramenta, produto incluido, so tem Rascunho ou Ativo.
+export function statusDoTipo() {
+  return STATUS_ITEM.filter(([v]) => v === 'rascunho' || v === 'ativo')
 }
 
 // Ferramentas que so a conta pro usa. No free elas nao podem ser criadas e,

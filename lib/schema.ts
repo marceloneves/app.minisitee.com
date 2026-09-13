@@ -75,7 +75,8 @@ export function montarSchema(
         item: {
           '@type': 'Product',
           name: p.title,
-          url: `${url}/${p.slug}`,
+          // Produto nao tem pagina propria: so o link informado pelo dono.
+          ...(p.url ? { url: p.url } : {}),
           ...(p.cover_url ? { image: p.cover_url } : {}),
           ...(p.category ? { category: p.category } : {}),
           ...(p.price_cents

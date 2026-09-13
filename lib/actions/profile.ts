@@ -88,7 +88,7 @@ export async function criarProfile(input: CriarProfileInput) {
   }
 
   revalidatePath('/painel', 'layout')
-  agendarPublicacao(username)
+  await agendarPublicacao(username)
   return { ok: true as const }
 }
 
@@ -142,7 +142,7 @@ export async function atualizarProfile(input: AtualizarProfileInput) {
   if (atual?.username) {
     revalidatePath(`/${atual.username}`)
     revalidateTag(`catalogo:${atual.username}`)
-    agendarPublicacao(atual.username)
+    await agendarPublicacao(atual.username)
   }
   return { ok: true as const }
 }
@@ -180,7 +180,7 @@ export async function atualizarEstilo(theme: string) {
   if (perfil?.username) {
     revalidatePath(`/${perfil.username}`)
     revalidateTag(`catalogo:${perfil.username}`)
-    agendarPublicacao(perfil.username)
+    await agendarPublicacao(perfil.username)
   }
   return { ok: true as const }
 }
@@ -191,7 +191,7 @@ async function revalidarPerfil(username: string | null) {
   if (username) {
     revalidatePath(`/${username}`)
     revalidateTag(`catalogo:${username}`)
-    agendarPublicacao(username)
+    await agendarPublicacao(username)
   }
 }
 

@@ -1,5 +1,4 @@
 import 'server-only'
-import { after } from 'next/server'
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -20,17 +19,16 @@ function pastaDe(username: string) {
   return join(DIR!, username)
 }
 
-// O `after` do Next roda a funcao depois que a resposta ja foi entregue: quem
-// clicou em salvar nao espera a pagina publica ser montada e gravada, que e
-// meio segundo de trabalho que ninguem esta esperando ver.
-export function agendarPublicacao(username: string) {
-  after(async () => {
-    try {
-      await publicarHtml(username)
-    } catch {
-      // publicarHtml ja engole os proprios erros; isto e so a rede de seguranca
-    }
-  })
+// Quem salva espera a pagina publica ser gravada. Com o `after`, a gravacao
+// rodava depois da resposta e, quando falhava, ninguem via: o minisite ficava
+// com o HTML velho. A pagina publica nao usa cache, entao o HTML sai sempre
+// com o que acabou de ser salvo.
+export async function agendarPublicacao(username: string) {
+  try {
+    await publicarHtml(username)
+  } catch (erro) {
+    console.error(`[html-estatico] ${username}:`, erro)
+  }
 }
 
 export async function publicarHtml(username: string) {
@@ -47,6 +45,7 @@ export async function publicarHtml(username: string) {
     })
 
     if (!resposta.ok) {
+      console.error(`[html-estatico] ${username}: a pagina respondeu ${resposta.status}`)
       // Perfil apagado ou fora do ar: tira o arquivo em vez de deixar o
       // conteudo velho servindo para sempre.
       if (resposta.status === 404) await removerHtml(username)
@@ -61,9 +60,10 @@ export async function publicarHtml(username: string) {
     const temporario = `${destino}.tmp`
     await writeFile(temporario, html, 'utf8')
     await rename(temporario, destino)
-  } catch {
-    // Falhar aqui nao pode derrubar o salvamento: a pagina continua sendo
-    // montada pelo app ate a proxima publicacao.
+  } catch (erro) {
+    // Falhar aqui nao pode derrubar o salvamento, mas precisa aparecer no log
+    // do pm2: sem isso o minisite fica velho sem ninguem saber por que.
+    console.error(`[html-estatico] ${username}: nao gravou o HTML`, erro)
   }
 }
 

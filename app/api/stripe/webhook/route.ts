@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       if (!username) continue
       revalidatePath(`/${username}`)
       revalidateTag(`catalogo:${username}`)
-      agendarPublicacao(username)
+      await agendarPublicacao(username)
     }
   }
 

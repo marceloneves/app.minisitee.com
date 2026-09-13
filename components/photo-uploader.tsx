@@ -12,12 +12,16 @@ export type Foto = { id: string; url: string; position: number }
 
 type EmAndamento = { chave: string; nome: string; progresso: number; erro?: string }
 
+// A foto grava no banco na hora, sem passar pelo Salvar do editor. aoMudar
+// avisa o editor para o botao Salvar ligar mesmo quando so as fotos mudaram.
 export function PhotoUploader({
   itemId,
   iniciais,
+  aoMudar,
 }: {
   itemId: string
   iniciais: Foto[]
+  aoMudar?: () => void
 }) {
   const t = useT()
   const [fotos, setFotos] = useState<Foto[]>(iniciais)
@@ -80,6 +84,7 @@ export function PhotoUploader({
 
         if ('foto' in r && r.foto) {
           setFotos((atual) => [...atual, r.foto as Foto])
+          aoMudar?.()
         }
         setFila((f) => f.filter((i) => i.chave !== chave))
       } catch {
@@ -97,7 +102,9 @@ export function PhotoUploader({
     if ('erro' in r && r.erro) {
       setFotos(antes)
       setErro(r.erro)
+      return
     }
+    aoMudar?.()
   }
 
   async function mover(id: string, direcao: 'antes' | 'depois') {
@@ -114,7 +121,9 @@ export function PhotoUploader({
     if ('erro' in r && r.erro) {
       setFotos(antes)
       setErro(r.erro)
+      return
     }
+    aoMudar?.()
   }
 
   return (

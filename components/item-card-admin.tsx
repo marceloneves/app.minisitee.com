@@ -29,7 +29,6 @@ export type ItemResumo = {
 
 export function ItemCardAdmin({
   item,
-  username,
   posicao,
   primeiro,
   ultimo,
@@ -114,7 +113,7 @@ export function ItemCardAdmin({
           {ehProduto && (
             <p className="mt-1 text-sm font-semibold">
               {item.price_cents ? formatBRL(item.price_cents) : t('semValor')}
-              {item.price_cents && item.price_note && (
+              {!!item.price_cents && item.price_note && (
                 <span className="ml-1 text-xs font-normal text-muted">
                   {item.price_note}
                 </span>
@@ -152,13 +151,16 @@ export function ItemCardAdmin({
         >
           {t('editar')}
         </Link>
-        {ehProduto && (
-          <Link
-            href={`/${username}/${item.slug}`}
+        {/* Produto nao tem pagina propria: o atalho so aparece com link informado. */}
+        {ehProduto && item.url && (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
             className="rounded-lg border border-border px-3 py-1.5 text-xs"
           >
             {t('verPagina')}
-          </Link>
+          </a>
         )}
         {item.kind === 'formulario' && (
           <Link

@@ -19,7 +19,7 @@ async function revalidarPublico(supabase: Supabase, userId: string) {
   if (data?.username) {
     revalidatePath(`/${data.username}`)
     revalidateTag(`catalogo:${data.username}`)
-    agendarPublicacao(data.username)
+    await agendarPublicacao(data.username)
   }
 }
 

@@ -83,7 +83,7 @@ export async function trocarUsername(userId: string, novo: string) {
     revalidateTag(`catalogo:${nome}`)
   }
   await removerHtml(antes.username)
-  agendarPublicacao(username)
+  await agendarPublicacao(username)
   revalidatePath('/painel', 'layout')
   revalidatePath('/painel/admin')
 

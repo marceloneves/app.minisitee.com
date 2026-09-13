@@ -83,6 +83,7 @@ export function ItemEditor({
             price_cents: currencyToCents(atual.price),
             price_note: atual.priceNote.trim() || null,
             location: atual.location.trim() || null,
+            url: linkDoProduto(atual.url),
           }
         : atual.kind === 'link' || atual.kind === 'qrcode'
           ? {
@@ -218,6 +219,17 @@ export function ItemEditor({
                         : 'Ver meu Instagram'
             }
           />
+
+          {form.kind === 'produto' && (
+            <Texto
+              id="url"
+              rotulo={t('linkProduto')}
+              opcional
+              valor={form.url}
+              aoMudar={(v) => mudar('url', v)}
+              placeholder="https://seusite.com/produto"
+            />
+          )}
 
           {form.kind === 'link' && (
             <Texto
@@ -399,7 +411,7 @@ export function ItemEditor({
                 onChange={(e) => mudar('status', e.target.value)}
                 className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
               >
-                {statusDoTipo(form.kind).map(([v]) => (
+                {statusDoTipo().map(([v]) => (
                   <option key={v} value={v}>
                     {ROTULO_STATUS[idioma][v]}
                   </option>
@@ -465,11 +477,24 @@ export function ItemEditor({
         </Secao>
 
         <Secao titulo={t('fotos')} visivelEm={['produto', 'galeria']} kind={form.kind}>
-          <PhotoUploader itemId={form.id} iniciais={fotosIniciais} />
+          <PhotoUploader
+            itemId={form.id}
+            iniciais={fotosIniciais}
+            aoMudar={() => setEstado('sujo')}
+          />
         </Secao>
       </div>
     </div>
   )
+}
+
+// Produto nao tem pagina propria: o card so abre alguma coisa quando o dono
+// informa o link. Sem protocolo, entra https:// para o link nao virar um
+// caminho relativo dentro do minisite.
+function linkDoProduto(valor: string) {
+  const url = valor.trim()
+  if (!url) return null
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`
 }
 
 function IndicadorSalvamento({ estado, erro }: { estado: Estado; erro: string | null }) {

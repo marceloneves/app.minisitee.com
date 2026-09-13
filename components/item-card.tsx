@@ -1,12 +1,11 @@
 import Image from 'next/image'
-import Link from 'next/link'
+import type { ReactNode } from 'react'
 import { formatBRL } from '@/lib/format'
 import { DICIONARIOS, type Idioma } from '@/lib/i18n/dicionarios'
 import type { ItemPublico } from '@/lib/types'
 
 export function ItemCard({
   item,
-  username,
   prioridade,
   idioma,
 }: {
@@ -20,10 +19,7 @@ export function ItemCard({
 
   return (
     <li>
-      <Link
-        href={`/${username}/${item.slug}`}
-        className="block overflow-hidden rounded-2xl border border-border bg-surface"
-      >
+      <Moldura url={item.url}>
         <div className="relative aspect-4/3 bg-border">
           {item.cover_url ? (
             <Image
@@ -52,14 +48,26 @@ export function ItemCard({
           <h2 className="mt-0.5 line-clamp-2 text-sm font-semibold">{item.title}</h2>
           <p className="mt-1.5 text-base font-bold">
             {item.price_cents ? formatBRL(item.price_cents) : d.sobConsulta}
-            {item.price_cents && item.price_note && (
+            {!!item.price_cents && item.price_note && (
               <span className="ml-1 text-xs font-normal text-muted">
                 {item.price_note}
               </span>
             )}
           </p>
         </div>
-      </Link>
+      </Moldura>
     </li>
+  )
+}
+
+// Produto nao tem pagina propria. O card so e clicavel quando o dono informou
+// um link, e abre esse link; sem link, nenhum endereco e inventado.
+function Moldura({ url, children }: { url: string | null; children: ReactNode }) {
+  const classe = 'block overflow-hidden rounded-2xl border border-border bg-surface'
+  if (!url) return <div className={classe}>{children}</div>
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer" className={classe}>
+      {children}
+    </a>
   )
 }

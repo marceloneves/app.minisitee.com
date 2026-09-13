@@ -9,7 +9,10 @@ import { MAX_BIO } from '@/lib/constants'
 import { basePublica } from '@/lib/site'
 import { estiloPorValor, imagemEstilo, temaValido } from '@/lib/types'
 
-export const revalidate = 3600
+// Sem cache: quem monta esta pagina e a publicacao do HTML estatico, logo
+// depois de um salvamento. Com cache, o HTML era gravado com a versao
+// anterior. Visitante nao chega aqui: recebe o arquivo gravado.
+export const dynamic = 'force-dynamic'
 
 // Sem theme-color a barra do navegador no Android fica cinza em cima da
 // pagina. A cor nao pode ser fixa: nos estilos de fundo escuro uma barra

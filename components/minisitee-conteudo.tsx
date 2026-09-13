@@ -5,7 +5,7 @@ import { ItemCard } from '@/components/item-card'
 import { ContagemRegressiva } from '@/components/contagem-regressiva'
 import { IconeSecao } from '@/components/icone-secao'
 import { QrCode, urlDoQrCode } from '@/components/qr-code'
-import { RedeIcone, nomeDaRede } from '@/components/rede-icone'
+import { RedeIcone, RedeIconeQuadrado, nomeDaRede } from '@/components/rede-icone'
 import {
   DICIONARIOS,
   DIAS,
@@ -220,7 +220,11 @@ function BlocoRedes({ item }: { item: ItemPublico }) {
   const links = (item.data?.links ?? []).filter((l) => l.url.trim())
   if (links.length === 0) return null
 
-  // Sem cartao: os icones ja tem cor e forma proprias e ficam soltos na pagina.
+  // O editor grava "Sem titulo" quando o campo fica vazio: nesse caso o bloco
+  // mostra so os icones.
+  const titulo = item.title?.trim() && item.title.trim() !== 'Sem título' ? item.title.trim() : ''
+
+  // Sem cartao: cada icone ja vem no proprio quadrado com a cor da rede.
   const caixa = 'flex flex-wrap items-center justify-center gap-2.5 py-2'
 
   // Com um perfil so, o bloco inteiro e clicavel: o titulo descreve o destino.
@@ -231,19 +235,19 @@ function BlocoRedes({ item }: { item: ItemPublico }) {
         href={link.url}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`${item.title} (${nomeDaRede(link.rede)})`}
+        aria-label={titulo ? `${titulo} (${nomeDaRede(link.rede)})` : nomeDaRede(link.rede)}
         className="flex flex-col items-center justify-center gap-2.5 py-2"
       >
         {/* Titulo em cima e icone embaixo, igual ao bloco com varias redes. */}
-        <span className="text-base font-semibold">{item.title}</span>
-        <RedeIcone rede={link.rede} />
+        {titulo && <span className="text-base font-semibold">{titulo}</span>}
+        <RedeIconeQuadrado rede={link.rede} />
       </a>
     )
   }
 
   return (
     <section className={caixa}>
-      <h2 className="w-full text-center text-base font-semibold">{item.title}</h2>
+      {titulo && <h2 className="w-full text-center text-base font-semibold">{titulo}</h2>}
       <ul className="flex flex-wrap items-center justify-center gap-3">
         {links.map((link, i) => (
           <li key={i}>
@@ -254,7 +258,7 @@ function BlocoRedes({ item }: { item: ItemPublico }) {
               aria-label={nomeDaRede(link.rede)}
               className="block"
             >
-              <RedeIcone rede={link.rede} />
+              <RedeIconeQuadrado rede={link.rede} />
             </a>
           </li>
         ))}

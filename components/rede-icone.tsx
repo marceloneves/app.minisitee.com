@@ -138,3 +138,21 @@ export function RedeIcone({
     </svg>
   )
 }
+
+// Icone dentro de um quadrado de cantos arredondados, como app no celular: o
+// fundo leva a cor da rede (o degrade no Instagram) e o desenho fica branco.
+export function RedeIconeQuadrado({ rede }: { rede: string }) {
+  const info = GLIFOS[rede] ?? GLIFOS.site
+  const fundo = info.gradiente
+    ? 'linear-gradient(45deg, #f09433 0%, #dc2743 35%, #cc2366 70%, #bc1888 100%)'
+    : info.cor
+
+  return (
+    <span
+      className="flex size-12 items-center justify-center rounded-xl"
+      style={{ background: fundo }}
+    >
+      <RedeIcone rede={rede} tamanho="size-7" cor="#ffffff" />
+    </span>
+  )
+}

@@ -111,6 +111,7 @@ export default async function PainelPage() {
               posicao={i + 1}
               primeiro={i === 0}
               ultimo={i === itens.length - 1}
+              ehFree={ehFree}
             />
           ))}
         </ul>

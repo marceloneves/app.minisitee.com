@@ -23,6 +23,10 @@ const ICONES: Record<string, { cor: string; d: string }> = {
     cor: '#db2777',
     d: 'M4.6 6h14.8v14H4.6zM4.6 10.4h14.8M8.6 3.6v4.2M15.4 3.6v4.2M8.4 14h.01M12 14h.01M15.6 14h.01M8.4 17h.01M12 17h.01',
   },
+  formulario: {
+    cor: '#6366f1',
+    d: 'M9 3.6h6v3H9zM9 5.1H5.6v15.3h12.8V5.1H15M8.6 11h6.8M8.6 14.4h6.8M8.6 17.8h4',
+  },
   qrcode: {
     cor: '#0f172a',
     d: 'M3.6 3.6h6.2v6.2H3.6zM14.2 3.6h6.2v6.2h-6.2zM3.6 14.2h6.2v6.2H3.6zM14.2 14.2h2.6v2.6h-2.6zM20.4 14.2v.01M14.2 20.4h.01M17.8 17.8h2.6v2.6h-2.6z',

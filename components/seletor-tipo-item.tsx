@@ -1,17 +1,20 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { criarRascunho } from '@/lib/actions/items'
 import { useT } from '@/lib/i18n/contexto'
 import { ORDEM_TIPOS, TIPOS, type Idioma } from '@/lib/i18n/dicionarios'
-import type { TipoItem } from '@/lib/types'
+import { soPro, type TipoItem } from '@/lib/types'
 
 export function SeletorTipoItem({
   idioma,
   temAgenda = false,
+  ehFree = false,
 }: {
   idioma: Idioma
   temAgenda?: boolean
+  ehFree?: boolean
 }) {
   const t = useT()
   const [criando, setCriando] = useState<TipoItem | null>(null)
@@ -40,6 +43,27 @@ export function SeletorTipoItem({
           // So uma agenda por minisitee: com uma ja criada a opcao fica visivel,
           // mas avisa em vez de criar.
           const bloqueado = tipo === 'agenda' && temAgenda
+
+          // Ferramenta do pro na conta free: aparece, mas leva para a assinatura.
+          if (ehFree && soPro(tipo)) {
+            return (
+              <li key={tipo}>
+                <Link
+                  href="/painel/perfil"
+                  className="block w-full rounded-2xl border border-border bg-surface p-4 text-left transition-colors hover:border-fg"
+                >
+                  <span className="flex items-center gap-2 text-base font-semibold">
+                    {rotulos[tipo].nome}
+                    <span className="rounded-full bg-fg px-2 py-0.5 text-xs font-semibold text-bg">
+                      {t('soPro')}
+                    </span>
+                  </span>
+                  <span className="mt-1 block text-sm text-muted">{t('soProDescricao')}</span>
+                </Link>
+              </li>
+            )
+          }
+
           return (
             <li key={tipo}>
               <button

@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { AgendaPublica } from '@/components/agenda-publica'
+import { FormularioPublico } from '@/components/formulario-publico'
 import { ItemCard } from '@/components/item-card'
 import { ContagemRegressiva } from '@/components/contagem-regressiva'
 import { IconeSecao } from '@/components/icone-secao'
@@ -12,11 +13,13 @@ import {
   type Idioma,
 } from '@/lib/i18n/dicionarios'
 import { configAgenda } from '@/lib/agenda'
+import { camposDoFormulario } from '@/lib/formulario'
 import { corHexValida, estiloDeFundo } from '@/lib/cor'
 import {
   DIAS_SEMANA,
   formatarBytes,
   linkWhatsapp,
+  soPro,
   type ItemPublico,
   type PerfilPublico,
 } from '@/lib/types'
@@ -86,6 +89,7 @@ export function MinisiteeConteudo({
                     key={bloco.item.id}
                     item={bloco.item}
                     whatsappDoPerfil={profile.whatsapp}
+                    plano={profile.plan}
                     idioma={idioma}
                     d={d}
                   />
@@ -135,14 +139,19 @@ function agrupar(items: ItemPublico[]): Bloco[] {
 function BlocoItem({
   item,
   whatsappDoPerfil,
+  plano,
   idioma,
   d,
 }: {
   item: ItemPublico
   whatsappDoPerfil: string | null
+  plano: string
   idioma: Idioma
   d: Dicionario
 }) {
+  // A consulta do catalogo ja tira essas ferramentas da conta free; conferir
+  // aqui cobre a pagina que ficou em cache de antes da troca de plano.
+  if (soPro(item.kind) && plano === 'free') return null
   if (item.kind === 'redes') return <BlocoRedes item={item} />
   if (item.kind === 'faq') return <BlocoFaq item={item} />
   if (item.kind === 'galeria') return <BlocoGaleria item={item} />
@@ -150,6 +159,7 @@ function BlocoItem({
   if (item.kind === 'arquivo') return <BlocoArquivo item={item} />
   if (item.kind === 'qrcode') return <BlocoQrCode item={item} />
   if (item.kind === 'agenda') return <BlocoAgenda item={item} />
+  if (item.kind === 'formulario') return <BlocoFormulario item={item} />
   if (item.kind === 'horario') return <BlocoHorario item={item} idioma={idioma} d={d} />
   if (item.kind === 'endereco') return <BlocoEndereco item={item} d={d} />
 
@@ -415,6 +425,30 @@ function BlocoAgenda({ item }: { item: ItemPublico }) {
         {item.title}
       </h2>
       <AgendaPublica itemId={item.id} config={configAgenda(item.data)} />
+    </section>
+  )
+}
+
+function BlocoFormulario({ item }: { item: ItemPublico }) {
+  const campos = camposDoFormulario(item.data)
+  if (campos.length === 0) return null
+
+  const cor = corHexValida(item.data?.corFundo)
+
+  return (
+    <section
+      className="rounded-2xl border border-border bg-surface px-5 py-4"
+      style={cor ? estiloDeFundo(cor) : undefined}
+    >
+      <h2 className="flex items-center justify-center gap-2 text-sm font-semibold text-muted">
+        <IconeSecao tipo="formulario" />
+        {item.title}
+      </h2>
+      <FormularioPublico
+        itemId={item.id}
+        campos={campos}
+        mensagemFim={item.data?.mensagemFim?.slice(0, 300)}
+      />
     </section>
   )
 }

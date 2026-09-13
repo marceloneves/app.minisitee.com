@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation'
 import { ListaAgendamentos, type Agendamento } from '@/components/lista-agendamentos'
 import { agoraNoFuso, somarDias } from '@/lib/agenda'
 import { getUserId } from '@/lib/auth'
-import { getT } from '@/lib/i18n/servidor'
+import { TIPOS } from '@/lib/i18n/dicionarios'
+import { getIdioma, getT } from '@/lib/i18n/servidor'
 import { createClient } from '@/lib/supabase/server'
 
 const CAMPOS = 'id, dia, hora, nome, telefone, email, observacao, status'
@@ -60,6 +61,13 @@ export default async function AgendaPage() {
   ])
 
   const noAr = agenda.status === 'ativo' || agenda.status === 'reservado'
+  const { data: perfil } = await supabase
+    .from('profiles')
+    .select('plan')
+    .eq('id', userId)
+    .maybeSingle()
+  const ehFree = (perfil?.plan ?? 'free') === 'free'
+  const idioma = await getIdioma()
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
@@ -73,7 +81,13 @@ export default async function AgendaPage() {
         </Link>
       </div>
 
-      {!noAr && (
+      {ehFree && (
+        <p className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {t('ferramentaProAviso', { nome: TIPOS[idioma].agenda.nome })}
+        </p>
+      )}
+
+      {!noAr && !ehFree && (
         <p className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {t('agendaForaDoAr')}
         </p>

@@ -1,6 +1,8 @@
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { NextResponse, type NextRequest } from 'next/server'
 import type Stripe from 'stripe'
 import { createStripe } from '@/lib/stripe'
+import { agendarPublicacao } from '@/lib/html-estatico'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 // Precisa do corpo cru para conferir a assinatura do Stripe.
@@ -43,7 +45,7 @@ export async function POST(request: NextRequest) {
     const item = assinaturaStripe.items.data[0]
     const fim = item?.current_period_end
 
-    const { error } = await admin
+    const { data: perfis, error } = await admin
       .from('profiles')
       .update({
         plan: ativo ? 'pro' : 'free',
@@ -52,8 +54,20 @@ export async function POST(request: NextRequest) {
         current_period_end: fim ? new Date(fim * 1000).toISOString() : null,
       })
       .eq('stripe_customer_id', clienteId)
+      .select('username')
 
-    if (error) console.error('[stripe] falha ao atualizar perfil:', error.message)
+    if (error) {
+      console.error('[stripe] falha ao atualizar perfil:', error.message)
+      return
+    }
+
+    // Agenda e Formulario dependem do plano: a pagina publica muda junto.
+    for (const { username } of perfis ?? []) {
+      if (!username) continue
+      revalidatePath(`/${username}`)
+      revalidateTag(`catalogo:${username}`)
+      agendarPublicacao(username)
+    }
   }
 
   try {

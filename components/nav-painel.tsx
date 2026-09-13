@@ -9,10 +9,12 @@ export function NavPainel({
   admin,
   cubo,
   agenda,
+  respostas,
 }: {
   admin: boolean
   cubo: boolean
   agenda: boolean
+  respostas: boolean
 }) {
   const t = useT()
   const pathname = usePathname()
@@ -23,7 +25,7 @@ export function NavPainel({
 
   // Perfil e Admin sao secoes proprias. Todo o resto de /painel/* — estilo,
   // visualizar, novo, editor de item — continua sendo o Painel.
-  const SECOES = ['/painel/agenda', '/painel/perfil', '/painel/admin', '/painel/cubo']
+  const SECOES = ['/painel/agenda', '/painel/respostas', '/painel/perfil', '/painel/admin', '/painel/cubo']
   const emOutraSecao = SECOES.some((s) => pathname.startsWith(s))
 
   function classe(href: string) {
@@ -40,6 +42,11 @@ export function NavPainel({
       {agenda && (
         <Link href="/painel/agenda" className={classe('/painel/agenda')}>
           {t('agenda')}
+        </Link>
+      )}
+      {respostas && (
+        <Link href="/painel/respostas" className={classe('/painel/respostas')}>
+          {t('respostas')}
         </Link>
       )}
       <Link href="/painel/perfil" className={classe('/painel/perfil')}>

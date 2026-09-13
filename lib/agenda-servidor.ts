@@ -3,7 +3,7 @@ import { createHash, createHmac, randomInt, timingSafeEqual } from 'node:crypto'
 import { NextResponse, type NextRequest } from 'next/server'
 import { agoraNoFuso, configAgenda, horariosLivres } from '@/lib/agenda'
 import { createAdminClient } from '@/lib/supabase/admin'
-import type { DadosItem } from '@/lib/types'
+import { planoDoDono, type DadosItem } from '@/lib/types'
 
 export type Admin = ReturnType<typeof createAdminClient>
 export type AgendaServidor = { id: string; profile_id: string; data: DadosItem | null }
@@ -20,13 +20,15 @@ export async function carregarAgenda(admin: Admin, itemId: string): Promise<Agen
 
   const { data } = await admin
     .from('items')
-    .select('id, profile_id, kind, status, data')
+    .select('id, profile_id, kind, status, data, profiles(plan)')
     .eq('id', itemId)
     .maybeSingle()
 
   if (!data || data.kind !== 'agenda' || !['ativo', 'reservado'].includes(data.status)) {
     return null
   }
+  // Agenda e do plano pro: conta que voltou para o free para de receber pedido.
+  if (planoDoDono(data.profiles) === 'free') return null
   return data
 }
 

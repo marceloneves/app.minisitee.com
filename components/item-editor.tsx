@@ -7,7 +7,7 @@ import { PhotoUploader, type Foto } from '@/components/photo-uploader'
 import { ArquivoUploader } from '@/components/arquivo-uploader'
 import { RedeIcone } from '@/components/rede-icone'
 import { useIdioma, useT } from '@/lib/i18n/contexto'
-import { DIAS, ROTULO_STATUS, TIPOS } from '@/lib/i18n/dicionarios'
+import { DIAS, ROTULO_STATUS, TIPOS, type Dicionario } from '@/lib/i18n/dicionarios'
 import { excluirItem, salvarItem, type PatchItem } from '@/lib/actions/items'
 import { currencyToCents, maskCurrency } from '@/lib/mask'
 import { slugify } from '@/lib/slug'
@@ -16,13 +16,16 @@ import {
   REDES,
   horarioPadrao,
   statusDoTipo,
+  type CampoFormulario,
   type DadosItem,
+  type TipoCampo,
   type TipoItem,
 } from '@/lib/types'
 import { CampoTelefone } from '@/components/campo-telefone'
 import { QrCode, urlDoQrCode } from '@/components/qr-code'
 import { ANTECEDENCIAS, DIAS_A_FRENTE, DURACOES, configAgenda } from '@/lib/agenda'
 import { corHexValida } from '@/lib/cor'
+import { MAX_CAMPOS, TIPOS_CAMPO, novoIdCampo } from '@/lib/formulario'
 
 export type ItemForm = {
   id: string
@@ -192,7 +195,10 @@ export function ItemEditor({
           <Texto
             id="titulo"
             rotulo={
-              form.kind === 'produto' || form.kind === 'qrcode' || form.kind === 'agenda'
+              form.kind === 'produto' ||
+              form.kind === 'qrcode' ||
+              form.kind === 'agenda' ||
+              form.kind === 'formulario'
                 ? t('titulo')
                 : t('textoBotao')
             }
@@ -207,7 +213,9 @@ export function ItemEditor({
                     ? 'Escaneie para ver o cardápio'
                     : form.kind === 'agenda'
                       ? 'Agende seu horário'
-                      : 'Ver meu Instagram'
+                      : form.kind === 'formulario'
+                        ? 'Peça seu orçamento'
+                        : 'Ver meu Instagram'
             }
           />
 
@@ -318,6 +326,10 @@ export function ItemEditor({
 
           {form.kind === 'agenda' && (
             <EditorAgenda dados={form.dados} aoMudar={mudarDados} />
+          )}
+
+          {form.kind === 'formulario' && (
+            <EditorFormulario itemId={form.id} dados={form.dados} aoMudar={mudarDados} />
           )}
 
           {form.kind === 'faq' && (
@@ -743,34 +755,241 @@ function EditorAgenda({
         </label>
       </div>
 
-      <div>
-        <label htmlFor="agenda-cor" className="block text-sm font-medium">
-          {t('agendaCorFundo')}
-        </label>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <input
-            id="agenda-cor"
-            type="color"
-            value={corHexValida(dados.corFundo) ?? '#ffffff'}
-            onChange={(e) => aoMudar({ corFundo: e.target.value })}
-            className="h-11 w-16 cursor-pointer rounded-lg border border-border bg-bg p-1"
-          />
-          {corHexValida(dados.corFundo) ? (
-            <button
-              type="button"
-              onClick={() => aoMudar({ corFundo: undefined })}
-              className="text-sm text-muted underline underline-offset-4"
-            >
-              {t('agendaCorDoEstilo')}
-            </button>
-          ) : (
-            <span className="text-sm text-muted">{t('agendaUsandoCorEstilo')}</span>
-          )}
-        </div>
-      </div>
+      <CampoCor
+        id="agenda-cor"
+        valor={dados.corFundo}
+        aoMudar={(corFundo) => aoMudar({ corFundo })}
+      />
 
       <Link href="/painel/agenda" className="inline-block text-sm underline underline-offset-4">
         {t('agendaVerCompromissos')}
+      </Link>
+    </div>
+  )
+}
+
+// Cor de fundo do cartao na pagina publica. Sem cor escolhida vale a do estilo.
+function CampoCor({
+  id,
+  valor,
+  aoMudar,
+}: {
+  id: string
+  valor: string | undefined
+  aoMudar: (cor: string | undefined) => void
+}) {
+  const t = useT()
+  const cor = corHexValida(valor)
+
+  return (
+    <div>
+      <label htmlFor={id} className="block text-sm font-medium">
+        {t('agendaCorFundo')}
+      </label>
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <input
+          id={id}
+          type="color"
+          value={cor ?? '#ffffff'}
+          onChange={(e) => aoMudar(e.target.value)}
+          className="h-11 w-16 cursor-pointer rounded-lg border border-border bg-bg p-1"
+        />
+        {cor ? (
+          <button
+            type="button"
+            onClick={() => aoMudar(undefined)}
+            className="text-sm text-muted underline underline-offset-4"
+          >
+            {t('agendaCorDoEstilo')}
+          </button>
+        ) : (
+          <span className="text-sm text-muted">{t('agendaUsandoCorEstilo')}</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const ROTULO_CAMPO: Record<TipoCampo, keyof Dicionario> = {
+  texto: 'campoTexto',
+  textoLongo: 'campoTextoLongo',
+  whatsapp: 'campoWhatsapp',
+  email: 'campoEmail',
+  numero: 'campoNumero',
+  data: 'campoData',
+  uma: 'campoUma',
+  varias: 'campoVarias',
+}
+
+function EditorFormulario({
+  itemId,
+  dados,
+  aoMudar,
+}: {
+  itemId: string
+  dados: DadosItem
+  aoMudar: (patch: Partial<DadosItem>) => void
+}) {
+  const t = useT()
+  const campos = dados.campos ?? []
+  const botaoPequeno = 'rounded-lg border border-border px-2 py-1 text-xs disabled:opacity-30'
+
+  function mudarCampos(lista: CampoFormulario[]) {
+    aoMudar({ campos: lista })
+  }
+
+  function mudarCampo(i: number, patch: Partial<CampoFormulario>) {
+    mudarCampos(campos.map((c, j) => (j === i ? { ...c, ...patch } : c)))
+  }
+
+  function mover(i: number, passo: number) {
+    const j = i + passo
+    if (j < 0 || j >= campos.length) return
+    const lista = [...campos]
+    ;[lista[i], lista[j]] = [lista[j], lista[i]]
+    mudarCampos(lista)
+  }
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <span className="block text-sm font-medium">{t('formularioPerguntas')}</span>
+        {campos.length === 0 && (
+          <p className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            {t('formularioSemPerguntas')}
+          </p>
+        )}
+
+        <ul className="mt-2 space-y-3">
+          {campos.map((campo, i) => (
+            <li key={campo.id} className="rounded-xl border border-border p-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium text-muted">
+                  {t('perguntaN', { n: i + 1 })}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    aria-label={t('moverCima')}
+                    disabled={i === 0}
+                    onClick={() => mover(i, -1)}
+                    className={botaoPequeno}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={t('moverBaixo')}
+                    disabled={i === campos.length - 1}
+                    onClick={() => mover(i, 1)}
+                    className={botaoPequeno}
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => mudarCampos(campos.filter((_, j) => j !== i))}
+                    className="ml-1 text-sm text-red-600"
+                  >
+                    {t('remover')}
+                  </button>
+                </div>
+              </div>
+
+              <input
+                aria-label={t('perguntaN', { n: i + 1 })}
+                value={campo.rotulo}
+                maxLength={120}
+                placeholder="Qual serviço você procura?"
+                onChange={(e) => mudarCampo(i, { rotulo: e.target.value })}
+                className="mt-2 w-full rounded-lg border border-border bg-bg px-3 py-2.5 text-base outline-none focus:border-fg"
+              />
+
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <select
+                  aria-label={t('formularioFormato')}
+                  value={campo.tipo}
+                  onChange={(e) => mudarCampo(i, { tipo: e.target.value as TipoCampo })}
+                  className="rounded-lg border border-border bg-bg px-3 py-2.5 text-base outline-none focus:border-fg"
+                >
+                  {TIPOS_CAMPO.map((tipo) => (
+                    <option key={tipo} value={tipo}>
+                      {t(ROTULO_CAMPO[tipo])}
+                    </option>
+                  ))}
+                </select>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={campo.obrigatorio}
+                    onChange={(e) => mudarCampo(i, { obrigatorio: e.target.checked })}
+                    className="size-4"
+                  />
+                  {t('formularioObrigatoria')}
+                </label>
+              </div>
+
+              {(campo.tipo === 'uma' || campo.tipo === 'varias') && (
+                <label className="mt-3 block text-sm font-medium">
+                  {t('formularioOpcoes')}
+                  {/* As linhas ficam como estao, vazias inclusive: filtrar aqui
+                      impediria apertar Enter para comecar a proxima opcao. */}
+                  <textarea
+                    value={(campo.opcoes ?? []).join('\n')}
+                    rows={3}
+                    placeholder={'Corte\nBarba\nCorte + barba'}
+                    onChange={(e) => mudarCampo(i, { opcoes: e.target.value.split('\n') })}
+                    className="mt-2 w-full rounded-lg border border-border bg-bg px-3 py-2.5 text-base font-normal outline-none focus:border-fg"
+                  />
+                </label>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        {campos.length < MAX_CAMPOS && (
+          <button
+            type="button"
+            onClick={() =>
+              mudarCampos([
+                ...campos,
+                { id: novoIdCampo(), rotulo: '', tipo: 'texto', obrigatorio: false },
+              ])
+            }
+            className="mt-3 w-full rounded-xl border border-dashed border-border px-4 py-2.5 text-sm text-muted"
+          >
+            {t('adicionarPergunta')}
+          </button>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="formulario-fim" className="block text-sm font-medium">
+          {t('formularioMensagemFim')}{' '}
+          <span className="font-normal text-muted">{t('opcional')}</span>
+        </label>
+        <textarea
+          id="formulario-fim"
+          value={dados.mensagemFim ?? ''}
+          rows={2}
+          maxLength={300}
+          placeholder={t('formularioMensagemPadrao')}
+          onChange={(e) => aoMudar({ mensagemFim: e.target.value })}
+          className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
+        />
+      </div>
+
+      <CampoCor
+        id="formulario-cor"
+        valor={dados.corFundo}
+        aoMudar={(corFundo) => aoMudar({ corFundo })}
+      />
+
+      <Link
+        href={`/painel/respostas?f=${itemId}`}
+        className="inline-block text-sm underline underline-offset-4"
+      >
+        {t('formularioVerRespostas')}
       </Link>
     </div>
   )

@@ -40,7 +40,11 @@ export default async function NovoItemPage() {
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
       <CabecalhoPainel titulo={t('oQueAdicionar')} subtitulo={t('escolhaTipo')} />
 
-      <SeletorTipoItem idioma={idioma} temAgenda={(agendas ?? 0) > 0} />
+      <SeletorTipoItem
+        idioma={idioma}
+        temAgenda={(agendas ?? 0) > 0}
+        ehFree={(profile?.plan ?? 'free') === 'free'}
+      />
 
       <Link
         href="/painel"

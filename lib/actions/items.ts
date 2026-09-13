@@ -7,7 +7,8 @@ import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
 import { MAX_ITENS_FREE } from '@/lib/constants'
 import { slugify } from '@/lib/slug'
-import { horarioPadrao, type DadosItem, type TipoItem } from '@/lib/types'
+import { novoIdCampo } from '@/lib/formulario'
+import { horarioPadrao, soPro, type DadosItem, type TipoItem } from '@/lib/types'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -76,6 +77,14 @@ const TITULO_PADRAO: Record<string, string> = {
   contagem: 'Contagem regressiva',
   qrcode: 'Escaneie o QR code',
   agenda: 'Agende seu horário',
+  formulario: 'Fale com a gente',
+}
+
+const ERRO_PRO = 'Essa ferramenta é do plano pro. Assine o pro em Perfil para usar.'
+
+// O trigger trg_ferramenta_pro recusa agenda e formulario em conta free.
+function ehErroPro(error: { message?: string } | null) {
+  return Boolean(error?.message?.includes('plano pro'))
 }
 
 export async function criarRascunho(kind: TipoItem = 'produto') {
@@ -83,6 +92,17 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
   if (!userId) redirect('/login')
 
   const supabase = await createClient()
+
+  // O banco tambem recusa; conferir antes da uma mensagem clara sem tentar gravar.
+  if (soPro(kind)) {
+    const { data: perfil } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', userId)
+      .maybeSingle()
+    if ((perfil?.plan ?? 'free') === 'free') return { erro: ERRO_PRO }
+  }
+
   const titulo = TITULO_PADRAO[kind] ?? 'Nova ferramenta'
   const slug = await slugDisponivel(supabase, userId, slugify(titulo))
 
@@ -107,12 +127,24 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
       ...(kind === 'agenda'
         ? { data: { dias: horarioPadrao(), duracao: 60, diasAFrente: 30, antecedencia: 2 } }
         : {}),
+      ...(kind === 'formulario'
+        ? {
+            data: {
+              campos: [
+                { id: novoIdCampo(), rotulo: 'Seu nome', tipo: 'texto', obrigatorio: true },
+                { id: novoIdCampo(), rotulo: 'Seu WhatsApp', tipo: 'whatsapp', obrigatorio: true },
+                { id: novoIdCampo(), rotulo: 'Mensagem', tipo: 'textoLongo', obrigatorio: false },
+              ],
+            },
+          }
+        : {}),
     })
     .select('id')
     .single()
 
+  if (ehErroPro(error)) return { erro: ERRO_PRO }
   if (error?.code === '54000') {
-    return { erro: `O plano free permite ${MAX_ITENS_FREE} itens.`, limite: true as const }
+    return { erro: `O plano free permite ${MAX_ITENS_FREE} ferramentas.`, limite: true as const }
   }
   // O indice items_uma_agenda deixa uma agenda so por minisite.
   if (error?.code === '23505' && error.message.includes('items_uma_agenda')) {
@@ -205,8 +237,9 @@ export async function duplicarItem(id: string) {
     .select('id')
     .single()
 
+  if (ehErroPro(error)) return { erro: ERRO_PRO }
   if (error?.code === '54000') {
-    return { erro: `O plano free permite ${MAX_ITENS_FREE} itens.`, limite: true as const }
+    return { erro: `O plano free permite ${MAX_ITENS_FREE} ferramentas.`, limite: true as const }
   }
   if (error?.code === '23505' && error.message.includes('items_uma_agenda')) {
     return { erro: 'Seu minisitee já tem uma agenda.' }

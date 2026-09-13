@@ -26,11 +26,31 @@ export type TipoItem =
   | 'contagem'
   | 'qrcode'
   | 'agenda'
+  | 'formulario'
 
 export type RedeSocial = { rede: string; url: string }
 export type DiaHorario = { dia: string; abre: string; fecha: string; fechado: boolean }
 
 export type Pergunta = { p: string; r: string }
+
+export type TipoCampo =
+  | 'texto'
+  | 'textoLongo'
+  | 'whatsapp'
+  | 'email'
+  | 'numero'
+  | 'data'
+  | 'uma'
+  | 'varias'
+
+// Uma pergunta do formulario. `opcoes` so vale para uma/varias.
+export type CampoFormulario = {
+  id: string
+  rotulo: string
+  tipo: TipoCampo
+  obrigatorio: boolean
+  opcoes?: string[]
+}
 
 export type DadosItem = {
   links?: RedeSocial[]
@@ -47,6 +67,8 @@ export type DadosItem = {
   diasAFrente?: number
   antecedencia?: number
   corFundo?: string
+  campos?: CampoFormulario[]
+  mensagemFim?: string
 }
 
 export const REDES = [
@@ -114,6 +136,7 @@ export const TIPOS_ITEM = [
   ['contagem', 'Contagem regressiva', 'Conta o tempo até uma data'],
   ['qrcode', 'QR code', 'Um link virando QR code para escanear'],
   ['agenda', 'Agenda', 'O cliente escolhe dia e horário para marcar'],
+  ['formulario', 'Formulário', 'Perguntas que você cria; as respostas chegam no painel'],
 ] as const
 
 export function formatarBytes(bytes: number) {
@@ -135,6 +158,21 @@ export function statusDoTipo(kind: string) {
   return kind === 'produto'
     ? STATUS_ITEM
     : STATUS_ITEM.filter(([v]) => v === 'rascunho' || v === 'ativo')
+}
+
+// Ferramentas que so a conta pro usa. No free elas nao podem ser criadas e,
+// se a conta voltar para o free, saem do minisite sem apagar nada.
+export const FERRAMENTAS_PRO = ['agenda', 'formulario'] as const
+
+export function soPro(kind: string) {
+  return (FERRAMENTAS_PRO as readonly string[]).includes(kind)
+}
+
+// O select `profiles(plan)` volta como objeto ou como lista, conforme o
+// supabase-js entende a relacao.
+export function planoDoDono(perfil: unknown) {
+  const p = Array.isArray(perfil) ? perfil[0] : perfil
+  return (p as { plan?: string } | null | undefined)?.plan ?? 'free'
 }
 
 // `superficie` e a cor solida da amostra e do cartao de compartilhamento: o

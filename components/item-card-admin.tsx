@@ -10,6 +10,7 @@ import { IconeSecao } from '@/components/icone-secao'
 import { RedeIcone, nomeDaRede } from '@/components/rede-icone'
 import { useIdioma, useT } from '@/lib/i18n/contexto'
 import { TIPOS } from '@/lib/i18n/dicionarios'
+import { soPro } from '@/lib/types'
 
 export type ItemResumo = {
   id: string
@@ -32,12 +33,14 @@ export function ItemCardAdmin({
   posicao,
   primeiro,
   ultimo,
+  ehFree,
 }: {
   item: ItemResumo
   username: string
   posicao: number
   primeiro: boolean
   ultimo: boolean
+  ehFree: boolean
 }) {
   const t = useT()
   const idioma = useIdioma()
@@ -105,6 +108,9 @@ export function ItemCardAdmin({
             <StatusBadge status={item.status} />
           </div>
           {contexto && <p className="mt-0.5 truncate text-xs text-muted">{contexto}</p>}
+          {ehFree && soPro(item.kind) && (
+            <p className="mt-1 text-xs font-medium text-amber-700">{t('ferramentaForaDoPlano')}</p>
+          )}
           {ehProduto && (
             <p className="mt-1 text-sm font-semibold">
               {item.price_cents ? formatBRL(item.price_cents) : t('semValor')}
@@ -152,6 +158,14 @@ export function ItemCardAdmin({
             className="rounded-lg border border-border px-3 py-1.5 text-xs"
           >
             {t('verPagina')}
+          </Link>
+        )}
+        {item.kind === 'formulario' && (
+          <Link
+            href={`/painel/respostas?f=${item.id}`}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs"
+          >
+            {t('formularioVerRespostas')}
           </Link>
         )}
         {item.kind === 'agenda' ? (

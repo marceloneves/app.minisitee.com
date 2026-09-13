@@ -1,7 +1,8 @@
 import { basePublica } from '@/lib/site'
 import { createAdminClient, temChaveAdmin } from '@/lib/supabase/admin'
 
-export const revalidate = 3600
+// A lista e refeita a cada 30 minutos, e so.
+export const revalidate = 1800
 
 // So os minisites. As paginas fixas de minisitee.com sao arquivos do outro
 // repositorio e ficam em sitemap-paginas.xml; quem junta os dois e o
@@ -77,10 +78,9 @@ export async function GET() {
 ${corpo}
 </urlset>`
 
-  // Sem Cache-Control proprio, o Next manda stale-while-revalidate de um ano, e
-  // o cache do LiteSpeed na frente de minisitee.com obedece: guardou a lista de
-  // 11/09 e parou de perguntar ao app. O cache de 1h do Next ja basta, entao o
-  // LiteSpeed fica de fora.
+  // O cache do LiteSpeed na frente de minisitee.com guardou a lista de 11/09 e
+  // parou de perguntar ao app. Quem guarda a lista e o Next, pelos 30 minutos
+  // acima; o LiteSpeed fica de fora.
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml',

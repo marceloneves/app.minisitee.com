@@ -14,11 +14,20 @@ export const revalidate = 1800
 //
 // A RLS de profiles so deixa o dono ler a propria linha, entao a lista sai
 // pela chave de servico. Fica no servidor: esta rota nunca vai para o cliente.
+// O fetch do Next guarda as respostas do banco numa pasta que sobrevive ao
+// deploy, e o build usa essa resposta mesmo vencida: o sitemap subia com a
+// lista de dias antes. Estas consultas vao direto ao banco; quem segura a
+// lista pelos 30 minutos e o revalidate da rota.
+function fetchSemCacheDoNext(): typeof fetch {
+  const f = globalThis.fetch as typeof fetch & { _nextOriginalFetch?: typeof fetch }
+  return f._nextOriginalFetch ?? f
+}
+
 async function urls() {
   if (!temChaveAdmin()) return []
 
   const base = basePublica()
-  const admin = createAdminClient()
+  const admin = createAdminClient(fetchSemCacheDoNext())
   const perfis = await admin.from('profiles').select('id, username, updated_at')
   if (perfis.error || !perfis.data) return []
 

@@ -1,19 +1,21 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { abrirPortal, assinarPro } from '@/lib/actions/stripe'
+import { abrirPortal, assinarPro, cancelarAssinatura } from '@/lib/actions/stripe'
 import { MAX_ITENS_FREE } from '@/lib/constants'
 import { useT } from '@/lib/i18n/contexto'
 
 export function Assinatura({
   plano,
   temAssinatura,
+  temClienteStripe,
   renovaEm,
   stripeAtivo,
   retorno,
 }: {
   plano: string
   temAssinatura: boolean
+  temClienteStripe: boolean
   renovaEm: string | null
   stripeAtivo: boolean
   retorno: 'ok' | 'cancelada' | null
@@ -77,17 +79,34 @@ export function Assinatura({
           </p>
         )}
 
+        {/* Quem ja e pro nunca ve "Assinar o pro". Com cliente na Stripe, da
+            para gerenciar e cancelar; pro liberado sem cobranca nao tem o que
+            cancelar aqui. */}
         {!stripeAtivo ? (
           <p className="mt-3 text-sm text-muted">{t('pagamentoIndisponivel')}</p>
-        ) : temAssinatura ? (
-          <button
-            type="button"
-            disabled={pendente}
-            onClick={() => executar(abrirPortal)}
-            className="mt-3 w-full rounded-xl border border-border px-4 py-3 text-base font-medium disabled:opacity-60"
-          >
-            {pendente ? t('abrindoCheckout') : t('gerenciarAssinatura')}
-          </button>
+        ) : ehPro || temAssinatura ? (
+          temClienteStripe ? (
+            <div className="mt-3 grid gap-2">
+              <button
+                type="button"
+                disabled={pendente}
+                onClick={() => executar(abrirPortal)}
+                className="w-full rounded-xl border border-border px-4 py-3 text-base font-medium disabled:opacity-60"
+              >
+                {pendente ? t('abrindoCheckout') : t('gerenciarAssinatura')}
+              </button>
+              <button
+                type="button"
+                disabled={pendente}
+                onClick={() => executar(cancelarAssinatura)}
+                className="w-full rounded-xl px-4 py-3 text-base font-medium text-red-600 disabled:opacity-60"
+              >
+                {t('cancelarAssinatura')}
+              </button>
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-muted">{t('proSemCobranca')}</p>
+          )
         ) : (
           <button
             type="button"

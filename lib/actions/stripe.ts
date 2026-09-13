@@ -80,3 +80,50 @@ export async function abrirPortal() {
 
   redirect(sessao.url)
 }
+
+// Cancelar abre o portal da Stripe direto na confirmacao do cancelamento. A
+// assinatura e buscada na propria Stripe: o perfil pode estar sem o id gravado
+// (caso do helpcell, pro com cliente na Stripe e sem stripe_subscription_id).
+export async function cancelarAssinatura() {
+  if (!stripeConfigurado()) return { erro: 'stripe_indisponivel' as const }
+
+  const userId = await getUserId()
+  if (!userId) return { erro: 'Sessão expirada.' }
+
+  const { perfil } = await perfilComEmail(userId)
+  if (!perfil?.stripe_customer_id) return { erro: 'Nenhuma assinatura encontrada.' }
+
+  const stripe = createStripe()
+  const retorno = `${base()}/painel/assinatura`
+
+  const { data } = await stripe.subscriptions.list({
+    customer: perfil.stripe_customer_id,
+    limit: 10,
+  })
+  const assinatura = data.find((a) => ['active', 'trialing', 'past_due'].includes(a.status))
+  if (!assinatura) return { erro: 'Nenhuma assinatura ativa na Stripe para cancelar.' }
+
+  let url: string
+  try {
+    const sessao = await stripe.billingPortal.sessions.create({
+      customer: perfil.stripe_customer_id,
+      return_url: retorno,
+      flow_data: {
+        type: 'subscription_cancel',
+        subscription_cancel: { subscription: assinatura.id },
+        after_completion: { type: 'redirect', redirect: { return_url: retorno } },
+      },
+    })
+    url = sessao.url
+  } catch {
+    // Portal sem cancelamento habilitado recusa o fluxo direto: abre o portal
+    // normal, onde a pessoa ainda ve e gerencia a assinatura.
+    const sessao = await stripe.billingPortal.sessions.create({
+      customer: perfil.stripe_customer_id,
+      return_url: retorno,
+    })
+    url = sessao.url
+  }
+
+  redirect(url)
+}

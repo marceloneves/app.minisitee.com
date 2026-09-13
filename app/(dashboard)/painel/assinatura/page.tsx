@@ -18,7 +18,7 @@ export default async function AssinaturaPage({
   const supabase = await createClient()
   const { data: profile } = await supabase
     .from('profiles')
-    .select('plan, stripe_subscription_id, current_period_end')
+    .select('plan, stripe_customer_id, stripe_subscription_id, current_period_end')
     .eq('id', userId)
     .maybeSingle()
 
@@ -33,6 +33,7 @@ export default async function AssinaturaPage({
       <Assinatura
         plano={profile.plan ?? 'free'}
         temAssinatura={Boolean(profile.stripe_subscription_id)}
+        temClienteStripe={Boolean(profile.stripe_customer_id)}
         renovaEm={renovaEm}
         stripeAtivo={stripeConfigurado()}
         retorno={assinatura === 'ok' ? 'ok' : assinatura === 'cancelada' ? 'cancelada' : null}

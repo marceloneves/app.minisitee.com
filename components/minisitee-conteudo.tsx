@@ -232,10 +232,11 @@ function BlocoRedes({ item }: { item: ItemPublico }) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${item.title} (${nomeDaRede(link.rede)})`}
-        className={caixa}
+        className="flex flex-col items-center justify-center gap-2.5 py-2"
       >
-        <RedeIcone rede={link.rede} />
+        {/* Titulo em cima e icone embaixo, igual ao bloco com varias redes. */}
         <span className="text-base font-semibold">{item.title}</span>
+        <RedeIcone rede={link.rede} />
       </a>
     )
   }

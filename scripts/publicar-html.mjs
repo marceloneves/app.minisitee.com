@@ -1,8 +1,9 @@
-// Gera o HTML de todos os minisites de uma vez. Roda no fim de cada publicacao
-// (o codigo mudou, entao o HTML de todo mundo esta velho) e serve para o
-// primeiro carregamento, quando ainda nao existe arquivo nenhum.
+// Gera o HTML dos minisites. Sem argumento, gera todos: roda no fim de cada
+// publicacao (o codigo mudou, entao o HTML de todo mundo esta velho). Com
+// usernames, gera so esses: e o que o app chama quando alguem salva.
 //
-//   HTML_DIR=/home/minisitee.com/public_html node scripts/publicar-html.mjs
+//   HTML_DIR=/home/minisitee.com/public_html/minisites node scripts/publicar-html.mjs
+//   node scripts/publicar-html.mjs helpcell
 import { readFile, mkdir, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { rmSync } from 'node:fs'
 import { join } from 'node:path'
@@ -39,13 +40,17 @@ if (!SUPABASE || !CHAVE) {
   process.exit(1)
 }
 
+// Com usernames na linha de comando, e um salvamento: gera so esses, sem trava
+// e sem listar os perfis.
+const SO_ESTES = process.argv.slice(2).filter((u) => /^[a-z0-9_-]+$/.test(u))
+
 // O app chama este script sozinho toda vez que sobe (instrumentation.ts).
 // Se o pm2 estiver reiniciando em sequencia, uma execucao ja em andamento
 // segura as outras: sem isso, uma sequencia de restarts empilharia copias
 // gravando os mesmos arquivos ao mesmo tempo.
 const TRAVA = join(DIR, '.publicando')
 
-try {
+if (SO_ESTES.length === 0) try {
   const { mtimeMs } = await stat(TRAVA)
   const minutos = (Date.now() - mtimeMs) / 60000
 
@@ -61,7 +66,7 @@ try {
 }
 
 await mkdir(DIR, { recursive: true })
-await writeFile(TRAVA, String(Date.now()), 'utf8')
+if (SO_ESTES.length === 0) await writeFile(TRAVA, String(Date.now()), 'utf8')
 
 // Chamado logo depois do `pm2 restart`, o app ainda esta subindo. Sem esperar,
 // o script gravaria o HTML do build velho — ou nada — e os minisites ficariam
@@ -84,20 +89,27 @@ if (!(await esperarApp())) {
   process.exit(1)
 }
 
-const resposta = await fetch(`${SUPABASE}/rest/v1/profiles?select=username`, {
-  headers: { apikey: CHAVE, Authorization: `Bearer ${CHAVE}` },
-})
+let perfis
+if (SO_ESTES.length) {
+  perfis = SO_ESTES.map((username) => ({ username }))
+} else {
+  const resposta = await fetch(`${SUPABASE}/rest/v1/profiles?select=username`, {
+    headers: { apikey: CHAVE, Authorization: `Bearer ${CHAVE}` },
+  })
 
-if (!resposta.ok) {
-  console.error(`Nao consegui listar os perfis (${resposta.status}).`)
-  process.exit(1)
+  if (!resposta.ok) {
+    console.error(`Nao consegui listar os perfis (${resposta.status}).`)
+    process.exit(1)
+  }
+
+  perfis = await resposta.json()
 }
-
-const perfis = await resposta.json()
 
 // Qualquer saida daqui para baixo tira a trava: sem isto, um erro no meio
 // deixaria o proximo restart preso.
-process.on('exit', () => {
+// A trava e so da rodada completa: um salvamento nao pode apagar a trava de
+// um deploy que esta gerando todos ao mesmo tempo.
+if (SO_ESTES.length === 0) process.on('exit', () => {
   try {
     rmSync(TRAVA, { force: true })
   } catch {
@@ -112,6 +124,9 @@ for (const { username } of perfis) {
   const pagina = await fetch(`${ORIGEM}/${username}`, { cache: 'no-store' })
   if (!pagina.ok) {
     console.error(`${username}: ${pagina.status}`)
+    // Perfil apagado ou fora do ar: tira o arquivo em vez de deixar o
+    // conteudo velho servindo para sempre.
+    if (pagina.status === 404) await rm(join(DIR, username), { force: true, recursive: true })
     continue
   }
 
@@ -123,8 +138,9 @@ for (const { username } of perfis) {
   feitos++
 }
 
-await rm(TRAVA, { force: true })
+if (SO_ESTES.length === 0) await rm(TRAVA, { force: true })
 
 console.log(
-  `[${new Date().toISOString()}] HTML gerado para ${feitos} de ${perfis.length} minisites.`
+  `[${new Date().toISOString()}] HTML gerado para ${feitos} de ${perfis.length} minisites` +
+    (SO_ESTES.length ? ` (${SO_ESTES.join(', ')}).` : '.')
 )

@@ -1,4 +1,6 @@
 import 'server-only'
+import { spawn } from 'node:child_process'
+import { openSync } from 'node:fs'
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -19,15 +21,25 @@ function pastaDe(username: string) {
   return join(DIR!, username)
 }
 
-// Quem salva espera a pagina publica ser gravada. Com o `after`, a gravacao
-// rodava depois da resposta e, quando falhava, ninguem via: o minisite ficava
-// com o HTML velho. A pagina publica nao usa cache, entao o HTML sai sempre
-// com o que acabou de ser salvo.
+// Quem salva dispara o mesmo script que gera o HTML no deploy, so para este
+// minisite. Gravar de dentro do app funcionava no computador e falhava calado
+// em producao; o script e o caminho que ja funciona la, le o .env.local
+// sozinho e deixa o resultado em publicar-html.log. Sai em processo separado
+// e o salvamento nao espera: quando o script pede a pagina, o salvamento ja
+// terminou e a pagina sai com o que acabou de ser salvo.
 export async function agendarPublicacao(username: string) {
+  if (!/^[a-z0-9_-]+$/.test(username)) return
+
   try {
-    await publicarHtml(username)
+    const log = openSync(join(process.cwd(), 'publicar-html.log'), 'a')
+    const filho = spawn(process.execPath, ['scripts/publicar-html.mjs', username], {
+      cwd: process.cwd(),
+      detached: true,
+      stdio: ['ignore', log, log],
+    })
+    filho.unref()
   } catch (erro) {
-    console.error(`[html-estatico] ${username}:`, erro)
+    console.error(`[html-estatico] ${username}: nao consegui iniciar o script`, erro)
   }
 }
 

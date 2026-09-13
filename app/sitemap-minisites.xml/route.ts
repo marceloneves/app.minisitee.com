@@ -77,7 +77,15 @@ export async function GET() {
 ${corpo}
 </urlset>`
 
+  // Sem Cache-Control proprio, o Next manda stale-while-revalidate de um ano, e
+  // o cache do LiteSpeed na frente de minisitee.com obedece: guardou a lista de
+  // 11/09 e parou de perguntar ao app. O cache de 1h do Next ja basta, entao o
+  // LiteSpeed fica de fora.
   return new Response(xml, {
-    headers: { 'Content-Type': 'application/xml' },
+    headers: {
+      'Content-Type': 'application/xml',
+      'Cache-Control': 'no-cache',
+      'X-LiteSpeed-Cache-Control': 'no-cache',
+    },
   })
 }

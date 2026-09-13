@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 import { buscarPagina } from '@/lib/catalogo'
 import { DICIONARIOS, idiomaValido } from '@/lib/i18n/dicionarios'
 import { enderecoPublico } from '@/lib/site'
-import { ESTILOS, temaValido } from '@/lib/types'
+import { estiloPorValor, temaValido } from '@/lib/types'
 
 // Sem esta imagem, um minisite sem avatar era compartilhado sem figura
 // nenhuma: no WhatsApp o link virava um retangulo cinza. Aqui todo mundo
@@ -34,9 +34,11 @@ export default async function ImagemCompartilhamento({
   const pagina = await buscarPagina(username)
   const profile = pagina?.profile
 
-  const [, , superficie, marca] = ESTILOS.find(
-    ([v]) => v === temaValido(profile?.theme)
-  )!
+  const { superficie, marca, escuro } = estiloPorValor(temaValido(profile?.theme))
+  // O cartao e desenhado fora do CSS, entao nao herda --fg: nos estilos de
+  // fundo escuro o texto preto sumiria dentro da propria cor de superficie.
+  const corNome = escuro ? '#f5f5f7' : '#18181b'
+  const corLinha = escuro ? '#b0aeb8' : '#52525b'
 
   const nome = profile?.display_name ?? username
   const d = DICIONARIOS[idiomaValido(profile?.locale)]
@@ -74,11 +76,11 @@ export default async function ImagemCompartilhamento({
             {nome.trim().charAt(0).toUpperCase()}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '820px' }}>
-            <div style={{ fontSize: '68px', fontWeight: 700, color: '#18181b', lineHeight: 1.1 }}>
+            <div style={{ fontSize: '68px', fontWeight: 700, color: corNome, lineHeight: 1.1 }}>
               {nome}
             </div>
             {linha && (
-              <div style={{ marginTop: '16px', fontSize: '38px', color: '#52525b' }}>
+              <div style={{ marginTop: '16px', fontSize: '38px', color: corLinha }}>
                 {linha}
               </div>
             )}

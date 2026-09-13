@@ -163,7 +163,18 @@ export async function atualizarEstilo(theme: string) {
     .update({ theme })
     .eq('id', userId)
 
-  if (error) return { erro: 'Não foi possível salvar o estilo.' }
+  if (error) {
+    // 23514 e violacao de check: o theme_valido do banco nao conhece o estilo
+    // escolhido. Na pratica isso quer dizer que a migracao que abriu os
+    // estilos novos ainda nao rodou nesse banco.
+    if (error.code === '23514') {
+      return { erro: 'Esse estilo ainda não existe no banco: falta aplicar a migração.' }
+    }
+    // Sem isto qualquer falha do Postgres virava a mesma frase generica na
+    // tela e nao sobrava nada para investigar.
+    console.error('[estilo] falha ao salvar', theme, error.code, error.message)
+    return { erro: 'Não foi possível salvar o estilo.' }
+  }
 
   revalidatePath('/painel', 'layout')
   if (perfil?.username) {

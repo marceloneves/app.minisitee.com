@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react'
 import { atualizarEstilo } from '@/lib/actions/profile'
 import { useIdioma, useT } from '@/lib/i18n/contexto'
 import { ROTULO_ESTILO } from '@/lib/i18n/dicionarios'
-import { ESTILOS } from '@/lib/types'
+import { ESTILOS, imagemEstilo } from '@/lib/types'
 
 export function EditorEstilo({
   inicial,
@@ -37,7 +37,11 @@ export function EditorEstilo({
   return (
     <div>
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {ESTILOS.map(([valor, , fundo, destaque]) => (
+        {ESTILOS.map(({ valor, superficie, marca }) => {
+          // Nos estilos com foto a amostra mostra a propria foto, na versao de
+          // 320px: a cor sozinha nao diria nada sobre o que a pessoa vai levar.
+          const miniatura = imagemEstilo(valor, true)
+          return (
           <li key={valor}>
             <button
               type="button"
@@ -48,22 +52,26 @@ export function EditorEstilo({
               }`}
             >
               <span
-                className="flex h-20 items-end gap-1.5 p-2"
-                style={{ background: fundo }}
+                className="flex h-20 items-end gap-1.5 bg-cover bg-center p-2"
+                style={{
+                  background: superficie,
+                  backgroundImage: miniatura ? `url(${miniatura})` : undefined,
+                }}
               >
                 <span
                   className="h-3 w-12 rounded-full"
-                  style={{ background: destaque }}
+                  style={{ background: marca }}
                 />
                 <span
                   className="h-3 w-6 rounded-full"
-                  style={{ background: destaque, opacity: 0.35 }}
+                  style={{ background: marca, opacity: 0.35 }}
                 />
               </span>
               <span className="block px-2 py-2 text-sm font-medium">{ROTULO_ESTILO[idioma][valor]}</span>
             </button>
           </li>
-        ))}
+          )
+        })}
       </ul>
 
       {erro && (
@@ -84,7 +92,9 @@ export function EditorEstilo({
       {previa && (
         <div
           data-tema={tema}
-          className="mt-8 overflow-hidden rounded-2xl border border-border bg-bg text-fg"
+          className={`mt-8 overflow-hidden rounded-2xl border border-border bg-bg text-fg${
+            imagemEstilo(tema) ? ' fundo-estilo-previa' : ''
+          }`}
         >
           {previa}
         </div>

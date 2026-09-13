@@ -7,13 +7,24 @@ import { ProvedorIdioma } from '@/lib/i18n/contexto'
 import { DICIONARIOS, OG_LOCALE, idiomaValido } from '@/lib/i18n/dicionarios'
 import { MAX_BIO } from '@/lib/constants'
 import { basePublica } from '@/lib/site'
-import { temaValido } from '@/lib/types'
+import { estiloPorValor, imagemEstilo, temaValido } from '@/lib/types'
 
 export const revalidate = 3600
 
-// O fundo do minisite e branco em todo estilo. Sem theme-color a barra do
-// navegador no Android fica cinza em cima da pagina.
-export const viewport: Viewport = { themeColor: '#ffffff' }
+// Sem theme-color a barra do navegador no Android fica cinza em cima da
+// pagina. A cor nao pode ser fixa: nos estilos de fundo escuro uma barra
+// branca deixaria uma faixa clara em cima de uma pagina escura. buscarPagina
+// esta memoizada por requisicao, entao isto nao custa outra ida ao banco.
+export async function generateViewport({
+  params,
+}: {
+  params: Promise<{ username: string }>
+}): Promise<Viewport> {
+  const { username } = await params
+  const pagina = await buscarPagina(username)
+  const estilo = estiloPorValor(temaValido(pagina?.profile?.theme))
+  return { themeColor: estilo.escuro ? estilo.superficie : '#ffffff' }
+}
 
 // Descricoes gravadas antes do limite podem passar de MAX_BIO; o Google corta
 // por volta disso, entao o corte sai aqui e cai numa palavra inteira.
@@ -104,6 +115,8 @@ export default async function CatalogoPage({
 
   const { profile, items } = pagina
   const idioma = idiomaValido(profile.locale)
+  const tema = temaValido(profile.theme)
+  const fundo = imagemEstilo(tema)
 
   const base = basePublica()
 
@@ -111,10 +124,14 @@ export default async function CatalogoPage({
     <ProvedorIdioma idioma={idioma}>
       {/* O <html> do layout raiz e sempre pt-BR; o minisite pode estar em
           outro idioma, e o lang aqui manda no leitor de tela e na busca. */}
+      {/* A foto do estilo entra pelo CSS, em background-image. O preload
+          adianta o download: sem ele o navegador so descobre a imagem depois
+          de baixar e ler a folha de estilo inteira. */}
+      {fundo && <link rel="preload" as="image" href={fundo} />}
       <div
         lang={idioma}
-        data-tema={temaValido(profile.theme)}
-        className="min-h-dvh bg-bg text-fg"
+        data-tema={tema}
+        className={`min-h-dvh bg-bg text-fg${fundo ? ' fundo-estilo' : ''}`}
       >
       <script
         type="application/ld+json"

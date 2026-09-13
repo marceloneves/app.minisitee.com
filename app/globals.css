@@ -76,6 +76,505 @@
   --brand-fg: #ffffff;
 }
 
+/* Daqui para baixo os estilos trazem foto, em --fundo, e ela vai para a tela
+   na cor cheia: nada de camada clarinha por cima, que lavava justamente as
+   imagens mais fortes. Quem segura a leitura e o cartao, translucido o bastante
+   para deixar a foto passar por tras mas nao a ponto de embaralhar o texto, e a
+   sombra no cabecalho, que e o unico texto sem cartao atras. */
+
+[data-tema="lago"] {
+  --bg: #f2e2e9;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #2c1a24;
+  --muted: #6d5460;
+  --brand: #0f766e;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/lago.jpg");
+}
+
+[data-tema="espuma"] {
+  --bg: #f7e1da;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #37170f;
+  --muted: #7d564a;
+  --brand: #b4432f;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/espuma.jpg");
+}
+
+[data-tema="duna"] {
+  --bg: #f8e3d2;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #2a1505;
+  --muted: #7d5a3c;
+  --brand: #c2410c;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/duna.jpg");
+}
+
+[data-tema="muro"] {
+  --bg: #f2f1ef;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #1c1917;
+  --muted: #6b6a66;
+  --brand: #18181b;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/muro.jpg");
+}
+
+[data-tema="pista"] {
+  --bg: #e9efe6;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #12281a;
+  --muted: #55705c;
+  --brand: #15803d;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/pista.jpg");
+}
+
+[data-tema="praia"] {
+  --bg: #f9e2de;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #2b1a20;
+  --muted: #6f5460;
+  --brand: #0e7490;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/praia.jpg");
+}
+
+[data-tema="cerejeira"] {
+  --bg: #fae4eb;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #331021;
+  --muted: #8a5468;
+  --brand: #be185d;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/cerejeira.jpg");
+}
+
+[data-tema="croco"] {
+  --bg: #ece3f0;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #241227;
+  --muted: #6b5570;
+  --brand: #7e22ce;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/croco.jpg");
+}
+
+[data-tema="tubarao"] {
+  --bg: #eee9df;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #241d13;
+  --muted: #6f6454;
+  --brand: #0f766e;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/tubarao.jpg");
+}
+
+[data-tema="neon"] {
+  --bg: #ebeaf6;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #1a1830;
+  --muted: #5f5c7a;
+  --brand: #4338ca;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/neon.jpg");
+}
+
+[data-tema="manequins"] {
+  --bg: #f1f1f3;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #1c1b1f;
+  --muted: #5a5963;
+  --brand: #3f3f46;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/manequins.jpg");
+}
+
+[data-tema="tv"] {
+  --bg: #eceae7;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #1c1917;
+  --muted: #6b6862;
+  --brand: #18181b;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/tv.jpg");
+}
+
+[data-tema="robo"] {
+  --bg: #dff0f0;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #10262a;
+  --muted: #4f6f74;
+  --brand: #0e7490;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/robo.jpg");
+}
+
+[data-tema="aperto"] {
+  --bg: #ebebec;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #1c1b1f;
+  --muted: #6a6870;
+  --brand: #3f3f46;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/aperto.jpg");
+}
+
+[data-tema="cidade"] {
+  --bg: #f2efe9;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #27201a;
+  --muted: #635b51;
+  --brand: #b45309;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/cidade.jpg");
+}
+
+[data-tema="ampolas"] {
+  --bg: #e6efe8;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #18291f;
+  --muted: #5c7466;
+  --brand: #0f766e;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/ampolas.jpg");
+}
+
+[data-tema="escamas"] {
+  --bg: #eeeaf5;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #211a30;
+  --muted: #635c78;
+  --brand: #7c3aed;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/escamas.jpg");
+}
+
+[data-tema="circuito"] {
+  --bg: #e3eef5;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #10222e;
+  --muted: #4f6b7d;
+  --brand: #0369a1;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/circuito.jpg");
+}
+
+[data-tema="alfinete"] {
+  --bg: #efe6dd;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #2a2118;
+  --muted: #6b6054;
+  --brand: #b45309;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/alfinete.jpg");
+}
+
+[data-tema="bruma"] {
+  --bg: #dfeaf2;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #16222e;
+  --muted: #566878;
+  --brand: #0369a1;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/bruma.jpg");
+}
+
+[data-tema="blocos"] {
+  --bg: #dbe9f2;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #10222e;
+  --muted: #4f6b7d;
+  --brand: #0e7490;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/blocos.jpg");
+}
+
+[data-tema="esferas"] {
+  --bg: #ece6dd;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #26201a;
+  --muted: #6b6055;
+  --brand: #0f766e;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/esferas.jpg");
+}
+
+[data-tema="bolhas"] {
+  --bg: #e6e6f2;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #1b1b2e;
+  --muted: #5c5c77;
+  --brand: #4338ca;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/bolhas.jpg");
+}
+
+[data-tema="arroz"] {
+  --bg: #e7e6d2;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #23261a;
+  --muted: #5c6549;
+  --brand: #4d7c0f;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/arroz.jpg");
+}
+
+[data-tema="teto"] {
+  --bg: #e6e8ea;
+  --surface: rgba(255, 255, 255, 0.88);
+  --border: rgba(255, 255, 255, 0.95);
+  --fg: #1b2028;
+  --muted: #5b6470;
+  --brand: #1d4ed8;
+  --brand-fg: #ffffff;
+  --fundo: url("/estilos/teto.jpg");
+}
+
+/* Os doze abaixo tem foto escura. O --fg claro daqui vale para o pouco que
+   sobra fora dos cartoes; os cartoes em si sao brancos com texto escuro, logo
+   abaixo. Quem desenha fora do CSS (cartao de compartilhamento e barra do
+   navegador) le o `escuro` de ESTILOS para acompanhar. */
+
+[data-tema="lentes"] {
+  --bg: #14151a;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #f2f3f5;
+  --muted: #a9adb6;
+  --brand: #6ee7b7;
+  --brand-fg: #06231a;
+  --fundo: url("/estilos/lentes.jpg");
+}
+
+[data-tema="vitrine"] {
+  --bg: #14140f;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #f6f2e8;
+  --muted: #b3ab99;
+  --brand: #facc15;
+  --brand-fg: #1f1a05;
+  --fundo: url("/estilos/vitrine.jpg");
+}
+
+[data-tema="pintura"] {
+  --bg: #121a24;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #eef3f7;
+  --muted: #a2b1bf;
+  --brand: #5eead4;
+  --brand-fg: #06251f;
+  --fundo: url("/estilos/pintura.jpg");
+}
+
+[data-tema="rosto"] {
+  --bg: #0f2027;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #eff6f6;
+  --muted: #a0b7ba;
+  --brand: #f472b6;
+  --brand-fg: #2a0a1a;
+  --fundo: url("/estilos/rosto.jpg");
+}
+
+[data-tema="giro"] {
+  --bg: #16182a;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #f3f2f7;
+  --muted: #aeacc0;
+  --brand: #fb923c;
+  --brand-fg: #2b1103;
+  --fundo: url("/estilos/giro.jpg");
+}
+
+[data-tema="ovos"] {
+  --bg: #131a26;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #eef2f7;
+  --muted: #a5b0c0;
+  --brand: #60a5fa;
+  --brand-fg: #08192e;
+  --fundo: url("/estilos/ovos.jpg");
+}
+
+[data-tema="respingo"] {
+  --bg: #2a1205;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #fdf2ea;
+  --muted: #cbab94;
+  --brand: #fb923c;
+  --brand-fg: #2b1103;
+  --fundo: url("/estilos/respingo.jpg");
+}
+
+[data-tema="bolas"] {
+  --bg: #100f14;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #f5f3f6;
+  --muted: #b2aeb8;
+  --brand: #4ade80;
+  --brand-fg: #05230f;
+  --fundo: url("/estilos/bolas.jpg");
+}
+
+[data-tema="tinta"] {
+  --bg: #0a2c4e;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #eef5fb;
+  --muted: #a3bdd4;
+  --brand: #a3e635;
+  --brand-fg: #12250a;
+  --fundo: url("/estilos/tinta.jpg");
+}
+
+[data-tema="luzes"] {
+  --bg: #14161f;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #f7f2e6;
+  --muted: #bcb29a;
+  --brand: #fbbf24;
+  --brand-fg: #2a1c02;
+  --fundo: url("/estilos/luzes.jpg");
+}
+
+[data-tema="fachada"] {
+  --bg: #171310;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #f6f1ea;
+  --muted: #b8ac9c;
+  --brand: #fb923c;
+  --brand-fg: #2b1103;
+  --fundo: url("/estilos/fachada.jpg");
+}
+
+[data-tema="gotas"] {
+  --bg: #0d1626;
+  --surface: rgba(255, 255, 255, 0.94);
+  --border: rgba(255, 255, 255, 0.22);
+  --fg: #eef2f9;
+  --muted: #a3b0c6;
+  --brand: #38bdf8;
+  --brand-fg: #05202e;
+  --fundo: url("/estilos/gotas.jpg");
+}
+
+/* A foto vai num pseudo-elemento fixo em vez de background-attachment: fixed,
+   que o Safari do iPhone desenha esticado. O isolation cria o contexto de
+   pintura — sem ele o z-index negativo sobe ate a raiz e a foto some atras do
+   fundo do body. */
+.fundo-estilo {
+  position: relative;
+  isolation: isolate;
+}
+
+.fundo-estilo::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--fundo);
+  background-position: center;
+  background-size: cover;
+}
+
+/* Mesma coisa nas previas do painel, onde a foto so pode ocupar a caixa da
+   previa: fixed ali cobriria a tela inteira, painel incluido. */
+.fundo-estilo-previa {
+  position: relative;
+  isolation: isolate;
+}
+
+.fundo-estilo-previa::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--fundo);
+  background-position: center;
+  background-size: cover;
+}
+
+/* Os cartoes do minisite sao .bg-surface; com foto atras a superficie e
+   translucida, e o desfoque e o que separa o texto da imagem. */
+:is(.fundo-estilo, .fundo-estilo-previa) :is(.bg-surface, header) {
+  backdrop-filter: blur(14px);
+}
+
+/* O cabecalho — nome, headline e bio — era o unico texto direto sobre a foto.
+   Sombra nao resolvia: nessas imagens o mesmo trecho onde o nome cai tem claro
+   e escuro, e metade dos estilos ficava abaixo de 4,5:1 de contraste. Entao ele
+   entra num cartao, como todo o resto do minisite, e a foto continua na cor
+   cheia. Vale so nos estilos com foto — nos de cor solida o cabecalho continua
+   solto, do jeito que sempre foi. */
+.fundo-estilo header,
+.fundo-estilo-previa header {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--surface);
+  padding: 1.5rem 1.25rem;
+}
+
+/* Nos estilos escuros os cartoes sao brancos — o cabecalho inclusive —, entao
+   o texto dentro deles nao pode seguir o --fg claro do tema. Redefinir as variaveis no proprio cartao vira
+   texto escuro em tudo que esta dentro, inclusive nas linhas divisorias, sem
+   precisar mexer em componente nenhum. */
+:is(
+    [data-tema="lentes"],
+    [data-tema="vitrine"],
+    [data-tema="pintura"],
+    [data-tema="rosto"],
+    [data-tema="giro"],
+    [data-tema="ovos"],
+    [data-tema="respingo"],
+    [data-tema="bolas"],
+    [data-tema="tinta"],
+    [data-tema="luzes"],
+    [data-tema="fachada"],
+    [data-tema="gotas"]
+  )
+  :is(.bg-surface, header) {
+  --fg: #17171b;
+  --muted: #5b5b66;
+  --border: rgba(0, 0, 0, 0.1);
+  color: var(--fg);
+}
+
 body {
   background: var(--bg);
   color: var(--fg);

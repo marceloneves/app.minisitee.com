@@ -121,18 +121,78 @@ export const STATUS_ITEM = [
   ['encerrado', 'Encerrado'],
 ] as const
 
-// O fundo da pagina e branco em todo estilo; a amostra do seletor mostra a
-// cor de superficie, que e o que de fato muda de um estilo para outro.
+// `superficie` e a cor solida da amostra e do cartao de compartilhamento: o
+// gerador de imagem do Next nao entende url(), entao a foto nunca pode entrar
+// nesse campo. `imagem` vazio marca os estilos que sao so cor. `escuro` avisa
+// quem desenha fora do CSS — o cartao e a barra do navegador — que o fundo e
+// escuro e o texto por cima precisa ser claro.
 export const ESTILOS = [
-  ['light', 'Claro', '#f7f7f8', '#18181b'],
-  ['areia', 'Areia', '#fff3e2', '#c2410c'],
-  ['menta', 'Menta', '#e7f7f0', '#0f766e'],
-  ['oceano', 'Oceano', '#e6f0fd', '#1d4ed8'],
-  ['rosa', 'Rosa', '#fdeaf1', '#be185d'],
+  { valor: 'light', rotulo: 'Claro', superficie: '#f7f7f8', marca: '#18181b', imagem: '', escuro: false },
+  { valor: 'areia', rotulo: 'Areia', superficie: '#fff3e2', marca: '#c2410c', imagem: '', escuro: false },
+  { valor: 'menta', rotulo: 'Menta', superficie: '#e7f7f0', marca: '#0f766e', imagem: '', escuro: false },
+  { valor: 'oceano', rotulo: 'Oceano', superficie: '#e6f0fd', marca: '#1d4ed8', imagem: '', escuro: false },
+  { valor: 'rosa', rotulo: 'Rosa', superficie: '#fdeaf1', marca: '#be185d', imagem: '', escuro: false },
+
+  { valor: 'lago', rotulo: 'Lago Rosa', superficie: '#f2e2e9', marca: '#0f766e', imagem: 'lago', escuro: false },
+  { valor: 'espuma', rotulo: 'Espuma', superficie: '#f7e1da', marca: '#b4432f', imagem: 'espuma', escuro: false },
+  { valor: 'duna', rotulo: 'Duna', superficie: '#f8e3d2', marca: '#c2410c', imagem: 'duna', escuro: false },
+  { valor: 'muro', rotulo: 'Muro', superficie: '#f2f1ef', marca: '#18181b', imagem: 'muro', escuro: false },
+  { valor: 'pista', rotulo: 'Pista', superficie: '#e9efe6', marca: '#15803d', imagem: 'pista', escuro: false },
+  { valor: 'praia', rotulo: 'Praia Rosa', superficie: '#f9e2de', marca: '#0e7490', imagem: 'praia', escuro: false },
+  { valor: 'cerejeira', rotulo: 'Cerejeira', superficie: '#fae4eb', marca: '#be185d', imagem: 'cerejeira', escuro: false },
+  { valor: 'croco', rotulo: 'Croco', superficie: '#ece3f0', marca: '#7e22ce', imagem: 'croco', escuro: false },
+  { valor: 'tubarao', rotulo: 'Tubarao', superficie: '#eee9df', marca: '#0f766e', imagem: 'tubarao', escuro: false },
+  { valor: 'neon', rotulo: 'Neon', superficie: '#ebeaf6', marca: '#4338ca', imagem: 'neon', escuro: false },
+
+  { valor: 'manequins', rotulo: 'Manequins', superficie: '#f1f1f3', marca: '#3f3f46', imagem: 'manequins', escuro: false },
+  { valor: 'tv', rotulo: 'TV', superficie: '#eceae7', marca: '#18181b', imagem: 'tv', escuro: false },
+  { valor: 'robo', rotulo: 'Robo', superficie: '#dff0f0', marca: '#0e7490', imagem: 'robo', escuro: false },
+
+  { valor: 'lentes', rotulo: 'Lentes', superficie: '#14151a', marca: '#6ee7b7', imagem: 'lentes', escuro: true },
+  { valor: 'vitrine', rotulo: 'Vitrine', superficie: '#14140f', marca: '#facc15', imagem: 'vitrine', escuro: true },
+  { valor: 'pintura', rotulo: 'Pintura', superficie: '#121a24', marca: '#5eead4', imagem: 'pintura', escuro: true },
+  { valor: 'rosto', rotulo: 'Rosto', superficie: '#0f2027', marca: '#f472b6', imagem: 'rosto', escuro: true },
+
+  { valor: 'aperto', rotulo: 'Aperto', superficie: '#ebebec', marca: '#3f3f46', imagem: 'aperto', escuro: false },
+  { valor: 'cidade', rotulo: 'Cidade', superficie: '#f2efe9', marca: '#b45309', imagem: 'cidade', escuro: false },
+  { valor: 'ampolas', rotulo: 'Ampolas', superficie: '#e6efe8', marca: '#0f766e', imagem: 'ampolas', escuro: false },
+  { valor: 'escamas', rotulo: 'Escamas', superficie: '#eeeaf5', marca: '#7c3aed', imagem: 'escamas', escuro: false },
+  { valor: 'circuito', rotulo: 'Circuito', superficie: '#e3eef5', marca: '#0369a1', imagem: 'circuito', escuro: false },
+
+  { valor: 'giro', rotulo: 'Giro', superficie: '#16182a', marca: '#fb923c', imagem: 'giro', escuro: true },
+  { valor: 'ovos', rotulo: 'Ovos', superficie: '#131a26', marca: '#60a5fa', imagem: 'ovos', escuro: true },
+  { valor: 'respingo', rotulo: 'Respingo', superficie: '#2a1205', marca: '#fb923c', imagem: 'respingo', escuro: true },
+  { valor: 'bolas', rotulo: 'Bolas', superficie: '#100f14', marca: '#4ade80', imagem: 'bolas', escuro: true },
+  { valor: 'tinta', rotulo: 'Tinta', superficie: '#0a2c4e', marca: '#a3e635', imagem: 'tinta', escuro: true },
+  { valor: 'luzes', rotulo: 'Luzes', superficie: '#14161f', marca: '#fbbf24', imagem: 'luzes', escuro: true },
+
+  { valor: 'alfinete', rotulo: 'Alfinete', superficie: '#efe6dd', marca: '#b45309', imagem: 'alfinete', escuro: false },
+  { valor: 'bruma', rotulo: 'Bruma', superficie: '#dfeaf2', marca: '#0369a1', imagem: 'bruma', escuro: false },
+  { valor: 'blocos', rotulo: 'Blocos', superficie: '#dbe9f2', marca: '#0e7490', imagem: 'blocos', escuro: false },
+  { valor: 'esferas', rotulo: 'Esferas', superficie: '#ece6dd', marca: '#0f766e', imagem: 'esferas', escuro: false },
+  { valor: 'bolhas', rotulo: 'Bolhas', superficie: '#e6e6f2', marca: '#4338ca', imagem: 'bolhas', escuro: false },
+  { valor: 'arroz', rotulo: 'Arrozal', superficie: '#e7e6d2', marca: '#4d7c0f', imagem: 'arroz', escuro: false },
+  { valor: 'teto', rotulo: 'Teto', superficie: '#e6e8ea', marca: '#1d4ed8', imagem: 'teto', escuro: false },
+
+  { valor: 'fachada', rotulo: 'Fachada', superficie: '#171310', marca: '#fb923c', imagem: 'fachada', escuro: true },
+  { valor: 'gotas', rotulo: 'Gotas', superficie: '#0d1626', marca: '#38bdf8', imagem: 'gotas', escuro: true },
 ] as const
 
+export function estiloPorValor(estilo: string) {
+  return ESTILOS.find((e) => e.valor === estilo) ?? ESTILOS[0]
+}
+
+// Caminho da foto de fundo do estilo, ou null quando ele e so cor. O `-mini` e
+// a versao de 320px usada na amostra do seletor: sao quarenta e duas de uma vez
+// na tela, e as grandes juntas passariam de sete megabytes.
+export function imagemEstilo(estilo: string, mini = false) {
+  const { imagem } = estiloPorValor(estilo)
+  if (!imagem) return null
+  return `/estilos/${imagem}${mini ? '-mini' : ''}.jpg`
+}
+
 export function temaValido(theme: string | undefined) {
-  return ESTILOS.some(([v]) => v === theme) ? (theme as string) : 'light'
+  return ESTILOS.some((e) => e.valor === theme) ? (theme as string) : 'light'
 }
 
 export function linkWhatsapp(numero: string, mensagem: string) {

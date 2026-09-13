@@ -7,7 +7,7 @@ import { idiomaValido } from '@/lib/i18n/dicionarios'
 import { getT } from '@/lib/i18n/servidor'
 import { createClient } from '@/lib/supabase/server'
 import { urlPublica } from '@/lib/site'
-import { temaValido, type PaginaCatalogo } from '@/lib/types'
+import { imagemEstilo, temaValido, type PaginaCatalogo } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,7 +56,9 @@ export default async function VisualizarPage() {
 
       <div
         data-tema={temaValido(profile.theme)}
-        className="border-t border-border bg-bg text-fg"
+        className={`border-t border-border bg-bg text-fg${
+          imagemEstilo(temaValido(profile.theme)) ? ' fundo-estilo-previa' : ''
+        }`}
       >
         <MinisiteeConteudo profile={profile} items={items} idioma={idioma} />
       </div>

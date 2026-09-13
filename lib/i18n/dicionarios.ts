@@ -642,9 +642,42 @@ export const ROTULO_STATUS: Record<Idioma, Record<string, string>> = {
 }
 
 export const ROTULO_ESTILO: Record<Idioma, Record<string, string>> = {
-  pt: { light: 'Claro', areia: 'Areia', menta: 'Menta', oceano: 'Oceano', rosa: 'Rosa' },
-  en: { light: 'Light', areia: 'Sand', menta: 'Mint', oceano: 'Ocean', rosa: 'Rose' },
-  es: { light: 'Claro', areia: 'Arena', menta: 'Menta', oceano: 'Océano', rosa: 'Rosa' },
+  pt: {
+    light: 'Claro', areia: 'Areia', menta: 'Menta', oceano: 'Oceano', rosa: 'Rosa',
+    lago: 'Lago Rosa', espuma: 'Espuma', duna: 'Duna', muro: 'Muro', pista: 'Pista',
+    praia: 'Praia Rosa', cerejeira: 'Cerejeira', croco: 'Croco', tubarao: 'Tubarão',
+    neon: 'Neon', manequins: 'Manequins', tv: 'TV', robo: 'Robô', lentes: 'Lentes',
+    vitrine: 'Vitrine', pintura: 'Pintura', rosto: 'Rosto', aperto: 'Aperto',
+    cidade: 'Cidade', ampolas: 'Ampolas', escamas: 'Escamas', circuito: 'Circuito',
+    giro: 'Giro', ovos: 'Ovos', respingo: 'Respingo', bolas: 'Bolas',
+    tinta: 'Tinta', luzes: 'Luzes', alfinete: 'Alfinete', bruma: 'Bruma',
+    blocos: 'Blocos', esferas: 'Esferas', bolhas: 'Bolhas', arroz: 'Arrozal',
+    teto: 'Teto', fachada: 'Fachada', gotas: 'Gotas',
+  },
+  en: {
+    light: 'Light', areia: 'Sand', menta: 'Mint', oceano: 'Ocean', rosa: 'Rose',
+    lago: 'Pink Lake', espuma: 'Foam', duna: 'Dune', muro: 'Wall', pista: 'Track',
+    praia: 'Pink Beach', cerejeira: 'Blossom', croco: 'Croc', tubarao: 'Shark',
+    neon: 'Neon', manequins: 'Mannequins', tv: 'TV', robo: 'Robot', lentes: 'Lenses',
+    vitrine: 'Window', pintura: 'Body Paint', rosto: 'Face Paint', aperto: 'Handshake',
+    cidade: 'City', ampolas: 'Vials', escamas: 'Scales', circuito: 'Circuit',
+    giro: 'Spin', ovos: 'Eggs', respingo: 'Splatter', bolas: 'Dots',
+    tinta: 'Paint', luzes: 'Lights', alfinete: 'Pin', bruma: 'Haze',
+    blocos: 'Blocks', esferas: 'Spheres', bolhas: 'Bubbles', arroz: 'Rice Field',
+    teto: 'Ceiling', fachada: 'Facade', gotas: 'Droplets',
+  },
+  es: {
+    light: 'Claro', areia: 'Arena', menta: 'Menta', oceano: 'Océano', rosa: 'Rosa',
+    lago: 'Lago Rosa', espuma: 'Espuma', duna: 'Duna', muro: 'Muro', pista: 'Pista',
+    praia: 'Playa Rosa', cerejeira: 'Cerezo', croco: 'Croco', tubarao: 'Tiburón',
+    neon: 'Neón', manequins: 'Maniquíes', tv: 'TV', robo: 'Robot', lentes: 'Lentes',
+    vitrine: 'Vitrina', pintura: 'Body Paint', rosto: 'Rostro', aperto: 'Apretón',
+    cidade: 'Ciudad', ampolas: 'Ampollas', escamas: 'Escamas', circuito: 'Circuito',
+    giro: 'Giro', ovos: 'Huevos', respingo: 'Salpicadura', bolas: 'Bolas',
+    tinta: 'Tinta', luzes: 'Luces', alfinete: 'Alfiler', bruma: 'Bruma',
+    blocos: 'Bloques', esferas: 'Esferas', bolhas: 'Burbujas', arroz: 'Arrozal',
+    teto: 'Techo', fachada: 'Fachada', gotas: 'Gotas',
+  },
 }
 
 export const DIAS: Record<Idioma, Record<string, string>> = {

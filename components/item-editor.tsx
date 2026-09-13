@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { PhotoUploader, type Foto } from '@/components/photo-uploader'
@@ -19,6 +20,8 @@ import {
   type TipoItem,
 } from '@/lib/types'
 import { CampoTelefone } from '@/components/campo-telefone'
+import { QrCode, urlDoQrCode } from '@/components/qr-code'
+import { ANTECEDENCIAS, DIAS_A_FRENTE, DURACOES, configAgenda } from '@/lib/agenda'
 
 export type ItemForm = {
   id: string
@@ -77,7 +80,7 @@ export function ItemEditor({
             price_note: atual.priceNote.trim() || null,
             location: atual.location.trim() || null,
           }
-        : atual.kind === 'link'
+        : atual.kind === 'link' || atual.kind === 'qrcode'
           ? {
               title: atual.title.trim() || 'Sem título',
               status: atual.status,
@@ -187,7 +190,11 @@ export function ItemEditor({
         <Secao titulo={t('basico')}>
           <Texto
             id="titulo"
-            rotulo={form.kind === 'produto' ? t('titulo') : t('textoBotao')}
+            rotulo={
+              form.kind === 'produto' || form.kind === 'qrcode' || form.kind === 'agenda'
+                ? t('titulo')
+                : t('textoBotao')
+            }
             valor={form.title}
             aoMudar={(v) => mudar('title', v)}
             placeholder={
@@ -195,7 +202,11 @@ export function ItemEditor({
                 ? 'O que você está oferecendo'
                 : form.kind === 'whatsapp'
                   ? 'Fazer meu pedido'
-                  : 'Ver meu Instagram'
+                  : form.kind === 'qrcode'
+                    ? 'Escaneie para ver o cardápio'
+                    : form.kind === 'agenda'
+                      ? 'Agende seu horário'
+                      : 'Ver meu Instagram'
             }
           />
 
@@ -207,6 +218,24 @@ export function ItemEditor({
               aoMudar={(v) => mudar('url', v)}
               placeholder="https://instagram.com/seuperfil"
             />
+          )}
+
+          {form.kind === 'qrcode' && (
+            <div>
+              <Texto
+                id="url"
+                rotulo={t('enderecoSite')}
+                valor={form.url}
+                aoMudar={(v) => mudar('url', v)}
+                placeholder="https://seusite.com/cardapio"
+              />
+              {urlDoQrCode(form.url) && (
+                <QrCode
+                  valor={urlDoQrCode(form.url)!}
+                  className="mt-4 w-40 rounded-xl border border-border"
+                />
+              )}
+            </div>
           )}
 
           {form.kind === 'telefone' && (
@@ -284,6 +313,10 @@ export function ItemEditor({
                 placeholder="Encerrado!"
               />
             </div>
+          )}
+
+          {form.kind === 'agenda' && (
+            <EditorAgenda dados={form.dados} aoMudar={mudarDados} />
           )}
 
           {form.kind === 'faq' && (
@@ -640,6 +673,81 @@ function EditorHorario({
   )
 }
 
+
+function EditorAgenda({
+  dados,
+  aoMudar,
+}: {
+  dados: DadosItem
+  aoMudar: (patch: Partial<DadosItem>) => void
+}) {
+  const t = useT()
+  const config = configAgenda(dados)
+  const seletor =
+    'mt-2 w-full rounded-xl border border-border bg-bg px-3 py-3 text-base font-normal outline-none focus:border-fg'
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <span className="block text-sm font-medium">{t('agendaDisponibilidade')}</span>
+        <div className="mt-2">
+          <EditorHorario dias={config.dias} aoMudar={(dias) => aoMudar({ dias })} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <label className="block text-sm font-medium">
+          {t('agendaDuracao')}
+          <select
+            value={config.duracao}
+            onChange={(e) => aoMudar({ duracao: Number(e.target.value) })}
+            className={seletor}
+          >
+            {DURACOES.map((n) => (
+              <option key={n} value={n}>
+                {t('agendaMinutos', { n })}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block text-sm font-medium">
+          {t('agendaDiasAFrente')}
+          <select
+            value={config.diasAFrente}
+            onChange={(e) => aoMudar({ diasAFrente: Number(e.target.value) })}
+            className={seletor}
+          >
+            {DIAS_A_FRENTE.map((n) => (
+              <option key={n} value={n}>
+                {t('agendaDias', { n })}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block text-sm font-medium">
+          {t('agendaAntecedencia')}
+          <select
+            value={config.antecedencia}
+            onChange={(e) => aoMudar({ antecedencia: Number(e.target.value) })}
+            className={seletor}
+          >
+            {ANTECEDENCIAS.map((n) => (
+              <option key={n} value={n}>
+                {n === 0 ? t('agendaSemAntecedencia') : t('agendaHoras', { n })}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <Link href="/painel/agenda" className="inline-block text-sm underline underline-offset-4">
+        {t('agendaVerCompromissos')}
+      </Link>
+    </div>
+  )
+}
 
 function EditorFaq({
   perguntas,

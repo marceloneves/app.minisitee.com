@@ -26,6 +26,12 @@ export default async function NovoItemPage() {
     .select('id', { count: 'exact', head: true })
     .eq('profile_id', userId)
 
+  const { count: agendas } = await supabase
+    .from('items')
+    .select('id', { count: 'exact', head: true })
+    .eq('profile_id', userId)
+    .eq('kind', 'agenda')
+
   if ((profile?.plan ?? 'free') === 'free' && (count ?? 0) >= MAX_ITENS_FREE) {
     redirect('/painel')
   }
@@ -34,7 +40,7 @@ export default async function NovoItemPage() {
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
       <CabecalhoPainel titulo={t('oQueAdicionar')} subtitulo={t('escolhaTipo')} />
 
-      <SeletorTipoItem idioma={idioma} />
+      <SeletorTipoItem idioma={idioma} temAgenda={(agendas ?? 0) > 0} />
 
       <Link
         href="/painel"

@@ -24,6 +24,8 @@ export type TipoItem =
   | 'faq'
   | 'galeria'
   | 'contagem'
+  | 'qrcode'
+  | 'agenda'
 
 export type RedeSocial = { rede: string; url: string }
 export type DiaHorario = { dia: string; abre: string; fecha: string; fechado: boolean }
@@ -41,6 +43,9 @@ export type DadosItem = {
   perguntas?: Pergunta[]
   alvo?: string
   textoFim?: string
+  duracao?: number
+  diasAFrente?: number
+  antecedencia?: number
 }
 
 export const REDES = [
@@ -106,6 +111,8 @@ export const TIPOS_ITEM = [
   ['faq', 'Perguntas frequentes', 'Perguntas e respostas que abrem ao tocar'],
   ['arquivo', 'Download de arquivo', 'Cardápio, tabela, PDF — o visitante baixa'],
   ['contagem', 'Contagem regressiva', 'Conta o tempo até uma data'],
+  ['qrcode', 'QR code', 'Um link virando QR code para escanear'],
+  ['agenda', 'Agenda', 'O cliente escolhe dia e horário para marcar'],
 ] as const
 
 export function formatarBytes(bytes: number) {

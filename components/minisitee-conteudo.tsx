@@ -1,7 +1,9 @@
 import Image from 'next/image'
+import { AgendaPublica } from '@/components/agenda-publica'
 import { ItemCard } from '@/components/item-card'
 import { ContagemRegressiva } from '@/components/contagem-regressiva'
 import { IconeSecao } from '@/components/icone-secao'
+import { QrCode, urlDoQrCode } from '@/components/qr-code'
 import { RedeIcone, nomeDaRede } from '@/components/rede-icone'
 import {
   DICIONARIOS,
@@ -9,6 +11,7 @@ import {
   type Dicionario,
   type Idioma,
 } from '@/lib/i18n/dicionarios'
+import { configAgenda } from '@/lib/agenda'
 import {
   DIAS_SEMANA,
   formatarBytes,
@@ -144,6 +147,8 @@ function BlocoItem({
   if (item.kind === 'galeria') return <BlocoGaleria item={item} />
   if (item.kind === 'contagem') return <BlocoContagem item={item} idioma={idioma} d={d} />
   if (item.kind === 'arquivo') return <BlocoArquivo item={item} />
+  if (item.kind === 'qrcode') return <BlocoQrCode item={item} />
+  if (item.kind === 'agenda') return <BlocoAgenda item={item} />
   if (item.kind === 'horario') return <BlocoHorario item={item} idioma={idioma} d={d} />
   if (item.kind === 'endereco') return <BlocoEndereco item={item} d={d} />
 
@@ -179,8 +184,8 @@ function BlocoRedes({ item }: { item: ItemPublico }) {
   const links = (item.data?.links ?? []).filter((l) => l.url.trim())
   if (links.length === 0) return null
 
-  const caixa =
-    'flex flex-wrap items-center justify-center gap-2.5 rounded-2xl border border-border bg-surface px-5 py-4'
+  // Sem cartao: os icones ja tem cor e forma proprias e ficam soltos na pagina.
+  const caixa = 'flex flex-wrap items-center justify-center gap-2.5 py-2'
 
   // Com um perfil so, o bloco inteiro e clicavel: o titulo descreve o destino.
   if (links.length === 1) {
@@ -377,6 +382,46 @@ function BlocoContagem({
         textoFim={item.data?.textoFim || d.encerrado}
         idioma={idioma}
       />
+    </section>
+  )
+}
+
+function BlocoAgenda({ item }: { item: ItemPublico }) {
+  return (
+    <section className="rounded-2xl border border-border bg-surface px-5 py-4">
+      <h2 className="flex items-center justify-center gap-2 text-sm font-semibold text-muted">
+        <IconeSecao tipo="agenda" />
+        {item.title}
+      </h2>
+      <AgendaPublica itemId={item.id} config={configAgenda(item.data)} />
+    </section>
+  )
+}
+
+function BlocoQrCode({ item }: { item: ItemPublico }) {
+  const url = urlDoQrCode(item.url)
+  if (!url) return null
+
+  const host = new URL(url).host.replace(/^www\./, '')
+
+  // Quem abre o minisite no celular nao consegue escanear a propria tela:
+  // por isso o QR tambem e o link. Sem cartao: o QR ja tem fundo branco
+  // proprio e fica solto na pagina.
+  return (
+    <section className="py-2 text-center">
+      <h2 className="flex items-center justify-center gap-2 text-sm font-semibold text-muted">
+        <IconeSecao tipo="qrcode" />
+        {item.title}
+      </h2>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mx-auto mt-3 block w-full max-w-56"
+      >
+        <QrCode valor={url} className="w-full rounded-xl" />
+        <span className="mt-2 block truncate text-sm text-muted">{host}</span>
+      </a>
     </section>
   )
 }

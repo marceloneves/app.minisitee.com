@@ -58,7 +58,7 @@ export function ItemCardAdmin({
   const redes = (item.data?.links ?? []).filter((l) => l.rede)
   const contexto = ehProduto
     ? [item.category, item.location].filter(Boolean).join(' · ') || nomeDoTipo
-    : item.kind === 'link' && item.url
+    : (item.kind === 'link' || item.kind === 'qrcode') && item.url
       ? item.url
       : item.kind === 'redes' && redes.length
         ? redes.map((l) => nomeDaRede(l.rede)).join(', ')
@@ -154,14 +154,24 @@ export function ItemCardAdmin({
             {t('verPagina')}
           </Link>
         )}
-        <button
-          type="button"
-          disabled={pendente}
-          onClick={() => executar(() => duplicarItem(item.id))}
-          className="rounded-lg border border-border px-3 py-1.5 text-xs disabled:opacity-50"
-        >
-          {t('duplicar')}
-        </button>
+        {item.kind === 'agenda' ? (
+          // Uma agenda so por minisitee: no lugar de duplicar, o atalho para os agendamentos.
+          <Link
+            href="/painel/agenda"
+            className="rounded-lg border border-border px-3 py-1.5 text-xs"
+          >
+            {t('agendaVerCompromissos')}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            disabled={pendente}
+            onClick={() => executar(() => duplicarItem(item.id))}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs disabled:opacity-50"
+          >
+            {t('duplicar')}
+          </button>
+        )}
 
         {confirmando ? (
           <span className="ml-auto flex items-center gap-2">

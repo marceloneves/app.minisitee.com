@@ -74,6 +74,8 @@ const TITULO_PADRAO: Record<string, string> = {
   faq: 'Perguntas frequentes',
   arquivo: 'Baixar arquivo',
   contagem: 'Contagem regressiva',
+  qrcode: 'Escaneie o QR code',
+  agenda: 'Agende seu horário',
 }
 
 export async function criarRascunho(kind: TipoItem = 'produto') {
@@ -98,16 +100,28 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
       title: titulo,
       status: 'rascunho',
       position: count ?? 0,
-      ...(kind === 'link' ? { url: 'https://' } : {}),
+      ...(kind === 'link' || kind === 'qrcode' ? { url: 'https://' } : {}),
       ...(kind === 'horario' ? { data: { dias: horarioPadrao() } } : {}),
       ...(kind === 'redes' ? { data: { links: [] } } : {}),
       ...(kind === 'faq' ? { data: { perguntas: [{ p: '', r: '' }] } } : {}),
+      ...(kind === 'agenda'
+        ? { data: { dias: horarioPadrao(), duracao: 60, diasAFrente: 30, antecedencia: 2 } }
+        : {}),
     })
     .select('id')
     .single()
 
   if (error?.code === '54000') {
     return { erro: `O plano free permite ${MAX_ITENS_FREE} itens.`, limite: true as const }
+  }
+  // O indice items_uma_agenda deixa uma agenda so por minisite.
+  if (error?.code === '23505' && error.message.includes('items_uma_agenda')) {
+    return { erro: 'Seu minisitee já tem uma agenda.' }
+  }
+  // 23514 e violacao de check: o kind_valido do banco nao conhece o tipo.
+  // Quer dizer que a migracao que abriu esse tipo ainda nao rodou.
+  if (error?.code === '23514') {
+    return { erro: 'Esse tipo de item ainda não existe no banco: falta aplicar a migração.' }
   }
   if (error || !data) return { erro: 'Não foi possível criar o item.' }
 
@@ -193,6 +207,9 @@ export async function duplicarItem(id: string) {
 
   if (error?.code === '54000') {
     return { erro: `O plano free permite ${MAX_ITENS_FREE} itens.`, limite: true as const }
+  }
+  if (error?.code === '23505' && error.message.includes('items_uma_agenda')) {
+    return { erro: 'Seu minisitee já tem uma agenda.' }
   }
   if (error || !novo) return { erro: 'Não foi possível duplicar.' }
   await revalidarPublico(supabase, userId)

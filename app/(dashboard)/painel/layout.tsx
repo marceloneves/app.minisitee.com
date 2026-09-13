@@ -33,6 +33,13 @@ export default async function PainelLayout({
 
   const admin = await ehAdmin()
   const cubo = await ehDonoDoCubo()
+
+  // A secao Agenda so aparece para quem tem um item do tipo agenda.
+  const { count: agendas } = await supabase
+    .from('items')
+    .select('id', { count: 'exact', head: true })
+    .eq('profile_id', userId)
+    .eq('kind', 'agenda')
   const idioma = await getIdioma()
 
   return (
@@ -56,7 +63,7 @@ export default async function PainelLayout({
                 </span>
               </div>
 
-              <NavPainel admin={admin} cubo={cubo} />
+              <NavPainel admin={admin} cubo={cubo} agenda={(agendas ?? 0) > 0} />
             </div>
           </header>
         )}

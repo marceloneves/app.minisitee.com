@@ -23,9 +23,9 @@ export function NavPainel({
   const inativo = 'border-border hover:border-muted'
   const ativo = 'border-fg bg-fg font-medium text-bg'
 
-  // Perfil e Admin sao secoes proprias. Todo o resto de /painel/* — estilo,
+  // Perfil, Assinatura e Admin sao secoes proprias. Todo o resto de /painel/* — estilo,
   // visualizar, novo, editor de item — continua sendo o Painel.
-  const SECOES = ['/painel/agenda', '/painel/respostas', '/painel/perfil', '/painel/admin', '/painel/cubo']
+  const SECOES = ['/painel/agenda', '/painel/respostas', '/painel/perfil', '/painel/assinatura', '/painel/admin', '/painel/cubo']
   const emOutraSecao = SECOES.some((s) => pathname.startsWith(s))
 
   function classe(href: string) {
@@ -51,6 +51,9 @@ export function NavPainel({
       )}
       <Link href="/painel/perfil" className={classe('/painel/perfil')}>
         {t('perfil')}
+      </Link>
+      <Link href="/painel/assinatura" className={classe('/painel/assinatura')}>
+        {t('assinatura')}
       </Link>
       {admin && (
         <Link href="/painel/admin" className={classe('/painel/admin')}>

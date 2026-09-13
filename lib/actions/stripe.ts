@@ -54,8 +54,8 @@ export async function assinarPro() {
     customer: clienteId,
     client_reference_id: userId,
     line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
-    success_url: `${base()}/painel/perfil?assinatura=ok`,
-    cancel_url: `${base()}/painel/perfil?assinatura=cancelada`,
+    success_url: `${base()}/painel/assinatura?assinatura=ok`,
+    cancel_url: `${base()}/painel/assinatura?assinatura=cancelada`,
     subscription_data: { metadata: { supabase_user_id: userId } },
     allow_promotion_codes: true,
   })
@@ -75,7 +75,7 @@ export async function abrirPortal() {
 
   const sessao = await createStripe().billingPortal.sessions.create({
     customer: perfil.stripe_customer_id,
-    return_url: `${base()}/painel/perfil`,
+    return_url: `${base()}/painel/assinatura`,
   })
 
   redirect(sessao.url)

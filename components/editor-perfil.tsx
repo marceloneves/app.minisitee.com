@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { atualizarProfile } from '@/lib/actions/profile'
 import { MAX_BIO } from '@/lib/constants'
-import { Assinatura } from '@/components/assinatura'
 import { AvatarUploader } from '@/components/avatar-uploader'
 import { CampoTelefone } from '@/components/campo-telefone'
 import { IDIOMAS } from '@/lib/i18n/dicionarios'
@@ -25,21 +24,12 @@ export type PerfilForm = {
 }
 
 
-type DadosAssinatura = {
-  temAssinatura: boolean
-  renovaEm: string | null
-  stripeAtivo: boolean
-  retorno: 'ok' | 'cancelada' | null
-}
-
 export function EditorPerfil({
   inicial,
   email,
-  assinatura,
 }: {
   inicial: PerfilForm
   email: string | null
-  assinatura: DadosAssinatura
 }) {
   const t = useT()
   const router = useRouter()
@@ -176,8 +166,6 @@ export function EditorPerfil({
       </section>
 
 
-
-      <Assinatura plano={inicial.plan} {...assinatura} />
 
       {erro && (
         <p role="alert" className="text-sm text-red-600">

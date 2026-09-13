@@ -49,7 +49,7 @@ export function SeletorTipoItem({
             return (
               <li key={tipo}>
                 <Link
-                  href="/painel/perfil"
+                  href="/painel/assinatura"
                   className="block w-full rounded-2xl border border-border bg-surface p-4 text-left transition-colors hover:border-fg"
                 >
                   <span className="flex items-center gap-2 text-base font-semibold">

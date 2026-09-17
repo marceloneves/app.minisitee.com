@@ -12,8 +12,14 @@ export default function HomePage() {
         Seu minisitee: seu catálogo em um link, pronto para o Instagram.
       </p>
       <Link
-        href="/login"
+        href="/cadastro"
         className="mt-7 rounded-xl bg-brand px-4 py-3 text-base font-medium text-brand-fg"
+      >
+        Criar conta
+      </Link>
+      <Link
+        href="/login"
+        className="mt-3 rounded-xl border border-border px-4 py-3 text-base font-medium"
       >
         Entrar
       </Link>

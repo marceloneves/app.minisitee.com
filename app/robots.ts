@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/painel/', '/login', '/nova-senha', '/auth/', '/api/'],
+      disallow: ['/painel/', '/login', '/cadastro', '/nova-senha', '/auth/', '/api/'],
     },
     sitemap: `${basePublica()}/sitemap.xml`,
   }

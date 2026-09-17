@@ -13,6 +13,7 @@ const HOST_PAINEL = process.env.NEXT_PUBLIC_APP_URL
 // nao entra aqui — ele lista enderecos de minisitee.com e so faz sentido la.
 const ROTAS_DO_PAINEL = [
   '/login',
+  '/cadastro',
   '/nova-senha',
   '/painel',
   '/auth',
@@ -30,7 +31,7 @@ function soDoPainel(pathname: string) {
 // So estas rotas tem sessao. O minisite publico nao tem usuario logado, e
 // perguntar ao Supabase quem e o visitante custava uma ida na rede em toda
 // visita — a parte mais cara da resposta, para jogar fora o resultado.
-const ROTAS_COM_SESSAO = ['/login', '/nova-senha', '/painel', '/auth', '/api']
+const ROTAS_COM_SESSAO = ['/login', '/cadastro', '/nova-senha', '/painel', '/auth', '/api']
 
 function precisaDeSessao(pathname: string) {
   return ROTAS_COM_SESSAO.some(

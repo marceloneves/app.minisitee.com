@@ -23,7 +23,7 @@ import {
 } from '@/lib/types'
 import { CampoTelefone } from '@/components/campo-telefone'
 import { AvisoSalvamento } from '@/components/aviso-salvamento'
-import { EVENTO_VOLTAR } from '@/components/nav-painel'
+import { EVENTO_VOLTAR, EVENTO_VOLTAR_FALHOU } from '@/components/nav-painel'
 import { QrCode, urlDoQrCode } from '@/components/qr-code'
 import { ANTECEDENCIAS, DIAS_A_FRENTE, DURACOES, configAgenda } from '@/lib/agenda'
 import { corHexValida } from '@/lib/cor'
@@ -164,6 +164,8 @@ export function ItemEditor({
       setEstado('salvando')
       await excluirItem(form.id)
     } else if (pendente && !(await salvar(form))) {
+      // Nao saiu: o Voltar do menu deixa de mostrar "Voltando...".
+      window.dispatchEvent(new Event(EVENTO_VOLTAR_FALHOU))
       return
     }
     router.push('/painel')

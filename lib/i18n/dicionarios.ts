@@ -102,7 +102,7 @@ const pt = {
   previaTexto: 'É assim que seus clientes veem. Rascunhos não aparecem.',
   abrirPublico: 'Abrir link público',
   sair: 'Sair',
-  saindo: 'Saindo...',
+  saindo: 'Saindo…',
 
   meusItens: 'Ferramentas do minisitee',
   limiteAtingido: 'Você usou {n} de {max} ferramentas do plano free.',
@@ -141,6 +141,9 @@ const pt = {
   oQueAdicionar: 'O que você quer adicionar?',
   escolhaTipo: 'Escolha uma ferramenta. Você preenche os detalhes na tela seguinte.',
   voltar: '← Voltar',
+  voltando: 'Voltando…',
+  abrindo: 'Abrindo…',
+  duplicando: 'Duplicando…',
   criando: 'Criando...',
 
   salvar: 'Salvar',
@@ -449,7 +452,7 @@ const en: Dicionario = {
   previaTexto: 'This is what your customers see. Drafts do not show.',
   abrirPublico: 'Open public link',
   sair: 'Sign out',
-  saindo: 'Signing out...',
+  saindo: 'Signing out…',
 
   meusItens: 'Minisitee tools',
   limiteAtingido: 'You have used {n} of {max} tools on the free plan.',
@@ -488,6 +491,9 @@ const en: Dicionario = {
   oQueAdicionar: 'What do you want to add?',
   escolhaTipo: 'Pick a tool. You fill in the details on the next screen.',
   voltar: '← Back',
+  voltando: 'Going back…',
+  abrindo: 'Opening…',
+  duplicando: 'Duplicating…',
   criando: 'Creating...',
 
   salvar: 'Save',
@@ -794,7 +800,7 @@ const es: Dicionario = {
   previaTexto: 'Así lo ven tus clientes. Los borradores no aparecen.',
   abrirPublico: 'Abrir enlace público',
   sair: 'Salir',
-  saindo: 'Saliendo...',
+  saindo: 'Saliendo…',
 
   meusItens: 'Herramientas del minisitee',
   limiteAtingido: 'Usaste {n} de {max} herramientas del plan free.',
@@ -833,6 +839,9 @@ const es: Dicionario = {
   oQueAdicionar: '¿Qué quieres agregar?',
   escolhaTipo: 'Elige una herramienta. Completas los detalles en la pantalla siguiente.',
   voltar: '← Volver',
+  voltando: 'Volviendo…',
+  abrindo: 'Abriendo…',
+  duplicando: 'Duplicando…',
   criando: 'Creando...',
 
   salvar: 'Guardar',

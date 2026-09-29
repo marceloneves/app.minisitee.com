@@ -127,13 +127,12 @@ export default async function PainelPage() {
           </Link>
         </div>
       ) : (
-        <ul className="mt-10 space-y-10">
+        <ul className="mt-6 space-y-4">
           {itens.map((item, i) => (
             <ItemCardAdmin
               key={item.id}
               item={item}
               username={profile?.username ?? ''}
-              posicao={i + 1}
               primeiro={i === 0}
               ultimo={i === itens.length - 1}
               ehFree={ehFree}

@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
+import { Girando } from '@/components/girando'
 import { StatusBadge } from '@/components/status-badge'
 import { duplicarItem, excluirItem, moverItem } from '@/lib/actions/items'
 import { textoDoPreco } from '@/lib/format'
@@ -27,14 +28,12 @@ export type ItemResumo = {
 
 export function ItemCardAdmin({
   item,
-  posicao,
   primeiro,
   ultimo,
   ehFree,
 }: {
   item: ItemResumo
   username: string
-  posicao: number
   primeiro: boolean
   ultimo: boolean
   ehFree: boolean
@@ -43,15 +42,24 @@ export function ItemCardAdmin({
   const idioma = useIdioma()
   const [pendente, iniciar] = useTransition()
   const [confirmando, setConfirmando] = useState(false)
+  // "Abrindo..." no clique do Configurar: o editor pode demorar a abrir.
+  const [abrindo, setAbrindo] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 
-  function executar(acao: () => Promise<{ erro?: string } | void>) {
+  // Qual acao esta rodando, para o botao dela mostrar que o clique pegou
+  // (o pendente da transicao vale para o cartao inteiro).
+  const [emAndamento, setEmAndamento] = useState<string | null>(null)
+
+  function executar(acao: () => Promise<{ erro?: string } | void>, qual?: string) {
     setErro(null)
+    setEmAndamento(qual ?? null)
     iniciar(async () => {
       const r = await acao()
       if (r && 'erro' in r && r.erro) setErro(r.erro)
+      setEmAndamento(null)
     })
   }
+  const duplicando = pendente && emAndamento === 'duplicar'
 
   const ehProduto = item.kind === 'produto'
   const nomeDoTipo = TIPOS[idioma][item.kind]?.nome ?? item.kind
@@ -65,17 +73,7 @@ export function ItemCardAdmin({
         : nomeDoTipo
 
   return (
-    // O numero da ordem e um selo no meio da borda de cima do cartao, quase
-    // todo para fora (so 8 px dentro). Fica fora da div do cartao, que corta o que
-    // passa da borda (overflow-hidden).
-    <li className={`relative ${pendente ? 'opacity-60' : ''}`}>
-      <span
-        aria-hidden="true"
-        className="absolute -top-6 left-1/2 z-10 flex size-8 -translate-x-1/2 items-center justify-center rounded-full bg-fg text-sm font-bold text-bg shadow-sm ring-2 ring-bg"
-      >
-        {posicao}
-      </span>
-
+    <li className={pendente ? 'opacity-60' : ''}>
       <div className="overflow-hidden rounded-2xl border border-border bg-surface">
         <div className="flex gap-3 p-3">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-border">
@@ -140,9 +138,14 @@ export function ItemCardAdmin({
         <div className="flex flex-wrap gap-3 border-t border-border p-3">
           <Link
             href={`/painel/item/${item.id}`}
-            className="inline-flex min-h-11 items-center rounded-xl bg-fg px-5 text-sm font-semibold text-bg"
+            onClick={() => setAbrindo(true)}
+            aria-busy={abrindo}
+            className={`inline-flex min-h-11 items-center gap-2 rounded-xl bg-fg px-5 text-sm font-semibold text-bg ${
+              abrindo ? 'pointer-events-none cursor-wait opacity-80' : ''
+            }`}
           >
-            {t('editar')}
+            {abrindo && <Girando />}
+            {abrindo ? t('abrindo') : t('editar')}
           </Link>
           {/* Produto nao tem pagina propria: o atalho so aparece com link informado. */}
           {ehProduto && item.url && (
@@ -175,10 +178,14 @@ export function ItemCardAdmin({
             <button
               type="button"
               disabled={pendente}
-              onClick={() => executar(() => duplicarItem(item.id))}
-              className="inline-flex min-h-11 items-center rounded-xl border border-fg/25 bg-bg shadow-sm px-4 text-sm font-medium disabled:opacity-50"
+              onClick={() => executar(() => duplicarItem(item.id), 'duplicar')}
+              aria-busy={duplicando}
+              className={`inline-flex min-h-11 items-center gap-2 rounded-xl border border-fg/25 bg-bg shadow-sm px-4 text-sm font-medium ${
+                duplicando ? 'cursor-wait opacity-80' : 'disabled:opacity-50'
+              }`}
             >
-              {t('duplicar')}
+              {duplicando && <Girando />}
+              {duplicando ? t('duplicando') : t('duplicar')}
             </button>
           )}
 

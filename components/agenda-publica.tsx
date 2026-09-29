@@ -242,7 +242,7 @@ function ListaHorarios({
   if (horarios.length === 0) return <p className="mt-2 text-sm text-muted">{t('agendaSemHorarios')}</p>
 
   return (
-    <ul className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+    <ul className="mt-2 grid grid-cols-3 gap-2 @xl:grid-cols-4">
       {horarios.map((h) => (
         <li key={h}>
           <button

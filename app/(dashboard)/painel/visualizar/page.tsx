@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { MinisiteeConteudo } from '@/components/minisitee-conteudo'
+import { MolduraCelular } from '@/components/moldura-celular'
 import { getUserId } from '@/lib/auth'
 import { idiomaValido } from '@/lib/i18n/dicionarios'
 import { getT } from '@/lib/i18n/servidor'
@@ -55,11 +56,12 @@ export default async function VisualizarPage() {
         </Link>
       </div>
 
-      <div
-        {...atributosDoMinisite(temaValido(profile.theme), estiloValido(profile.estilo))}
-        className="border-t border-border bg-bg text-fg"
-      >
-        <MinisiteeConteudo profile={profile} items={items} idioma={idioma} />
+      <div className="flex justify-center px-4 pb-10">
+        <MolduraCelular
+          tela={atributosDoMinisite(temaValido(profile.theme), estiloValido(profile.estilo))}
+        >
+          <MinisiteeConteudo profile={profile} items={items} idioma={idioma} />
+        </MolduraCelular>
       </div>
     </div>
   )

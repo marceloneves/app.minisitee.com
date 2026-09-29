@@ -42,10 +42,12 @@ type Estado = 'limpo' | 'sujo' | 'salvando' | 'salvo' | 'erro'
 export function ItemEditor({
   inicial,
   fotosIniciais,
+  whatsappDoPerfil,
   ehNovo,
 }: {
   inicial: ItemForm
   fotosIniciais: Foto[]
+  whatsappDoPerfil: string | null
   ehNovo: boolean
 }) {
   const t = useT()
@@ -91,6 +93,7 @@ export function ItemEditor({
                 title: atual.title.trim() || 'Sem título',
                 status: atual.status,
                 whatsapp_message: atual.whatsappMessage.trim() || null,
+                data: atual.dados,
               }
             : {
                 title: atual.title.trim() || 'Sem título',
@@ -237,7 +240,7 @@ export function ItemEditor({
           {form.kind === 'link' && (
             <Texto
               id="url"
-              rotulo={t('enderecoSite')}
+              rotulo={t('enderecoLink')}
               valor={form.url}
               aoMudar={(v) => mudar('url', v)}
               placeholder="https://instagram.com/seuperfil"
@@ -248,7 +251,7 @@ export function ItemEditor({
             <div>
               <Texto
                 id="url"
-                rotulo={t('enderecoSite')}
+                rotulo={t('enderecoQrCode')}
                 valor={form.url}
                 aoMudar={(v) => mudar('url', v)}
                 placeholder="https://seusite.com/cardapio"
@@ -351,6 +354,18 @@ export function ItemEditor({
             <EditorFaq
               perguntas={form.dados.perguntas ?? []}
               aoMudar={(perguntas) => mudarDados({ perguntas })}
+            />
+          )}
+
+          {form.kind === 'whatsapp' && (
+            <CampoTelefone
+              id="whatsapp-numero"
+              rotulo={`${t('whatsappNumero')} ${t('opcional')}`}
+              ajuda={t('whatsappNumeroAjuda')}
+              // Sem numero proprio, o campo ja vem com o WhatsApp do perfil:
+              // e o numero que o botao usa enquanto ninguem troca.
+              valor={form.dados.telefone || whatsappDoPerfil || '55'}
+              aoMudar={(v) => mudarDados({ telefone: v })}
             />
           )}
 

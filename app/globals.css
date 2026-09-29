@@ -101,6 +101,15 @@
   color: var(--fg);
 }
 
+/* Rolagem sem barra, para a tela da moldura de celular do Visualizar. */
+.sem-barra {
+  scrollbar-width: none;
+}
+
+.sem-barra::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   background: var(--bg);
   color: var(--fg);

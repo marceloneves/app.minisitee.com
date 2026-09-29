@@ -26,6 +26,13 @@ export default async function EditorItemPage({
 
   if (!item) notFound()
 
+  // O Botao WhatsApp mostra o numero do perfil quando nao tem um proprio.
+  const { data: perfil } = await supabase
+    .from('profiles')
+    .select('whatsapp')
+    .eq('id', userId)
+    .maybeSingle()
+
   const { data: fotos } = await supabase
     .from('item_photos')
     .select('id, url, position')
@@ -49,6 +56,7 @@ export default async function EditorItemPage({
     <ItemEditor
       inicial={inicial}
       fotosIniciais={(fotos ?? []) as Foto[]}
+      whatsappDoPerfil={perfil?.whatsapp ?? null}
       ehNovo={item.created_at === item.updated_at}
     />
   )

@@ -39,7 +39,10 @@ export function MinisiteeConteudo({
 
   return (
     <>
-        <main className="mx-auto w-full max-w-3xl px-4 py-8">
+        {/* @container: as grades seguem a largura em que o minisite esta
+            desenhado, e nao a da janela. Na moldura de celular do Visualizar a
+            janela e larga, mas o minisite tem 390px. */}
+        <main className="@container mx-auto w-full max-w-3xl px-4 py-8">
           <header className="flex flex-col items-center text-center">
             {profile.avatar_url &&
               (profile.avatar_formato === 'retangulo' ? (
@@ -86,7 +89,7 @@ export function MinisiteeConteudo({
             <div className="mt-8 space-y-4">
               {agrupar(items).map((bloco, b) =>
                 bloco.tipo === 'grade' ? (
-                  <ul key={b} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <ul key={b} className="grid grid-cols-1 gap-4 @2xl:grid-cols-2">
                     {bloco.itens.map((item) => (
                       <ItemCard
                         key={item.id}
@@ -149,6 +152,13 @@ function agrupar(items: ItemPublico[]): Bloco[] {
   return blocos
 }
 
+// O botao de WhatsApp pode ter numero proprio; sem um numero completo (so o
+// codigo do pais, ou vazio) vale o WhatsApp do perfil, como sempre foi.
+function numeroDoWhatsapp(item: ItemPublico, whatsappDoPerfil: string | null) {
+  const proprio = item.data?.telefone?.replace(/\D/g, '') ?? ''
+  return proprio.length >= 10 && proprio.length <= 15 ? proprio : whatsappDoPerfil
+}
+
 function BlocoItem({
   item,
   whatsappDoPerfil,
@@ -176,10 +186,11 @@ function BlocoItem({
   if (item.kind === 'horario') return <BlocoHorario item={item} idioma={idioma} d={d} />
   if (item.kind === 'endereco') return <BlocoEndereco item={item} d={d} />
 
+  const numeroWhatsapp = item.kind === 'whatsapp' ? numeroDoWhatsapp(item, whatsappDoPerfil) : null
   const destino =
     item.kind === 'whatsapp'
-      ? whatsappDoPerfil
-        ? linkWhatsapp(whatsappDoPerfil, item.whatsapp_message ?? 'Olá!')
+      ? numeroWhatsapp
+        ? linkWhatsapp(numeroWhatsapp, item.whatsapp_message ?? 'Olá!')
         : null
       : item.kind === 'telefone'
         ? item.data?.telefone
@@ -382,7 +393,7 @@ function BlocoGaleria({ item }: { item: ItemPublico }) {
         <IconeSecao tipo="galeria" />
         {item.title}
       </h2>
-      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <ul className="grid grid-cols-2 gap-2 @xl:grid-cols-3">
         {fotos.map((url, i) => (
           <li
             key={url}

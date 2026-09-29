@@ -101,8 +101,6 @@ export function EditorPerfil({
       <section className="space-y-4">
         <h2 className="text-sm font-semibold text-muted">{t('seusDados')}</h2>
 
-        <p className="text-xs text-muted">{t('estSalvaSozinho')}</p>
-
         <AvatarUploader inicial={inicial.avatarUrl} formatoInicial={inicial.avatarFormato} />
 
         {/* So leitura: o e-mail e o do login e nao se troca por aqui. */}

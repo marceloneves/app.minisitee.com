@@ -8,7 +8,6 @@ import type { Dicionario } from '@/lib/i18n/dicionarios'
 import {
   FONTES,
   PRONTOS,
-  atributosDoMinisite,
   estiloDoPronto,
   type EstiloPersonalizado,
   type Formato,
@@ -36,12 +35,10 @@ const OPCOES_SOMBRA: [Sombra, keyof Dicionario][] = [
 export function EditorEstilo({
   inicial,
   estiloInicial,
-  previa,
 }: {
   inicial: string
   // Nulo quando o dono nunca personalizou: os ajustes partem do estilo pronto.
   estiloInicial: EstiloPersonalizado | null
-  previa?: ReactNode
 }) {
   const t = useT()
   const idioma = useIdioma()
@@ -49,9 +46,9 @@ export function EditorEstilo({
   const [estilo, setEstilo] = useState<EstiloPersonalizado>(
     () => estiloInicial ?? estiloDoPronto(inicial)
   )
-  // Os ajustes ficam fechados atras do botao Personalizar; abrem sozinhos
-  // quando o que esta salvo ja e personalizado.
-  const [personalizando, setPersonalizando] = useState(() => !estilo.pronto)
+  // Duas abas: temas prontos e personalizar. Sempre abre nos temas: os
+  // ajustes so aparecem quando a pessoa clica em Personalizar.
+  const [aba, setAba] = useState<'temas' | 'personalizar'>('temas')
   const [situacao, setSituacao] = useState<Situacao>('parado')
   const [erro, setErro] = useState<string | null>(null)
 
@@ -99,62 +96,59 @@ export function EditorEstilo({
 
   return (
     <div>
-      <p className="mb-4 text-xs text-muted">{t('estSalvaSozinho')}</p>
-
       <AvisoSalvamento situacao={situacao} mensagem={erro} />
 
-      <h2 className="text-sm font-semibold">{t('estPronto')}</h2>
-      <ul className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
-        {/* Como no Linktree: o Personalizar e o primeiro quadrado da grade.
-            Fica marcado quando os ajustes estao abertos ou o estilo ja nao e
-            nenhum dos temas prontos. */}
-        <li>
+      <div role="tablist" className="flex gap-6 border-b border-border">
+        {(
+          [
+            ['temas', t('estPronto')],
+            ['personalizar', t('estPersonalizar')],
+          ] as const
+        ).map(([valor, rotulo]) => (
           <button
+            key={valor}
             type="button"
-            onClick={() => setPersonalizando((v) => !v)}
-            aria-expanded={personalizando}
-            aria-controls="ajustes-estilo"
-            className={`w-full overflow-hidden rounded-xl border-2 text-left transition-colors ${
-              personalizando || !estilo.pronto ? 'border-fg' : 'border-border hover:border-muted'
+            role="tab"
+            id={`aba-${valor}`}
+            aria-selected={aba === valor}
+            aria-controls={`painel-${valor}`}
+            onClick={() => setAba(valor)}
+            className={`-mb-px border-b-2 pb-2.5 text-sm font-medium transition-colors ${
+              aba === valor ? 'border-fg text-fg' : 'border-transparent text-muted hover:text-fg'
             }`}
           >
-            <span className="flex h-28 items-center justify-center bg-surface text-muted">
-              <svg
-                aria-hidden
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                className="size-8"
-              >
-                <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
-                <circle cx="16" cy="7" r="2" />
-                <circle cx="10" cy="17" r="2" />
-              </svg>
-            </span>
-            <span className="block px-2 py-1.5 text-sm font-medium">{t('estPersonalizar')}</span>
+            {rotulo}
           </button>
-        </li>
-        {PRONTOS.map((p) => (
-          <li key={p.valor}>
-            <button
-              type="button"
-              onClick={() => escolherPronto(p)}
-              aria-pressed={estilo.pronto === p.valor}
-              className={`w-full overflow-hidden rounded-xl border-2 text-left transition-colors ${
-                estilo.pronto === p.valor ? 'border-fg' : 'border-border hover:border-muted'
-              }`}
-            >
-              <MiniaturaPronto estilo={p.estilo} />
-              <span className="block px-2 py-1.5 text-sm font-medium">{p.rotulo[idioma]}</span>
-            </button>
-          </li>
         ))}
-      </ul>
+      </div>
 
-      {personalizando && (
-        <div id="ajustes-estilo">
+      {aba === 'temas' && (
+        <ul
+          role="tabpanel"
+          id="painel-temas"
+          aria-labelledby="aba-temas"
+          className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4"
+        >
+          {PRONTOS.map((p) => (
+            <li key={p.valor}>
+              <button
+                type="button"
+                onClick={() => escolherPronto(p)}
+                aria-pressed={estilo.pronto === p.valor}
+                className={`w-full overflow-hidden rounded-xl border-2 text-left transition-colors ${
+                  estilo.pronto === p.valor ? 'border-fg' : 'border-border hover:border-muted'
+                }`}
+              >
+                <MiniaturaPronto estilo={p.estilo} />
+                <span className="block px-2 py-1.5 text-sm font-medium">{p.rotulo[idioma]}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {aba === 'personalizar' && (
+        <div role="tabpanel" id="painel-personalizar" aria-labelledby="aba-personalizar">
           <Grupo titulo={t('estPagina')}>
             <div className="grid grid-cols-2 gap-3">
               <Cor rotulo={t('estFundo')} valor={estilo.fundo} aoMudar={(v) => ajustar('fundo', v)} />
@@ -211,18 +205,6 @@ export function EditorEstilo({
             </ul>
           </Grupo>
         </div>
-      )}
-
-      {previa && (
-        <>
-          <h2 className="mt-8 text-sm font-semibold">{t('estPrevia')}</h2>
-          <div
-            {...atributosDoMinisite(tema, estilo)}
-            className="mt-3 overflow-hidden rounded-2xl border border-border bg-bg text-fg"
-          >
-            {previa}
-          </div>
-        </>
       )}
     </div>
   )

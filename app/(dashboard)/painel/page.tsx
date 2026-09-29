@@ -127,7 +127,7 @@ export default async function PainelPage() {
           </Link>
         </div>
       ) : (
-        <ul className="mt-6 space-y-6">
+        <ul className="mt-8 space-y-10">
           {itens.map((item, i) => (
             <ItemCardAdmin
               key={item.id}

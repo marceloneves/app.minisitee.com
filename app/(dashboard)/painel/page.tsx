@@ -53,6 +53,29 @@ export default async function PainelPage() {
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
       <CabecalhoPainel
         titulo={t('meusItens')}
+        // Ver minisitee saiu do menu do topo e fica aqui, junto das ferramentas.
+        acao={
+          <Link
+            href="/painel/visualizar"
+            aria-label={t('verSite')}
+            title={t('verSite')}
+            className="flex size-11 items-center justify-center rounded-xl border border-fg/25 bg-bg shadow-sm"
+          >
+            <svg
+              aria-hidden
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-5"
+            >
+              <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </Link>
+        }
         subtitulo={
           ehFree ? t('limiteContador', { n: itens.length, max: MAX_ITENS_FREE }) : undefined
         }
@@ -60,7 +83,12 @@ export default async function PainelPage() {
 
       {noLimite ? (
         <p className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {t('erroLimiteFree', { max: MAX_ITENS_FREE })}
+          {t('erroLimiteFree', { max: MAX_ITENS_FREE })}{' '}
+          {/* Unico caminho para a tela de mudar de plano: ela nao esta em menu. */}
+          <Link href="/painel/plano-pro" className="font-semibold underline underline-offset-2">
+            {t('erroLimiteLink')}
+          </Link>{' '}
+          {t('erroLimiteFim')}
         </p>
       ) : (
         itens.length > 0 && (

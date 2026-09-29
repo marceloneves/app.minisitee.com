@@ -41,6 +41,18 @@ export function NavPainel({
     return `${base} shrink-0 ${selecionado ? ativo : inativo}`
   }
 
+  // Configurando uma ferramenta, no plano Pro e no Ver minisitee o menu some
+  // (o logotipo e o nome ficam): para sair dali, so o Voltar da propria tela.
+  // Fica aqui, no cliente, e nao no layout: o layout nao e desenhado de novo
+  // ao navegar, e o menu so voltava depois de recarregar a pagina.
+  if (
+    pathname.startsWith('/painel/item/') ||
+    pathname.startsWith('/painel/plano-pro') ||
+    pathname.startsWith('/painel/visualizar')
+  ) {
+    return null
+  }
+
   // Todas as opcoes numa linha so. No celular nao cabem: a linha desliza para
   // o lado sozinha (overflow-x-auto), sem a pagina rolar.
   return (
@@ -50,9 +62,6 @@ export function NavPainel({
       </Link>
       <Link href="/painel/estilo" className={classe('/painel/estilo')}>
         {t('estilo')}
-      </Link>
-      <Link href="/painel/visualizar" className={classe('/painel/visualizar')}>
-        {t('verSite')}
       </Link>
       {agenda && (
         <Link href="/painel/agenda" className={classe('/painel/agenda')}>

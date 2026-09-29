@@ -28,9 +28,6 @@ export default async function PainelLayout({
 
   const pathname = (await headers()).get('x-pathname') ?? ''
   const naOnboarding = pathname.startsWith('/painel/comecar')
-  // Configurando uma ferramenta, os botoes do menu somem (o logotipo e o nome
-  // ficam): para sair dali, so o Voltar, na barra do proprio editor.
-  const noEditor = pathname.startsWith('/painel/item/')
 
   if (!profile && !naOnboarding) redirect('/painel/comecar')
   if (profile && naOnboarding) redirect('/painel')
@@ -96,14 +93,12 @@ export default async function PainelLayout({
                 </span>
               </div>
 
-              {!noEditor && (
-                <NavPainel
-                  admin={admin}
-                  cubo={cubo}
-                  agenda={(agendas ?? 0) > 0}
-                  respostas={(formularios ?? 0) > 0}
-                />
-              )}
+              <NavPainel
+                admin={admin}
+                cubo={cubo}
+                agenda={(agendas ?? 0) > 0}
+                respostas={(formularios ?? 0) > 0}
+              />
             </div>
           </header>
         )}

@@ -180,7 +180,7 @@ export function ItemEditor({
         <IndicadorSalvamento estado={estado} erro={erro} />
       </div>
 
-      <div className="mx-auto w-full max-w-2xl space-y-4 px-4 py-6">
+      <div className="mx-auto w-full max-w-3xl space-y-4 px-4 py-6">
         <header className="flex items-center gap-4 rounded-2xl border border-border bg-bg p-5 shadow-sm">
           <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-surface">
             <IconeDaFerramenta kind={form.kind} />

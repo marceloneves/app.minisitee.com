@@ -60,9 +60,16 @@ export function ItemEditor({
   const [erro, setErro] = useState<string | null>(null)
 
   const pedido = useRef(0)
+  // O que ja esta no banco, para o salvamento automatico so disparar quando o
+  // formulario de fato mudou.
+  const ultimoSalvo = useRef(JSON.stringify(inicial))
+  // Algo desta ferramenta ja foi gravado nesta tela (formulario ou foto):
+  // voltar deixa de apagar a ferramenta nova.
+  const mexeu = useRef(false)
 
   const salvar = useCallback(async (atual: ItemForm) => {
     const id = ++pedido.current
+    const json = JSON.stringify(atual)
     setEstado('salvando')
 
     const patch: PatchItem =
@@ -96,22 +103,34 @@ export function ItemEditor({
               }
 
     const r = await salvarItem(atual.id, patch)
-    if (id !== pedido.current) return
+    // Um pedido mais novo ja saiu e responde por este: nao e erro.
+    if (id !== pedido.current) return true
 
     if ('erro' in r && r.erro) {
       setEstado('erro')
       setErro(r.erro)
-      return
+      return false
     }
 
+    ultimoSalvo.current = json
+    mexeu.current = true
     setErro(null)
     setEstado('salvo')
-    router.push('/painel')
-    router.refresh()
-  }, [router])
+    return true
+  }, [])
 
+  // Salva sozinho, sem botao: um segundo depois da ultima mudanca. A espera
+  // junta a digitacao num salvamento so; resposta de um pedido antigo que chega
+  // depois de um novo e ignorada em salvar().
   useEffect(() => {
-    if (estado !== 'sujo') return
+    if (JSON.stringify(form) === ultimoSalvo.current) return
+    const espera = setTimeout(() => void salvar(form), 1000)
+    return () => clearTimeout(espera)
+  }, [form, salvar])
+
+  // Fechar a aba antes do salvamento automatico sair perderia a ultima mudanca.
+  useEffect(() => {
+    if (estado !== 'sujo' && estado !== 'salvando') return
 
     function avisar(e: BeforeUnloadEvent) {
       e.preventDefault()
@@ -120,19 +139,19 @@ export function ItemEditor({
     return () => window.removeEventListener('beforeunload', avisar)
   }, [estado])
 
-  // Um item nasce gravado no banco (o upload de foto precisa do id).
-  // Cancelar a criação tem que apagar esse rascunho; cancelar a edição
-  // de um item que já existia só volta sem salvar.
-  function cancelar() {
-    if (ehNovo && estado !== 'salvo') {
+  // Uma ferramenta nasce gravada no banco (o upload de foto precisa do id).
+  // Voltar de uma nova sem ter preenchido nada apaga esse rascunho vazio. Com
+  // mudanca ainda esperando o salvamento automatico, salva antes de sair.
+  async function voltar() {
+    const pendente = JSON.stringify(form) !== ultimoSalvo.current
+    if (ehNovo && !mexeu.current && !pendente) {
       setEstado('salvando')
-      void excluirItem(form.id).then(() => {
-        router.push('/painel')
-        router.refresh()
-      })
+      await excluirItem(form.id)
+    } else if (pendente && !(await salvar(form))) {
       return
     }
     router.push('/painel')
+    router.refresh()
   }
 
   function mudarDados(patch: Partial<DadosItem>) {
@@ -154,20 +173,10 @@ export function ItemEditor({
 
           <button
             type="button"
-            disabled={estado === 'salvando'}
-            onClick={cancelar}
-            className="rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-50"
+            onClick={() => void voltar()}
+            className="rounded-lg border border-border px-3 py-1.5 text-sm"
           >
-            {t('cancelar')}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => void salvar(form)}
-            disabled={estado === 'salvando' || estado === 'limpo' || estado === 'salvo'}
-            className="rounded-lg bg-brand px-4 py-1.5 text-sm font-medium text-brand-fg disabled:opacity-40"
-          >
-            {estado === 'salvando' ? t('salvando') : t('salvar')}
+            {t('voltar')}
           </button>
         </div>
       </div>
@@ -447,7 +456,11 @@ export function ItemEditor({
           <PhotoUploader
             itemId={form.id}
             iniciais={fotosIniciais}
-            aoMudar={() => setEstado('sujo')}
+            // A foto ja vai para o banco no upload; aqui so marca que a
+            // ferramenta nova deixou de estar vazia.
+            aoMudar={() => {
+              mexeu.current = true
+            }}
           />
         </Secao>
       </div>
@@ -473,8 +486,9 @@ function IndicadorSalvamento({ estado, erro }: { estado: Estado; erro: string | 
       </span>
     )
   }
-  if (estado === 'sujo') {
-    return <span className="text-xs text-amber-600">{t('naoSalvo')}</span>
+  // "Sujo" dura so o segundo ate o salvamento automatico sair.
+  if (estado === 'sujo' || estado === 'salvando') {
+    return <span className="text-xs text-muted">{t('salvando')}</span>
   }
   if (estado === 'salvo') {
     return <span className="text-xs text-muted">{t('salvo')}</span>

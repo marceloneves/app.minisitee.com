@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useState, useTransition, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { AvisoSalvamento, type Situacao } from '@/components/aviso-salvamento'
 import { atualizarEstilo } from '@/lib/actions/profile'
 import { useIdioma, useT } from '@/lib/i18n/contexto'
 import type { Dicionario } from '@/lib/i18n/dicionarios'
@@ -45,16 +45,46 @@ export function EditorEstilo({
 }) {
   const t = useT()
   const idioma = useIdioma()
-  const router = useRouter()
   const [tema, setTema] = useState(inicial)
   const [estilo, setEstilo] = useState<EstiloPersonalizado>(
     () => estiloInicial ?? estiloDoPronto(inicial)
   )
+  // Os ajustes ficam fechados atras do botao Personalizar; abrem sozinhos
+  // quando o que esta salvo ja e personalizado.
+  const [personalizando, setPersonalizando] = useState(() => !estilo.pronto)
+  const [situacao, setSituacao] = useState<Situacao>('parado')
   const [erro, setErro] = useState<string | null>(null)
-  const [salvando, iniciar] = useTransition()
 
-  const [salvo] = useState(() => JSON.stringify({ tema: inicial, estilo }))
-  const mudou = JSON.stringify({ tema, estilo }) !== salvo
+  // Salva sozinho, sem botao: cada tema ou ajuste vai para o banco um pouco
+  // depois da ultima mudanca. A espera junta o arrastar do seletor de cor, que
+  // muda o valor dezenas de vezes, num salvamento so. Resposta de um pedido
+  // antigo que chega depois de um novo e ignorada.
+  const ultimoSalvo = useRef(JSON.stringify({ tema: inicial, estilo }))
+  const pedido = useRef(0)
+
+  useEffect(() => {
+    const atual = JSON.stringify({ tema, estilo })
+    if (atual === ultimoSalvo.current) return
+    const espera = setTimeout(async () => {
+      const id = ++pedido.current
+      setSituacao('salvando')
+      const r = await atualizarEstilo(tema, estilo)
+      if (id !== pedido.current) return
+      if ('erro' in r && r.erro) {
+        setErro(r.erro)
+        setSituacao('erro')
+        return
+      }
+      ultimoSalvo.current = atual
+      setErro(null)
+      setSituacao('salvo')
+      // "Salvo" some depois de um tempo; o erro fica ate a proxima tentativa.
+      setTimeout(() => {
+        if (id === pedido.current) setSituacao('parado')
+      }, 2000)
+    }, 800)
+    return () => clearTimeout(espera)
+  }, [tema, estilo])
 
   function ajustar<K extends keyof EstiloPersonalizado>(campo: K, valor: EstiloPersonalizado[K]) {
     // Mexeu em qualquer ajuste, deixou de ser o tema pronto.
@@ -67,26 +97,45 @@ export function EditorEstilo({
     setEstilo({ ...p.estilo })
   }
 
-  function salvar() {
-    setErro(null)
-    iniciar(async () => {
-      const r = await atualizarEstilo(tema, estilo)
-      if ('erro' in r && r.erro) {
-        setErro(r.erro)
-        return
-      }
-      router.push('/painel')
-      router.refresh()
-    })
-  }
-
   return (
     <div>
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-sm font-semibold">{t('estPronto')}</h2>
-        {!estilo.pronto && <span className="text-xs text-muted">{t('estPersonalizado')}</span>}
-      </div>
+      <p className="mb-4 text-xs text-muted">{t('estSalvaSozinho')}</p>
+
+      <AvisoSalvamento situacao={situacao} mensagem={erro} />
+
+      <h2 className="text-sm font-semibold">{t('estPronto')}</h2>
       <ul className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
+        {/* Como no Linktree: o Personalizar e o primeiro quadrado da grade.
+            Fica marcado quando os ajustes estao abertos ou o estilo ja nao e
+            nenhum dos temas prontos. */}
+        <li>
+          <button
+            type="button"
+            onClick={() => setPersonalizando((v) => !v)}
+            aria-expanded={personalizando}
+            aria-controls="ajustes-estilo"
+            className={`w-full overflow-hidden rounded-xl border-2 text-left transition-colors ${
+              personalizando || !estilo.pronto ? 'border-fg' : 'border-border hover:border-muted'
+            }`}
+          >
+            <span className="flex h-28 items-center justify-center bg-surface text-muted">
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                className="size-8"
+              >
+                <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+                <circle cx="16" cy="7" r="2" />
+                <circle cx="10" cy="17" r="2" />
+              </svg>
+            </span>
+            <span className="block px-2 py-1.5 text-sm font-medium">{t('estPersonalizar')}</span>
+          </button>
+        </li>
         {PRONTOS.map((p) => (
           <li key={p.valor}>
             <button
@@ -104,76 +153,65 @@ export function EditorEstilo({
         ))}
       </ul>
 
-      <Grupo titulo={t('estPagina')}>
-        <div className="grid grid-cols-2 gap-3">
-          <Cor rotulo={t('estFundo')} valor={estilo.fundo} aoMudar={(v) => ajustar('fundo', v)} />
-          <Cor rotulo={t('estTexto')} valor={estilo.texto} aoMudar={(v) => ajustar('texto', v)} />
+      {personalizando && (
+        <div id="ajustes-estilo">
+          <Grupo titulo={t('estPagina')}>
+            <div className="grid grid-cols-2 gap-3">
+              <Cor rotulo={t('estFundo')} valor={estilo.fundo} aoMudar={(v) => ajustar('fundo', v)} />
+              <Cor rotulo={t('estTexto')} valor={estilo.texto} aoMudar={(v) => ajustar('texto', v)} />
+            </div>
+          </Grupo>
+
+          <Grupo titulo={t('estBotoes')}>
+            <div className="grid grid-cols-2 gap-3">
+              <Cor rotulo={t('estCor')} valor={estilo.cartao} aoMudar={(v) => ajustar('cartao', v)} />
+              <Cor
+                rotulo={t('estTexto')}
+                valor={estilo.textoCartao}
+                aoMudar={(v) => ajustar('textoCartao', v)}
+              />
+            </div>
+            <Opcoes
+              rotulo={t('estCantos')}
+              opcoes={OPCOES_FORMATO.map(([v, k]) => [v, t(k)])}
+              valor={estilo.formato}
+              aoMudar={(v) => ajustar('formato', v)}
+            />
+            <Opcoes
+              rotulo={t('estPreenchimento')}
+              opcoes={OPCOES_PREENCHIMENTO.map(([v, k]) => [v, t(k)])}
+              valor={estilo.preenchimento}
+              aoMudar={(v) => ajustar('preenchimento', v)}
+            />
+            <Opcoes
+              rotulo={t('estSombra')}
+              opcoes={OPCOES_SOMBRA.map(([v, k]) => [v, t(k)])}
+              valor={estilo.sombra}
+              aoMudar={(v) => ajustar('sombra', v)}
+            />
+          </Grupo>
+
+          <Grupo titulo={t('estFonte')}>
+            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {FONTES.map((f) => (
+                <li key={f.valor}>
+                  <button
+                    type="button"
+                    onClick={() => ajustar('fonte', f.valor)}
+                    aria-pressed={estilo.fonte === f.valor}
+                    style={f.variavel ? { fontFamily: `var(${f.variavel}), sans-serif` } : undefined}
+                    className={`w-full rounded-xl border-2 px-3 py-2.5 text-base transition-colors ${
+                      estilo.fonte === f.valor ? 'border-fg' : 'border-border hover:border-muted'
+                    }`}
+                  >
+                    {f.rotulo}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </Grupo>
         </div>
-      </Grupo>
-
-      <Grupo titulo={t('estBotoes')}>
-        <div className="grid grid-cols-2 gap-3">
-          <Cor rotulo={t('estCor')} valor={estilo.cartao} aoMudar={(v) => ajustar('cartao', v)} />
-          <Cor
-            rotulo={t('estTexto')}
-            valor={estilo.textoCartao}
-            aoMudar={(v) => ajustar('textoCartao', v)}
-          />
-        </div>
-        <Opcoes
-          rotulo={t('estCantos')}
-          opcoes={OPCOES_FORMATO.map(([v, k]) => [v, t(k)])}
-          valor={estilo.formato}
-          aoMudar={(v) => ajustar('formato', v)}
-        />
-        <Opcoes
-          rotulo={t('estPreenchimento')}
-          opcoes={OPCOES_PREENCHIMENTO.map(([v, k]) => [v, t(k)])}
-          valor={estilo.preenchimento}
-          aoMudar={(v) => ajustar('preenchimento', v)}
-        />
-        <Opcoes
-          rotulo={t('estSombra')}
-          opcoes={OPCOES_SOMBRA.map(([v, k]) => [v, t(k)])}
-          valor={estilo.sombra}
-          aoMudar={(v) => ajustar('sombra', v)}
-        />
-      </Grupo>
-
-      <Grupo titulo={t('estFonte')}>
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {FONTES.map((f) => (
-            <li key={f.valor}>
-              <button
-                type="button"
-                onClick={() => ajustar('fonte', f.valor)}
-                aria-pressed={estilo.fonte === f.valor}
-                style={f.variavel ? { fontFamily: `var(${f.variavel}), sans-serif` } : undefined}
-                className={`w-full rounded-xl border-2 px-3 py-2.5 text-base transition-colors ${
-                  estilo.fonte === f.valor ? 'border-fg' : 'border-border hover:border-muted'
-                }`}
-              >
-                {f.rotulo}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </Grupo>
-
-      {erro && (
-        <p role="alert" className="mt-4 text-sm text-red-600">
-          {erro}
-        </p>
       )}
-
-      <button
-        type="button"
-        onClick={salvar}
-        disabled={salvando || !mudou}
-        className="mt-6 w-full rounded-xl bg-brand px-4 py-3 text-base font-medium text-brand-fg disabled:opacity-50"
-      >
-        {salvando ? t('salvando') : t('salvar')}
-      </button>
 
       {previa && (
         <>

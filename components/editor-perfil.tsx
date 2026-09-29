@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { AvisoSalvamento, type Situacao } from '@/components/aviso-salvamento'
 import { atualizarProfile } from '@/lib/actions/profile'
 import { MAX_BIO } from '@/lib/constants'
 import { AvatarUploader } from '@/components/avatar-uploader'
@@ -24,6 +24,21 @@ export type PerfilForm = {
 }
 
 
+// O que vai para atualizarProfile, com o WhatsApp ja em digitos (null quando
+// incompleto). Comparar isto, e nao o formulario, evita salvar de novo so
+// porque a mascara do telefone mudou a forma do texto.
+function dadosParaSalvar(f: PerfilForm) {
+  const { dial, nacional } = separarTelefone(f.whatsapp)
+  return {
+    displayName: f.displayName,
+    headline: f.headline,
+    bio: f.bio,
+    city: f.city,
+    whatsapp: juntarTelefone(dial, nacional),
+    locale: f.locale,
+  }
+}
+
 export function EditorPerfil({
   inicial,
   email,
@@ -32,52 +47,61 @@ export function EditorPerfil({
   email: string | null
 }) {
   const t = useT()
-  const router = useRouter()
   const [form, setForm] = useState(inicial)
   const [erro, setErro] = useState<string | null>(null)
-  const [salvando, iniciar] = useTransition()
-
-
+  const [situacao, setSituacao] = useState<Situacao>('parado')
 
   function mudar<K extends keyof PerfilForm>(campo: K, valor: PerfilForm[K]) {
-    setErro(null)
     setForm((f) => ({ ...f, [campo]: valor }))
   }
 
-  const { dial, nacional } = separarTelefone(form.whatsapp)
-  const digitos = juntarTelefone(dial, nacional)
-  // A bio e obrigatoria: e o texto que sempre aparece no minisite.
-  const podeSalvar =
-    form.displayName.trim().length > 1 &&
-    form.bio.trim().length > 0 &&
-    digitos !== null &&
-    !salvando
+  const dados = JSON.stringify(dadosParaSalvar(form))
+  const ultimoSalvo = useRef(JSON.stringify(dadosParaSalvar(inicial)))
+  const pedido = useRef(0)
 
-  function salvar() {
-    if (!podeSalvar || !digitos) return
+  // A bio e obrigatoria: e o texto que sempre aparece no minisite. Enquanto
+  // algo obrigatorio esta incompleto nada vai para o banco, e o aviso diz o que
+  // falta; assim o minisite nunca fica com bio vazia ou WhatsApp quebrado.
+  const falta =
+    form.displayName.trim().length <= 1
+      ? t('perfFaltaNome')
+      : !form.bio.trim()
+        ? t('perfFaltaBio')
+        : JSON.parse(dados).whatsapp === null
+          ? t('perfFaltaWhatsapp')
+          : null
+  const mudou = dados !== ultimoSalvo.current
 
-    iniciar(async () => {
-      const r = await atualizarProfile({
-        displayName: form.displayName,
-        headline: form.headline,
-        bio: form.bio,
-        city: form.city,
-        whatsapp: digitos,
-        locale: form.locale,
-      })
+  // Salva sozinho, sem botao: um segundo depois da ultima mudanca. Resposta de
+  // um pedido antigo que chega depois de um novo e ignorada.
+  useEffect(() => {
+    if (dados === ultimoSalvo.current || falta) return
+    const espera = setTimeout(async () => {
+      const id = ++pedido.current
+      setSituacao('salvando')
+      const r = await atualizarProfile(JSON.parse(dados))
+      if (id !== pedido.current) return
       if ('erro' in r && r.erro) {
         setErro(r.erro)
+        setSituacao('erro')
         return
       }
-      router.push('/painel')
-      router.refresh()
-    })
-  }
+      ultimoSalvo.current = dados
+      setErro(null)
+      setSituacao('salvo')
+      setTimeout(() => {
+        if (id === pedido.current) setSituacao('parado')
+      }, 2000)
+    }, 1000)
+    return () => clearTimeout(espera)
+  }, [dados, falta])
 
   return (
     <div className="space-y-8">
       <section className="space-y-4">
         <h2 className="text-sm font-semibold text-muted">{t('seusDados')}</h2>
+
+        <p className="text-xs text-muted">{t('estSalvaSozinho')}</p>
 
         <AvatarUploader inicial={inicial.avatarUrl} formatoInicial={inicial.avatarFormato} />
 
@@ -165,22 +189,10 @@ export function EditorPerfil({
         </div>
       </section>
 
-
-
-      {erro && (
-        <p role="alert" className="text-sm text-red-600">
-          {erro}
-        </p>
-      )}
-
-      <button
-        type="button"
-        onClick={salvar}
-        disabled={!podeSalvar}
-        className="w-full rounded-xl bg-brand px-4 py-3 text-base font-medium text-brand-fg disabled:opacity-50"
-      >
-        {salvando ? t('salvando') : t('salvar')}
-      </button>
+      <AvisoSalvamento
+        situacao={falta && mudou ? 'falta' : situacao}
+        mensagem={falta && mudou ? falta : erro}
+      />
     </div>
   )
 }

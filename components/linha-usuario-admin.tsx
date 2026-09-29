@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import {
   excluirUsuario,
@@ -8,6 +7,7 @@ import {
   trocarSenha,
   trocarUsername,
 } from '@/lib/actions/admin'
+import { urlPublica } from '@/lib/site'
 
 export type UsuarioAdmin = {
   id: string
@@ -44,9 +44,14 @@ export function LinhaUsuarioAdmin({ usuario }: { usuario: UsuarioAdmin }) {
           <p className="truncate text-sm font-semibold">{usuario.email}</p>
           <p className="truncate text-xs text-muted">
             {usuario.username ? (
-              <Link href={`/${usuario.username}`} className="underline underline-offset-2">
+              <a
+                href={urlPublica(usuario.username)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2"
+              >
                 minisitee.com/{usuario.username}
-              </Link>
+              </a>
             ) : (
               'sem perfil'
             )}

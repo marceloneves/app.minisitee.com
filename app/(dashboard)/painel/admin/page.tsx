@@ -53,7 +53,13 @@ export default async function AdminPage() {
     contagem.set(it.profile_id, (contagem.get(it.profile_id) ?? 0) + 1)
   }
 
-  const usuarios: UsuarioAdmin[] = (lista?.users ?? []).map((u) => {
+  // Mais novos primeiro, pela data de criacao que a lista mostra. O listUsers
+  // nao garante ordem nenhuma.
+  const contas = [...(lista?.users ?? [])].sort((a, b) =>
+    (b.created_at ?? '').localeCompare(a.created_at ?? '')
+  )
+
+  const usuarios: UsuarioAdmin[] = contas.map((u) => {
     const perfil = porPerfil.get(u.id)
     return {
       id: u.id,

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
 import { MAX_ITENS_FREE } from '@/lib/constants'
 import { slugify } from '@/lib/slug'
+import { caminhoDaUrl } from '@/lib/storage'
 import { novoIdCampo } from '@/lib/formulario'
 import { horarioPadrao, soPro, type DadosItem, type TipoItem } from '@/lib/types'
 
@@ -146,7 +147,7 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
 
   if (ehErroPro(error)) return { erro: ERRO_PRO }
   if (error?.code === '54000') {
-    return { erro: `O plano free permite ${MAX_ITENS_FREE} ferramentas.`, limite: true as const }
+    return { erro: `O plano free permite até ${MAX_ITENS_FREE} ferramentas. Mude para o plano Pro para adicionar mais ferramentas.`, limite: true as const }
   }
   // O indice items_uma_agenda deixa uma agenda so por minisite.
   if (error?.code === '23505' && error.message.includes('items_uma_agenda')) {
@@ -208,6 +209,24 @@ export async function salvarItem(id: string, patch: PatchItem) {
   return { ok: true as const, slug: dados.slug }
 }
 
+// Copia um arquivo do storage para a pasta de outra ferramenta e devolve a
+// URL publica nova. A copia precisa ter os proprios arquivos: dividir o do
+// original fazia tirar a foto da copia (ou excluir o original) apagar a foto
+// do outro. Null se nao deu; ai a copia fica sem aquele arquivo.
+async function copiarArquivo(supabase: Supabase, url: string, pastaDestino: string) {
+  const origem = caminhoDaUrl(url)
+  if (!origem) return null
+  const nome = origem.split('/').pop() ?? ''
+  const extensao = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+  const destino = `${pastaDestino}/${crypto.randomUUID()}${extensao}`
+  const { error } = await supabase.storage.from('media').copy(origem, destino)
+  if (error) {
+    console.error('[duplicar] falha ao copiar arquivo', origem, error.message)
+    return null
+  }
+  return supabase.storage.from('media').getPublicUrl(destino).data.publicUrl
+}
+
 export async function duplicarItem(id: string) {
   const userId = await getUserId()
   if (!userId) return { erro: 'Sessão expirada.' }
@@ -241,7 +260,7 @@ export async function duplicarItem(id: string) {
 
   if (ehErroPro(error)) return { erro: ERRO_PRO }
   if (error?.code === '54000') {
-    return { erro: `O plano free permite ${MAX_ITENS_FREE} ferramentas.`, limite: true as const }
+    return { erro: `O plano free permite até ${MAX_ITENS_FREE} ferramentas. Mude para o plano Pro para adicionar mais ferramentas.`, limite: true as const }
   }
   if (error?.code === '23505' && error.message.includes('items_uma_agenda')) {
     return { erro: 'Seu minisitee já tem uma agenda.' }
@@ -255,10 +274,29 @@ export async function duplicarItem(id: string) {
     .eq('item_id', id)
     .order('position')
 
+  const pastaNova = `${userId}/${novo.id}`
+
   if (fotos?.length) {
+    const copias = []
+    for (const f of fotos) {
+      const url = await copiarArquivo(supabase, f.url, pastaNova)
+      if (url) copias.push({ url, position: f.position, item_id: novo.id })
+    }
+    if (copias.length) await supabase.from('item_photos').insert(copias)
+  }
+
+  // Download de arquivo: o arquivo tambem ganha copia propria.
+  const dadosOrigem = origem.data as DadosItem | null
+  if (dadosOrigem?.arquivoUrl) {
+    const url = await copiarArquivo(supabase, dadosOrigem.arquivoUrl, pastaNova)
     await supabase
-      .from('item_photos')
-      .insert(fotos.map((f) => ({ ...f, item_id: novo.id })))
+      .from('items')
+      .update({
+        data: url
+          ? { ...dadosOrigem, arquivoUrl: url }
+          : { ...dadosOrigem, arquivoUrl: undefined, arquivoNome: undefined, arquivoTamanho: undefined },
+      })
+      .eq('id', novo.id)
   }
 
   revalidatePath('/painel')
@@ -276,11 +314,26 @@ export async function excluirItem(id: string) {
 
   const pasta = `${userId}/${id}`
   const { data: arquivos } = await supabase.storage.from('media').list(pasta)
-  if (arquivos?.length) {
-    await supabase.storage
-      .from('media')
-      .remove(arquivos.map((a) => `${pasta}/${a.name}`))
-  }
+
+  // Copias feitas antes de o Duplicar copiar os arquivos ainda apontam para
+  // os desta pasta: esses ficam, senao a copia perde a foto ou o arquivo.
+  const [{ data: fotosDeOutros }, { data: arquivosDeOutros }] = await Promise.all([
+    supabase.from('item_photos').select('url').neq('item_id', id).like('url', `%/${pasta}/%`),
+    supabase.from('items').select('data').neq('id', id).like('data->>arquivoUrl', `%/${pasta}/%`),
+  ])
+  const emUso = new Set(
+    [
+      ...(fotosDeOutros ?? []).map((f) => f.url as string),
+      ...(arquivosDeOutros ?? []).map((i) => (i.data as DadosItem | null)?.arquivoUrl ?? ''),
+    ]
+      .map((u) => caminhoDaUrl(u))
+      .filter(Boolean)
+  )
+  const apagar = (arquivos ?? [])
+    .map((a) => `${pasta}/${a.name}`)
+    .filter((c) => !emUso.has(c))
+
+  if (apagar.length) await supabase.storage.from('media').remove(apagar)
 
   const { error } = await supabase
     .from('items')

@@ -1,4 +1,5 @@
 import 'server-only'
+import { cookies } from 'next/headers'
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 
@@ -38,3 +39,18 @@ export const ehDonoDoCubo = cache(async () => {
   if (!email) return false
   return [...DONOS, ...emailsDaVariavel(process.env.CUBO_EMAIL)].includes(email)
 })
+
+// Sessao do admin guardada pelo "Entrar como" (lib/actions/admin.ts): o
+// refresh token dele e a conta em que entrou.
+export const COOKIE_VOLTA = 'minisitee_admin_volta'
+
+export async function lerVolta() {
+  const valor = (await cookies()).get(COOKIE_VOLTA)?.value
+  if (!valor) return null
+  try {
+    const v = JSON.parse(valor) as { r?: unknown; alvo?: unknown }
+    return typeof v.r === 'string' && typeof v.alvo === 'string' ? { r: v.r, alvo: v.alvo } : null
+  } catch {
+    return null
+  }
+}

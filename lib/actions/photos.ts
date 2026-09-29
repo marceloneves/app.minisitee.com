@@ -74,8 +74,15 @@ export async function removerFoto(photoId: string) {
     ?.profile_id
   if (!foto || dono !== userId) return { erro: 'Foto não encontrada.' }
 
+  // Copias antigas do Duplicar dividiam o arquivo com o original: so apaga do
+  // storage quando nenhuma outra foto usa o mesmo endereco.
+  const { count: outras } = await supabase
+    .from('item_photos')
+    .select('id', { count: 'exact', head: true })
+    .eq('url', foto.url)
+    .neq('id', photoId)
   const caminho = caminhoDaUrl(foto.url)
-  if (caminho) await supabase.storage.from('media').remove([caminho])
+  if (caminho && !outras) await supabase.storage.from('media').remove([caminho])
 
   const { error } = await supabase.from('item_photos').delete().eq('id', photoId)
   if (error) return { erro: 'Não foi possível remover.' }

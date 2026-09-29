@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import {
+  entrarComo,
   excluirUsuario,
   trocarPlano,
   trocarSenha,
@@ -81,6 +82,16 @@ export function LinhaUsuarioAdmin({ usuario }: { usuario: UsuarioAdmin }) {
             <option value="free">free</option>
             <option value="pro">pro</option>
           </select>
+
+          <button
+            type="button"
+            disabled={pendente}
+            // Em sucesso a acao redireciona para o painel da conta.
+            onClick={() => executar(() => entrarComo(usuario.id), 'Abrindo o ambiente da conta...')}
+            className="rounded-lg border border-border px-2.5 py-1 text-xs disabled:opacity-40"
+          >
+            Entrar como
+          </button>
 
           <button
             type="button"

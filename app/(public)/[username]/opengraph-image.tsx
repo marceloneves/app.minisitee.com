@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og'
 import { buscarPagina } from '@/lib/catalogo'
 import { DICIONARIOS, idiomaValido } from '@/lib/i18n/dicionarios'
 import { enderecoPublico } from '@/lib/site'
+import { estiloValido } from '@/lib/estilo'
 import { estiloPorValor, temaValido } from '@/lib/types'
 
 // Sem esta imagem, um minisite sem avatar era compartilhado sem figura
@@ -34,11 +35,14 @@ export default async function ImagemCompartilhamento({
   const pagina = await buscarPagina(username)
   const profile = pagina?.profile
 
-  const { superficie, marca, escuro } = estiloPorValor(temaValido(profile?.theme))
-  // O cartao e desenhado fora do CSS, entao nao herda --fg: nos estilos de
-  // fundo escuro o texto preto sumiria dentro da propria cor de superficie.
-  const corNome = escuro ? '#f5f5f7' : '#18181b'
-  const corLinha = escuro ? '#b0aeb8' : '#52525b'
+  const pronto = estiloPorValor(temaValido(profile?.theme))
+  // Com tema personalizado o cartao usa as cores dele: fundo da pagina, a
+  // inicial num circulo da cor dos botoes e o texto na cor do texto.
+  const estilo = estiloValido(profile?.estilo)
+  const superficie = estilo?.fundo ?? pronto.superficie
+  const marca = estilo?.cartao ?? pronto.marca
+  const corInicial = estilo?.textoCartao ?? '#ffffff'
+  const corNome = estilo?.texto ?? '#18181b'
 
   const nome = profile?.display_name ?? username
   const d = DICIONARIOS[idiomaValido(profile?.locale)]
@@ -69,7 +73,7 @@ export default async function ImagemCompartilhamento({
               justifyContent: 'center',
               borderRadius: '80px',
               background: marca,
-              color: '#ffffff',
+              color: corInicial,
               fontSize: '80px',
               fontWeight: 700,
             }}
@@ -81,7 +85,7 @@ export default async function ImagemCompartilhamento({
               {nome}
             </div>
             {linha && (
-              <div style={{ marginTop: '16px', fontSize: '38px', color: corLinha }}>
+              <div style={{ marginTop: '16px', fontSize: '38px', color: corNome, opacity: 0.7 }}>
                 {linha}
               </div>
             )}

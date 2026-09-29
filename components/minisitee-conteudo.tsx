@@ -211,7 +211,7 @@ function BlocoItem({
       href={destino}
       target={item.kind === 'telefone' ? undefined : '_blank'}
       rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2.5 rounded-2xl border border-border bg-surface px-5 py-4 text-center text-base font-semibold"
+      className="flex items-center justify-center gap-2.5 cartao cartao-botao px-5 py-4 text-center text-base font-semibold"
     >
       {comIcone && <RedeIcone rede={item.kind} tamanho="size-6 shrink-0" />}
       {item.title}
@@ -275,7 +275,7 @@ function BlocoHorario({ item, idioma, d }: { item: ItemPublico; idioma: Idioma; 
   if (dias.length === 0) return null
 
   return (
-    <section className="rounded-2xl border border-border bg-surface px-5 py-4">
+    <section className="cartao px-5 py-4">
       <h2 className="flex items-center gap-2 text-sm font-semibold text-muted">
         <IconeSecao tipo="horario" />
         {item.title}
@@ -311,7 +311,7 @@ function BlocoEndereco({ item, d }: { item: ItemPublico; d: Dicionario }) {
   const consulta = encodeURIComponent(endereco)
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+    <section className="overflow-hidden cartao">
       <div className="px-5 py-4">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-muted">
           <IconeSecao tipo="endereco" />
@@ -348,7 +348,7 @@ function BlocoFaq({ item }: { item: ItemPublico }) {
   if (perguntas.length === 0) return null
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+    <section className="overflow-hidden cartao">
       <h2 className="flex items-center gap-2 px-5 pt-4 text-sm font-semibold text-muted">
         <IconeSecao tipo="faq" />
         {item.title}
@@ -417,7 +417,7 @@ function BlocoContagem({
   if (!alvo) return null
 
   return (
-    <section className="rounded-2xl border border-border bg-surface px-5 py-4 text-center">
+    <section className="cartao px-5 py-4 text-center">
       <h2 className="flex items-center justify-center gap-2 text-sm font-semibold text-muted">
         <IconeSecao tipo="contagem" />
         {item.title}
@@ -436,7 +436,7 @@ function BlocoAgenda({ item }: { item: ItemPublico }) {
 
   return (
     <section
-      className="rounded-2xl border border-border bg-surface px-5 py-4"
+      className="cartao px-5 py-4"
       style={cor ? estiloDeFundo(cor) : undefined}
     >
       <h2 className="flex items-center justify-center gap-2 text-sm font-semibold text-muted">
@@ -456,7 +456,7 @@ function BlocoFormulario({ item }: { item: ItemPublico }) {
 
   return (
     <section
-      className="rounded-2xl border border-border bg-surface px-5 py-4"
+      className="cartao px-5 py-4"
       style={cor ? estiloDeFundo(cor) : undefined}
     >
       <h2 className="flex items-center justify-center gap-2 text-sm font-semibold text-muted">
@@ -514,7 +514,7 @@ function BlocoArquivo({ item }: { item: ItemPublico }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-5 py-4"
+      className="flex items-center gap-3 cartao cartao-botao px-5 py-4"
     >
       <IconeSecao tipo="arquivo" tamanho="size-7" />
       <span className="min-w-0 flex-1">

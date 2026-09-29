@@ -3,7 +3,6 @@ import { ItemEditor, type ItemForm } from '@/components/item-editor'
 import type { Foto } from '@/components/photo-uploader'
 import { getUserId } from '@/lib/auth'
 import { centsToCurrency } from '@/lib/mask'
-import { slugify } from '@/lib/slug'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function EditorItemPage({
@@ -27,12 +26,6 @@ export default async function EditorItemPage({
 
   if (!item) notFound()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('username')
-    .eq('id', userId)
-    .maybeSingle()
-
   const { data: fotos } = await supabase
     .from('item_photos')
     .select('id, url, position')
@@ -46,7 +39,6 @@ export default async function EditorItemPage({
     url: item.url ?? '',
     whatsappMessage: item.whatsapp_message ?? '',
     dados: (item.data ?? {}) as ItemForm['dados'],
-    slug: item.slug ?? '',
     description: item.description ?? '',
     category: item.category ?? '',
     status: item.status ?? 'rascunho',
@@ -58,9 +50,7 @@ export default async function EditorItemPage({
   return (
     <ItemEditor
       inicial={inicial}
-      username={profile?.username ?? ''}
       fotosIniciais={(fotos ?? []) as Foto[]}
-      slugManualInicial={item.slug !== slugify(item.title ?? '')}
       ehNovo={item.created_at === item.updated_at}
     />
   )

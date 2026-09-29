@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
 import { MAX_BIO } from '@/lib/constants'
+import { estiloValido } from '@/lib/estilo'
 import { agendarPublicacao } from '@/lib/html-estatico'
 import { caminhoDaUrl } from '@/lib/storage'
 
@@ -153,7 +154,10 @@ export async function atualizarProfile(input: AtualizarProfileInput) {
   return { ok: true as const }
 }
 
-export async function atualizarEstilo(theme: string) {
+export async function atualizarEstilo(theme: string, estilo: unknown) {
+  const ajustes = estiloValido(estilo)
+  if (!ajustes) return { erro: 'Não foi possível salvar o estilo.' }
+
   const userId = await getUserId()
   if (!userId) return { erro: 'Sessão expirada. Entre novamente.' }
 
@@ -166,7 +170,7 @@ export async function atualizarEstilo(theme: string) {
 
   const { error } = await supabase
     .from('profiles')
-    .update({ theme })
+    .update({ theme, estilo: ajustes })
     .eq('id', userId)
 
   if (error) {
@@ -175,6 +179,10 @@ export async function atualizarEstilo(theme: string) {
     // estilos novos ainda nao rodou nesse banco.
     if (error.code === '23514') {
       return { erro: 'Esse estilo ainda não existe no banco: falta aplicar a migração.' }
+    }
+    // PGRST204: a coluna profiles.estilo ainda nao existe nesse banco.
+    if (error.code === 'PGRST204' || error.code === '42703') {
+      return { erro: 'A personalização ainda não existe no banco: falta aplicar a migração.' }
     }
     // Sem isto qualquer falha do Postgres virava a mesma frase generica na
     // tela e nao sobrava nada para investigar.

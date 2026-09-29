@@ -3,10 +3,11 @@ import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { EditorEstilo } from '@/components/editor-estilo'
 import { MinisiteeConteudo } from '@/components/minisitee-conteudo'
 import { getUserId } from '@/lib/auth'
+import { estiloValido } from '@/lib/estilo'
 import { idiomaValido } from '@/lib/i18n/dicionarios'
 import { getT } from '@/lib/i18n/servidor'
 import { createClient } from '@/lib/supabase/server'
-import type { PaginaCatalogo } from '@/lib/types'
+import { temaValido, type PaginaCatalogo } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,7 +41,10 @@ export default async function EstiloPage() {
       <div className="mt-6" />
 
       <EditorEstilo
-        inicial={profile.theme ?? 'light'}
+        inicial={temaValido(profile.theme ?? undefined)}
+        // Vem da RPC e nao do select acima: sem a migracao a coluna nao existe,
+        // e pedir por ela aqui derrubaria a tela inteira.
+        estiloInicial={estiloValido(pagina?.profile?.estilo)}
         previa={
           pagina?.profile ? (
             <MinisiteeConteudo

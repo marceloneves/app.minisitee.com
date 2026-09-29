@@ -10,7 +10,6 @@ import { useIdioma, useT } from '@/lib/i18n/contexto'
 import { DIAS, ROTULO_STATUS, TIPOS, type Dicionario } from '@/lib/i18n/dicionarios'
 import { excluirItem, salvarItem, type PatchItem } from '@/lib/actions/items'
 import { currencyToCents, maskCurrency } from '@/lib/mask'
-import { slugify } from '@/lib/slug'
 import {
   DIAS_SEMANA,
   REDES,
@@ -34,7 +33,6 @@ export type ItemForm = {
   url: string
   whatsappMessage: string
   dados: DadosItem
-  slug: string
   description: string
   category: string
   status: string
@@ -47,15 +45,11 @@ type Estado = 'limpo' | 'sujo' | 'salvando' | 'salvo' | 'erro'
 
 export function ItemEditor({
   inicial,
-  username,
   fotosIniciais,
-  slugManualInicial,
   ehNovo,
 }: {
   inicial: ItemForm
-  username: string
   fotosIniciais: Foto[]
-  slugManualInicial: boolean
   ehNovo: boolean
 }) {
   const t = useT()
@@ -64,7 +58,6 @@ export function ItemEditor({
   const [form, setForm] = useState(inicial)
   const [estado, setEstado] = useState<Estado>('limpo')
   const [erro, setErro] = useState<string | null>(null)
-  const [slugManual, setSlugManual] = useState(slugManualInicial)
 
   const pedido = useRef(0)
 
@@ -76,7 +69,6 @@ export function ItemEditor({
       atual.kind === 'produto'
         ? {
             title: atual.title.trim() || 'Sem título',
-            slug: atual.slug,
             description: atual.description.trim() || null,
             category: atual.category.trim() || null,
             status: atual.status,
@@ -150,13 +142,7 @@ export function ItemEditor({
 
   function mudar<K extends keyof ItemForm>(campo: K, valor: ItemForm[K]) {
     setEstado('sujo')
-    setForm((f) => {
-      const proximo = { ...f, [campo]: valor }
-      if (campo === 'title' && !slugManual) {
-        proximo.slug = slugify(String(valor)) || 'item'
-      }
-      return proximo
-    })
+    setForm((f) => ({ ...f, [campo]: valor }))
   }
 
   return (
@@ -224,7 +210,7 @@ export function ItemEditor({
             <Texto
               id="url"
               rotulo={t('linkProduto')}
-              opcional
+              nota={t('linkProdutoNota')}
               valor={form.url}
               aoMudar={(v) => mudar('url', v)}
               placeholder="https://seusite.com/produto"
@@ -370,25 +356,6 @@ export function ItemEditor({
               </p>
             </div>
           )}
-
-          <div className={form.kind === 'produto' ? '' : 'hidden'}>
-            <label htmlFor="slug" className="block text-sm font-medium">
-              {t('enderecoPagina')}
-            </label>
-            <input
-              id="slug"
-              value={form.slug}
-              onChange={(e) => {
-                setSlugManual(true)
-                mudar('slug', slugify(e.target.value))
-              }}
-              className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
-            />
-            <p className="mt-2 break-all text-xs text-muted">
-              minisitee.com/{username}/
-              <span className="font-medium text-fg">{form.slug}</span>
-            </p>
-          </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {form.kind === 'produto' && (
@@ -546,6 +513,7 @@ function Texto({
   aoMudar,
   placeholder,
   opcional,
+  nota,
 }: {
   id: string
   rotulo: string
@@ -553,13 +521,15 @@ function Texto({
   aoMudar: (v: string) => void
   placeholder?: string
   opcional?: boolean
+  nota?: string
 }) {
   const t = useT()
+  const observacao = nota ?? (opcional ? t('opcional') : null)
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium">
         {rotulo}
-        {opcional && <span className="ml-1 font-normal text-muted">{t('opcional')}</span>}
+        {observacao && <span className="ml-1 font-normal text-muted">{observacao}</span>}
       </label>
       <input
         id={id}

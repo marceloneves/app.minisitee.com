@@ -7,7 +7,8 @@ import { ProvedorIdioma } from '@/lib/i18n/contexto'
 import { DICIONARIOS, OG_LOCALE, idiomaValido } from '@/lib/i18n/dicionarios'
 import { MAX_BIO } from '@/lib/constants'
 import { basePublica } from '@/lib/site'
-import { estiloPorValor, imagemEstilo, temaValido } from '@/lib/types'
+import { atributosDoMinisite, estiloValido } from '@/lib/estilo'
+import { temaValido } from '@/lib/types'
 
 // Sem cache: quem monta esta pagina e a publicacao do HTML estatico, logo
 // depois de um salvamento. Com cache, o HTML era gravado com a versao
@@ -15,9 +16,8 @@ import { estiloPorValor, imagemEstilo, temaValido } from '@/lib/types'
 export const dynamic = 'force-dynamic'
 
 // Sem theme-color a barra do navegador no Android fica cinza em cima da
-// pagina. A cor nao pode ser fixa: nos estilos de fundo escuro uma barra
-// branca deixaria uma faixa clara em cima de uma pagina escura. buscarPagina
-// esta memoizada por requisicao, entao isto nao custa outra ida ao banco.
+// pagina. O fundo e branco nos estilos prontos, mas o dono pode trocar a cor.
+// buscarPagina esta memoizada por requisicao: nao custa outra ida ao banco.
 export async function generateViewport({
   params,
 }: {
@@ -25,8 +25,7 @@ export async function generateViewport({
 }): Promise<Viewport> {
   const { username } = await params
   const pagina = await buscarPagina(username)
-  const estilo = estiloPorValor(temaValido(pagina?.profile?.theme))
-  return { themeColor: estilo.escuro ? estilo.superficie : '#ffffff' }
+  return { themeColor: estiloValido(pagina?.profile?.estilo)?.fundo ?? '#ffffff' }
 }
 
 // Descricoes gravadas antes do limite podem passar de MAX_BIO; o Google corta
@@ -116,8 +115,6 @@ export default async function CatalogoPage({
 
   const { profile, items } = pagina
   const idioma = idiomaValido(profile.locale)
-  const tema = temaValido(profile.theme)
-  const fundo = imagemEstilo(tema)
 
   const base = basePublica()
 
@@ -125,14 +122,10 @@ export default async function CatalogoPage({
     <ProvedorIdioma idioma={idioma}>
       {/* O <html> do layout raiz e sempre pt-BR; o minisite pode estar em
           outro idioma, e o lang aqui manda no leitor de tela e na busca. */}
-      {/* A foto do estilo entra pelo CSS, em background-image. O preload
-          adianta o download: sem ele o navegador so descobre a imagem depois
-          de baixar e ler a folha de estilo inteira. */}
-      {fundo && <link rel="preload" as="image" href={fundo} />}
       <div
         lang={idioma}
-        data-tema={tema}
-        className={`min-h-dvh bg-bg text-fg${fundo ? ' fundo-estilo' : ''}`}
+        {...atributosDoMinisite(temaValido(profile.theme), estiloValido(profile.estilo))}
+        className="min-h-dvh bg-bg text-fg"
       >
       <script
         type="application/ld+json"

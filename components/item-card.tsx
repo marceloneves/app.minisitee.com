@@ -65,7 +65,7 @@ export function ItemCard({
 // Produto nao tem pagina propria. O card so e clicavel quando o dono informou
 // um link, e abre esse link; sem link, nenhum endereco e inventado.
 function Moldura({ url, children }: { url: string | null; children: ReactNode }) {
-  const classe = 'block overflow-hidden rounded-2xl border border-border bg-surface'
+  const classe = 'block overflow-hidden cartao'
   if (!url) return <div className={classe}>{children}</div>
   return (
     <a href={url} target="_blank" rel="noopener noreferrer" className={classe}>

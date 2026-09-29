@@ -166,18 +166,18 @@ export function ItemEditor({
 
   return (
     <div className="min-h-dvh bg-surface pb-24">
-      <div className="sticky top-0 z-10 flex items-center justify-end border-b border-border bg-bg/90 px-4 py-2 backdrop-blur">
-        <div className="flex items-center gap-3">
-          <IndicadorSalvamento estado={estado} erro={erro} />
+      {/* Voltar no canto esquerdo, onde as pessoas procuram, grande e com
+          borda escura: pequeno e claro no canto direito ninguem achava. */}
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-bg/90 px-4 py-2 backdrop-blur">
+        <button
+          type="button"
+          onClick={() => void voltar()}
+          className="inline-flex min-h-11 items-center rounded-xl border border-fg/25 bg-bg px-4 text-sm font-semibold shadow-sm"
+        >
+          {t('voltar')}
+        </button>
 
-          <button
-            type="button"
-            onClick={() => void voltar()}
-            className="rounded-lg border border-border px-3 py-1.5 text-sm"
-          >
-            {t('voltar')}
-          </button>
-        </div>
+        <IndicadorSalvamento estado={estado} erro={erro} />
       </div>
 
       <div className="mx-auto w-full max-w-2xl space-y-4 px-4 py-6">

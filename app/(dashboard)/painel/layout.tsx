@@ -28,6 +28,9 @@ export default async function PainelLayout({
 
   const pathname = (await headers()).get('x-pathname') ?? ''
   const naOnboarding = pathname.startsWith('/painel/comecar')
+  // Configurando uma ferramenta, o menu do painel some: a tela tem so o
+  // Voltar, na barra do proprio editor.
+  const noEditor = pathname.startsWith('/painel/item/')
 
   if (!profile && !naOnboarding) redirect('/painel/comecar')
   if (profile && naOnboarding) redirect('/painel')
@@ -75,7 +78,7 @@ export default async function PainelLayout({
             </button>
           </form>
         )}
-        {profile && (
+        {profile && !noEditor && (
           <header className="sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur">
             <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-3">
               <div className="flex min-w-0 items-center gap-2">

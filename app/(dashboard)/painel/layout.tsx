@@ -28,8 +28,8 @@ export default async function PainelLayout({
 
   const pathname = (await headers()).get('x-pathname') ?? ''
   const naOnboarding = pathname.startsWith('/painel/comecar')
-  // Configurando uma ferramenta, o menu do painel some: a tela tem so o
-  // Voltar, na barra do proprio editor.
+  // Configurando uma ferramenta, os botoes do menu somem (o logotipo e o nome
+  // ficam): para sair dali, so o Voltar, na barra do proprio editor.
   const noEditor = pathname.startsWith('/painel/item/')
 
   if (!profile && !naOnboarding) redirect('/painel/comecar')
@@ -78,9 +78,9 @@ export default async function PainelLayout({
             </button>
           </form>
         )}
-        {profile && !noEditor && (
+        {profile && (
           <header className="sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur">
-            <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <div className="mx-auto flex max-w-3xl flex-col gap-3 px-4 py-3">
               <div className="flex min-w-0 items-center gap-2">
                 <Link href="/painel" className="shrink-0">
                   <LogoMarca className="size-8" />
@@ -96,12 +96,14 @@ export default async function PainelLayout({
                 </span>
               </div>
 
-              <NavPainel
-                admin={admin}
-                cubo={cubo}
-                agenda={(agendas ?? 0) > 0}
-                respostas={(formularios ?? 0) > 0}
-              />
+              {!noEditor && (
+                <NavPainel
+                  admin={admin}
+                  cubo={cubo}
+                  agenda={(agendas ?? 0) > 0}
+                  respostas={(formularios ?? 0) > 0}
+                />
+              )}
             </div>
           </header>
         )}

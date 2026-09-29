@@ -23,21 +23,36 @@ export function NavPainel({
   const inativo = 'border-border hover:border-muted'
   const ativo = 'border-fg bg-fg font-medium text-bg'
 
-  // Perfil, Assinatura e Admin sao secoes proprias. Todo o resto de /painel/* — estilo,
-  // visualizar, novo, editor de item — continua sendo o Painel.
-  const SECOES = ['/painel/agenda', '/painel/respostas', '/painel/perfil', '/painel/assinatura', '/painel/admin', '/painel/cubo']
-  const emOutraSecao = SECOES.some((s) => pathname.startsWith(s))
+  // Configurar e a lista de ferramentas: /painel, a escolha de uma nova e o
+  // editor de uma delas.
+  const configurando =
+    pathname === '/painel' ||
+    pathname.startsWith('/painel/novo') ||
+    pathname.startsWith('/painel/item')
 
   function classe(href: string) {
+    // Assinatura fica dentro do Perfil: la, o Perfil continua marcado.
     const selecionado =
-      href === '/painel' ? !emOutraSecao : pathname.startsWith(href)
-    return `${base} ${selecionado ? ativo : inativo}`
+      href === '/painel'
+        ? configurando
+        : href === '/painel/perfil'
+          ? pathname.startsWith(href) || pathname.startsWith('/painel/assinatura')
+          : pathname.startsWith(href)
+    return `${base} shrink-0 ${selecionado ? ativo : inativo}`
   }
 
+  // Todas as opcoes numa linha so. No celular nao cabem: a linha desliza para
+  // o lado sozinha (overflow-x-auto), sem a pagina rolar.
   return (
-    <div className="flex max-w-full flex-wrap items-center justify-end gap-2">
+    <nav className="sem-barra -mx-4 flex w-[calc(100%+2rem)] items-center gap-2 overflow-x-auto px-4">
       <Link href="/painel" className={classe('/painel')}>
-        {t('painel')}
+        {t('editar')}
+      </Link>
+      <Link href="/painel/estilo" className={classe('/painel/estilo')}>
+        {t('estilo')}
+      </Link>
+      <Link href="/painel/visualizar" className={classe('/painel/visualizar')}>
+        {t('verSite')}
       </Link>
       {agenda && (
         <Link href="/painel/agenda" className={classe('/painel/agenda')}>
@@ -52,9 +67,6 @@ export function NavPainel({
       <Link href="/painel/perfil" className={classe('/painel/perfil')}>
         {t('perfil')}
       </Link>
-      <Link href="/painel/assinatura" className={classe('/painel/assinatura')}>
-        {t('assinatura')}
-      </Link>
       {admin && (
         <Link href="/painel/admin" className={classe('/painel/admin')}>
           Admin
@@ -65,7 +77,9 @@ export function NavPainel({
           Cubo
         </Link>
       )}
-      <LogoutButton />
-    </div>
+      <span className="shrink-0">
+        <LogoutButton />
+      </span>
+    </nav>
   )
 }

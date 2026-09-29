@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { SeletorTipoItem } from '@/components/seletor-tipo-item'
 import { getUserId } from '@/lib/auth'
@@ -45,13 +44,6 @@ export default async function NovoItemPage() {
         temAgenda={(agendas ?? 0) > 0}
         ehFree={(profile?.plan ?? 'free') === 'free'}
       />
-
-      <Link
-        href="/painel"
-        className="mt-4 block rounded-xl border border-border px-4 py-2.5 text-center text-sm"
-      >
-        {t('cancelar')}
-      </Link>
     </main>
   )
 }

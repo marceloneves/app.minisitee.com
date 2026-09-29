@@ -13,7 +13,7 @@ export function LogoutButton() {
       type="button"
       onClick={() => iniciar(() => void logout())}
       disabled={pendente}
-      className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted disabled:opacity-60"
+      className="inline-flex min-h-11 items-center rounded-xl border border-border px-4 text-sm text-muted disabled:opacity-60"
     >
       {pendente ? t('saindo') : t('sair')}
     </button>

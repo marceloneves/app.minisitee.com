@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { BarraVoltar } from '@/components/barra-voltar'
 import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { MinisiteeConteudo } from '@/components/minisitee-conteudo'
 import { MolduraCelular } from '@/components/moldura-celular'
@@ -42,7 +41,6 @@ export default async function VisualizarPage() {
 
   return (
     <div>
-      <BarraVoltar />
       <div className="mx-auto max-w-3xl px-4 py-6">
         <CabecalhoPainel
           titulo={t('verSite')}

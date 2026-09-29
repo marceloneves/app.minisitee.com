@@ -53,28 +53,49 @@ export default async function PainelPage() {
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
       <CabecalhoPainel
         titulo={t('meusItens')}
-        // Ver minisitee saiu do menu do topo e fica aqui, junto das ferramentas.
+        // Nova ferramenta e Ver minisitee: dois icones junto do titulo. No
+        // limite do plano free a Nova ferramenta leva a tela do plano Pro.
         acao={
-          <Link
-            href="/painel/visualizar"
-            aria-label={t('verSite')}
-            title={t('verSite')}
-            className="flex size-11 items-center justify-center rounded-xl border border-fg/25 bg-bg shadow-sm"
-          >
-            <svg
-              aria-hidden
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="size-5"
+          <div className="flex items-center gap-2">
+            <Link
+              href={noLimite ? '/painel/plano-pro' : '/painel/novo'}
+              aria-label={t('novoItem')}
+              title={t('novoItem')}
+              className="flex size-11 items-center justify-center rounded-xl bg-fg text-bg shadow-sm"
             >
-              <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-          </Link>
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                className="size-5"
+              >
+                <path d="M12 5.5v13M5.5 12h13" />
+              </svg>
+            </Link>
+            <Link
+              href="/painel/visualizar"
+              aria-label={t('verSite')}
+              title={t('verSite')}
+              className="flex size-11 items-center justify-center rounded-xl border border-fg/25 bg-bg shadow-sm"
+            >
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-5"
+              >
+                <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </Link>
+          </div>
         }
         subtitulo={
           ehFree ? t('limiteContador', { n: itens.length, max: MAX_ITENS_FREE }) : undefined
@@ -90,29 +111,7 @@ export default async function PainelPage() {
           </Link>{' '}
           {t('erroLimiteFim')}
         </p>
-      ) : (
-        itens.length > 0 && (
-          <div className="mt-5 flex justify-end">
-            <Link
-              href="/painel/novo"
-              className="inline-flex items-center gap-1.5 rounded-full bg-brand py-2 pl-3 pr-4 text-sm font-medium text-brand-fg"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                className="size-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-              >
-                <path d="M12 5.5v13M5.5 12h13" />
-              </svg>
-              {t('novoItem')}
-            </Link>
-          </div>
-        )
-      )}
+      ) : null}
 
       {itens.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-dashed border-border px-6 py-12 text-center">

@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { BarraVoltar } from '@/components/barra-voltar'
 import { MudarParaPro } from '@/components/mudar-para-pro'
 import { getUserId } from '@/lib/auth'
 import { stripeConfigurado } from '@/lib/stripe'
@@ -22,7 +21,6 @@ export default async function PlanoProPage() {
 
   return (
     <>
-      <BarraVoltar />
       <main className="mx-auto w-full max-w-3xl px-4 py-6">
         <MudarParaPro ehPro={profile.plan === 'pro'} stripeAtivo={stripeConfigurado()} />
       </main>

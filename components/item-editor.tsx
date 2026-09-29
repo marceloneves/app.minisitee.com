@@ -22,6 +22,8 @@ import {
   type TipoItem,
 } from '@/lib/types'
 import { CampoTelefone } from '@/components/campo-telefone'
+import { AvisoSalvamento } from '@/components/aviso-salvamento'
+import { EVENTO_VOLTAR } from '@/components/nav-painel'
 import { QrCode, urlDoQrCode } from '@/components/qr-code'
 import { ANTECEDENCIAS, DIAS_A_FRENTE, DURACOES, configAgenda } from '@/lib/agenda'
 import { corHexValida } from '@/lib/cor'
@@ -116,6 +118,9 @@ export function ItemEditor({
     mexeu.current = true
     setErro(null)
     setEstado('salvo')
+    setTimeout(() => {
+      if (id === pedido.current) setEstado((e) => (e === 'salvo' ? 'limpo' : e))
+    }, 2000)
     return true
   }, [])
 
@@ -127,6 +132,17 @@ export function ItemEditor({
     const espera = setTimeout(() => void salvar(form), 1000)
     return () => clearTimeout(espera)
   }, [form, salvar])
+
+  // O Voltar mora no menu do painel: ele avisa, e a saida e feita aqui.
+  const voltarRef = useRef<() => Promise<void>>(async () => {})
+  useEffect(() => {
+    function aoVoltar(e: Event) {
+      e.preventDefault()
+      void voltarRef.current()
+    }
+    window.addEventListener(EVENTO_VOLTAR, aoVoltar)
+    return () => window.removeEventListener(EVENTO_VOLTAR, aoVoltar)
+  }, [])
 
   // Fechar a aba antes do salvamento automatico sair perderia a ultima mudanca.
   useEffect(() => {
@@ -153,6 +169,7 @@ export function ItemEditor({
     router.push('/painel')
     router.refresh()
   }
+  voltarRef.current = voltar
 
   function mudarDados(patch: Partial<DadosItem>) {
     setEstado('sujo')
@@ -166,19 +183,20 @@ export function ItemEditor({
 
   return (
     <div className="min-h-dvh bg-surface pb-24">
-      {/* Voltar no canto esquerdo, onde as pessoas procuram, grande e com
-          borda escura: pequeno e claro no canto direito ninguem achava. */}
-      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-bg/90 px-4 py-2 backdrop-blur">
-        <button
-          type="button"
-          onClick={() => void voltar()}
-          className="inline-flex min-h-11 items-center rounded-xl border border-fg/25 bg-bg px-4 text-sm font-semibold shadow-sm"
-        >
-          {t('voltar')}
-        </button>
-
-        <IndicadorSalvamento estado={estado} erro={erro} />
-      </div>
+      {/* O Voltar fica na linha do menu do painel (nav-painel.tsx); o aviso
+          de salvamento flutua no rodape, como no Estilo e no Perfil. */}
+      <AvisoSalvamento
+        situacao={
+          estado === 'sujo' || estado === 'salvando'
+            ? 'salvando'
+            : estado === 'salvo'
+              ? 'salvo'
+              : estado === 'erro'
+                ? 'erro'
+                : 'parado'
+        }
+        mensagem={erro}
+      />
 
       <div className="mx-auto w-full max-w-3xl space-y-4 px-4 py-6">
         <header className="flex items-center gap-4 rounded-2xl border border-border bg-bg p-5 shadow-sm">
@@ -458,26 +476,6 @@ function linkDoProduto(valor: string) {
   if (!url) return null
   return /^https?:\/\//i.test(url) ? url : `https://${url}`
 }
-
-function IndicadorSalvamento({ estado, erro }: { estado: Estado; erro: string | null }) {
-  const t = useT()
-  if (estado === 'erro') {
-    return (
-      <span role="alert" className="text-xs text-red-600">
-        {erro ?? t('erroSalvar')}
-      </span>
-    )
-  }
-  // "Sujo" dura so o segundo ate o salvamento automatico sair.
-  if (estado === 'sujo' || estado === 'salvando') {
-    return <span className="text-xs text-muted">{t('salvando')}</span>
-  }
-  if (estado === 'salvo') {
-    return <span className="text-xs text-muted">{t('salvo')}</span>
-  }
-  return null
-}
-
 
 function Secao({
   titulo,

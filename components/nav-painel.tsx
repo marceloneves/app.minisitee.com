@@ -1,9 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { LogoutButton } from '@/components/logout-button'
 import { useT } from '@/lib/i18n/contexto'
+
+// Disparado pelo Voltar do menu; o editor de ferramenta escuta e cancela.
+export const EVENTO_VOLTAR = 'minisitee:voltar'
 
 export function NavPainel({
   admin,
@@ -18,8 +21,10 @@ export function NavPainel({
 }) {
   const t = useT()
   const pathname = usePathname()
+  const router = useRouter()
 
-  const base = 'rounded-lg border px-3 py-1.5 text-sm transition-colors'
+  // 44 px de altura, a mesma do Voltar que ocupa esta linha em algumas telas.
+  const base = 'inline-flex min-h-11 items-center rounded-xl border px-4 text-sm transition-colors'
   const inativo = 'border-border hover:border-muted'
   const ativo = 'border-fg bg-fg font-medium text-bg'
 
@@ -41,16 +46,32 @@ export function NavPainel({
     return `${base} shrink-0 ${selecionado ? ativo : inativo}`
   }
 
-  // Configurando uma ferramenta, no plano Pro e no Ver minisitee o menu some
-  // (o logotipo e o nome ficam): para sair dali, so o Voltar da propria tela.
-  // Fica aqui, no cliente, e nao no layout: o layout nao e desenhado de novo
-  // ao navegar, e o menu so voltava depois de recarregar a pagina.
+  // Escolhendo ou configurando uma ferramenta, no plano Pro e no Ver minisitee, a linha do
+  // menu vira so o Voltar, no mesmo lugar: a experiencia e uma so. Fica aqui,
+  // no cliente, e nao no layout: o layout nao e desenhado de novo ao navegar.
   if (
+    pathname.startsWith('/painel/novo') ||
     pathname.startsWith('/painel/item/') ||
     pathname.startsWith('/painel/plano-pro') ||
     pathname.startsWith('/painel/visualizar')
   ) {
-    return null
+    // O editor de ferramenta cuida da propria saida (salva o que falta e
+    // apaga a ferramenta nova vazia): ele escuta o evento e o cancela.
+    function voltar() {
+      const evento = new Event(EVENTO_VOLTAR, { cancelable: true })
+      if (window.dispatchEvent(evento)) router.push('/painel')
+    }
+    return (
+      <nav className="flex items-center">
+        <button
+          type="button"
+          onClick={voltar}
+          className="inline-flex min-h-11 items-center rounded-xl border border-fg/25 bg-bg px-4 text-sm font-semibold shadow-sm"
+        >
+          {t('voltar')}
+        </button>
+      </nav>
+    )
   }
 
   // Todas as opcoes numa linha so. No celular nao cabem: a linha desliza para

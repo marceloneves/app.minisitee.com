@@ -61,7 +61,7 @@ export default async function PainelPage() {
               href={noLimite ? '/painel/plano-pro' : '/painel/novo'}
               aria-label={t('novoItem')}
               title={t('novoItem')}
-              className="flex size-11 items-center justify-center rounded-xl bg-fg text-bg shadow-sm"
+              className="flex size-12 items-center justify-center rounded-xl bg-fg text-bg shadow-sm"
             >
               <svg
                 aria-hidden
@@ -70,7 +70,7 @@ export default async function PainelPage() {
                 stroke="currentColor"
                 strokeWidth="2.4"
                 strokeLinecap="round"
-                className="size-5"
+                className="size-6"
               >
                 <path d="M12 5.5v13M5.5 12h13" />
               </svg>
@@ -79,7 +79,7 @@ export default async function PainelPage() {
               href="/painel/visualizar"
               aria-label={t('verSite')}
               title={t('verSite')}
-              className="flex size-11 items-center justify-center rounded-xl border border-fg/25 bg-bg shadow-sm"
+              className="flex size-12 items-center justify-center rounded-xl border border-fg/25 bg-bg shadow-sm"
             >
               <svg
                 aria-hidden
@@ -89,7 +89,7 @@ export default async function PainelPage() {
                 strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="size-5"
+                className="size-6"
               >
                 <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
                 <circle cx="12" cy="12" r="3" />

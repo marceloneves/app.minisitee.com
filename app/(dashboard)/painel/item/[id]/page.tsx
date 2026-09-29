@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { ItemEditor, type ItemForm } from '@/components/item-editor'
 import type { Foto } from '@/components/photo-uploader'
 import { getUserId } from '@/lib/auth'
-import { centsToCurrency } from '@/lib/mask'
+import { textoDoPreco } from '@/lib/format'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function EditorItemPage({
@@ -35,16 +35,14 @@ export default async function EditorItemPage({
   const inicial: ItemForm = {
     id: item.id,
     kind: (item.kind ?? 'produto') as ItemForm['kind'],
-    title: item.title ?? '',
+    // "Novo produto" era o titulo que a criacao gravava antes; no campo de
+    // descricao ele so atrapalha, entao o produto abre com o campo vazio.
+    title: item.kind === 'produto' && item.title === 'Novo produto' ? '' : (item.title ?? ''),
     url: item.url ?? '',
     whatsappMessage: item.whatsapp_message ?? '',
     dados: (item.data ?? {}) as ItemForm['dados'],
-    description: item.description ?? '',
-    category: item.category ?? '',
     status: item.status ?? 'rascunho',
-    price: centsToCurrency(item.price_cents),
-    priceNote: item.price_note ?? '',
-    location: item.location ?? '',
+    price: textoDoPreco(item.price_cents, item.price_note),
   }
 
   return (

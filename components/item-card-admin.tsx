@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { StatusBadge } from '@/components/status-badge'
 import { duplicarItem, excluirItem, moverItem } from '@/lib/actions/items'
-import { formatBRL } from '@/lib/format'
+import { textoDoPreco } from '@/lib/format'
 import { IconeSecao } from '@/components/icone-secao'
 import { RedeIcone, nomeDaRede } from '@/components/rede-icone'
 import { useIdioma, useT } from '@/lib/i18n/contexto'
@@ -20,8 +20,6 @@ export type ItemResumo = {
   data: { links?: { rede: string; url: string }[] } | null
   status: string
   url: string | null
-  category: string | null
-  location: string | null
   price_cents: number | null
   price_note: string | null
   cover_url: string | null
@@ -59,7 +57,7 @@ export function ItemCardAdmin({
   const nomeDoTipo = TIPOS[idioma][item.kind]?.nome ?? item.kind
   const redes = (item.data?.links ?? []).filter((l) => l.rede)
   const contexto = ehProduto
-    ? [item.category, item.location].filter(Boolean).join(' · ') || nomeDoTipo
+    ? nomeDoTipo
     : (item.kind === 'link' || item.kind === 'qrcode') && item.url
       ? item.url
       : item.kind === 'redes' && redes.length
@@ -103,7 +101,7 @@ export function ItemCardAdmin({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h2 className="min-w-0 truncate text-sm font-semibold">{item.title}</h2>
+            <h2 className="min-w-0 truncate text-sm font-semibold">{item.title || nomeDoTipo}</h2>
             <StatusBadge status={item.status} />
           </div>
           {contexto && <p className="mt-0.5 truncate text-xs text-muted">{contexto}</p>}
@@ -112,12 +110,7 @@ export function ItemCardAdmin({
           )}
           {ehProduto && (
             <p className="mt-1 text-sm font-semibold">
-              {item.price_cents ? formatBRL(item.price_cents) : t('semValor')}
-              {!!item.price_cents && item.price_note && (
-                <span className="ml-1 text-xs font-normal text-muted">
-                  {item.price_note}
-                </span>
-              )}
+              {textoDoPreco(item.price_cents, item.price_note) || t('semValor')}
             </p>
           )}
         </div>
@@ -125,7 +118,7 @@ export function ItemCardAdmin({
         <div className="flex shrink-0 flex-col justify-center gap-1">
           <button
             type="button"
-            aria-label={`${t('moverCima')}: ${item.title}`}
+            aria-label={`${t('moverCima')}: ${item.title || nomeDoTipo}`}
             disabled={primeiro || pendente}
             onClick={() => executar(() => moverItem(item.id, 'cima'))}
             className="rounded-lg border border-border px-2 py-1 text-xs disabled:opacity-30"
@@ -134,7 +127,7 @@ export function ItemCardAdmin({
           </button>
           <button
             type="button"
-            aria-label={`${t('moverBaixo')}: ${item.title}`}
+            aria-label={`${t('moverBaixo')}: ${item.title || nomeDoTipo}`}
             disabled={ultimo || pendente}
             onClick={() => executar(() => moverItem(item.id, 'baixo'))}
             className="rounded-lg border border-border px-2 py-1 text-xs disabled:opacity-30"

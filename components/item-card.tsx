@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import type { ReactNode } from 'react'
-import { formatBRL } from '@/lib/format'
+import { textoDoPreco } from '@/lib/format'
 import { textoDaImagem } from '@/lib/texto-imagem'
 import { DICIONARIOS, type Idioma } from '@/lib/i18n/dicionarios'
 import type { ItemPublico } from '@/lib/types'
@@ -16,8 +16,6 @@ export function ItemCard({
   idioma: Idioma
 }) {
   const d = DICIONARIOS[idioma]
-  const contexto = [item.category, item.location].filter(Boolean).join(' · ')
-
   return (
     <li>
       <Moldura url={item.url}>
@@ -25,8 +23,8 @@ export function ItemCard({
           {item.cover_url ? (
             <Image
               src={item.cover_url}
-              alt={textoDaImagem(item.title, item.description)}
-              title={textoDaImagem(item.title, item.description)}
+              alt={textoDaImagem(item.title, null)}
+              title={textoDaImagem(item.title, null)}
               fill
               priority={prioridade}
               sizes="(min-width: 768px) 50vw, 100vw"
@@ -46,15 +44,9 @@ export function ItemCard({
         </div>
 
         <div className="p-3">
-          {contexto && <p className="truncate text-xs text-muted">{contexto}</p>}
-          <h2 className="mt-0.5 line-clamp-2 text-sm font-semibold">{item.title}</h2>
+          {item.title && <h2 className="mt-0.5 line-clamp-2 text-sm font-semibold">{item.title}</h2>}
           <p className="mt-1.5 text-base font-bold">
-            {item.price_cents ? formatBRL(item.price_cents) : d.sobConsulta}
-            {!!item.price_cents && item.price_note && (
-              <span className="ml-1 text-xs font-normal text-muted">
-                {item.price_note}
-              </span>
-            )}
+            {textoDoPreco(item.price_cents, item.price_note) || d.sobConsulta}
           </p>
         </div>
       </Moldura>

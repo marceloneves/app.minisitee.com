@@ -23,7 +23,7 @@ export default async function PainelPage() {
   const { data } = await supabase
     .from('items')
     .select(
-      'id, slug, title, kind, status, category, location, price_cents, price_note, position, url, data, item_photos(url, position)'
+      'id, slug, title, kind, status, price_cents, price_note, position, url, data, item_photos(url, position)'
     )
     .eq('profile_id', userId)
     .order('position')
@@ -40,8 +40,6 @@ export default async function PainelPage() {
       status: it.status,
       url: it.url,
       data: it.data,
-      category: it.category,
-      location: it.location,
       price_cents: it.price_cents,
       price_note: it.price_note,
       cover_url: capa?.url ?? null,

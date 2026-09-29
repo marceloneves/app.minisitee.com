@@ -63,8 +63,10 @@ async function slugDisponivel(
   return `${raiz.slice(0, 50)}-${Date.now().toString(36)}`
 }
 
+// Produto nasce sem texto: o campo e a descricao do produto, e um "Novo
+// produto" pronto ali so atrapalhava quem ia escrever.
 const TITULO_PADRAO: Record<string, string> = {
-  produto: 'Novo produto',
+  produto: '',
   whatsapp: 'Falar no WhatsApp',
   telefone: 'Ligar agora',
   link: 'Novo link',
@@ -104,7 +106,7 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
   }
 
   const titulo = TITULO_PADRAO[kind] ?? 'Nova ferramenta'
-  const slug = await slugDisponivel(supabase, userId, slugify(titulo))
+  const slug = await slugDisponivel(supabase, userId, slugify(titulo) || kind)
 
   const { count } = await supabase
     .from('items')

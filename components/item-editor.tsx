@@ -7,9 +7,9 @@ import { PhotoUploader, type Foto } from '@/components/photo-uploader'
 import { ArquivoUploader } from '@/components/arquivo-uploader'
 import { RedeIcone } from '@/components/rede-icone'
 import { useIdioma, useT } from '@/lib/i18n/contexto'
-import { DIAS, ROTULO_STATUS, TIPOS, type Dicionario } from '@/lib/i18n/dicionarios'
+import { DIAS, ROTULO_STATUS, TITULO_EDITOR, type Dicionario } from '@/lib/i18n/dicionarios'
 import { excluirItem, salvarItem, type PatchItem } from '@/lib/actions/items'
-import { currencyToCents, maskCurrency } from '@/lib/mask'
+import { precoDoTexto } from '@/lib/format'
 import {
   DIAS_SEMANA,
   REDES,
@@ -33,12 +33,8 @@ export type ItemForm = {
   url: string
   whatsappMessage: string
   dados: DadosItem
-  description: string
-  category: string
   status: string
   price: string
-  priceNote: string
-  location: string
 }
 
 type Estado = 'limpo' | 'sujo' | 'salvando' | 'salvo' | 'erro'
@@ -58,6 +54,9 @@ export function ItemEditor({
   const [form, setForm] = useState(inicial)
   const [estado, setEstado] = useState<Estado>('limpo')
   const [erro, setErro] = useState<string | null>(null)
+  // Guardado na abertura: o primeiro salvamento automatico ja faz a pagina
+  // chegar com ehNovo falso, e o titulo nao pode virar no meio da edicao.
+  const [nasceuAgora] = useState(ehNovo)
 
   const pedido = useRef(0)
   // O que ja esta no banco, para o salvamento automatico so disparar quando o
@@ -75,13 +74,10 @@ export function ItemEditor({
     const patch: PatchItem =
       atual.kind === 'produto'
         ? {
-            title: atual.title.trim() || 'Sem título',
-            description: atual.description.trim() || null,
-            category: atual.category.trim() || null,
+            // Produto pode ficar sem descricao: o cartao mostra a foto e o preco.
+            title: atual.title.trim(),
             status: atual.status,
-            price_cents: currencyToCents(atual.price),
-            price_note: atual.priceNote.trim() || null,
-            location: atual.location.trim() || null,
+            ...precoDoTexto(atual.price),
             url: linkDoProduto(atual.url),
           }
         : atual.kind === 'link' || atual.kind === 'qrcode'
@@ -166,8 +162,7 @@ export function ItemEditor({
 
   return (
     <div className="pb-24">
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg/90 px-4 py-2 backdrop-blur">
-        <span className="text-xs text-muted">{TIPOS[idioma][form.kind].nome}</span>
+      <div className="sticky top-0 z-10 flex items-center justify-end border-b border-border bg-bg/90 px-4 py-2 backdrop-blur">
         <div className="flex items-center gap-3">
           <IndicadorSalvamento estado={estado} erro={erro} />
 
@@ -182,27 +177,26 @@ export function ItemEditor({
       </div>
 
       <div className="mx-auto w-full max-w-2xl space-y-8 px-4 py-6">
-        {form.status === 'rascunho' && (
-          <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-{t('avisoRascunho')}
-          </p>
-        )}
-        <Secao titulo={t('basico')}>
+        <h1 className="text-xl font-semibold tracking-tight">
+          {TITULO_EDITOR[idioma][form.kind]?.[nasceuAgora ? 0 : 1]}
+        </h1>
+        <Secao>
           <Texto
             id="titulo"
             rotulo={
-              form.kind === 'produto' ||
-              form.kind === 'qrcode' ||
-              form.kind === 'agenda' ||
-              form.kind === 'formulario'
-                ? t('titulo')
-                : t('textoBotao')
+              form.kind === 'produto'
+                ? t('descricaoProduto')
+                : form.kind === 'qrcode' ||
+                    form.kind === 'agenda' ||
+                    form.kind === 'formulario'
+                  ? t('titulo')
+                  : t('textoBotao')
             }
             valor={form.title}
             aoMudar={(v) => mudar('title', v)}
             placeholder={
               form.kind === 'produto'
-                ? 'O que você está oferecendo'
+                ? 'Descreva aqui o produto'
                 : form.kind === 'whatsapp'
                   ? 'Fazer meu pedido'
                   : form.kind === 'qrcode'
@@ -218,12 +212,26 @@ export function ItemEditor({
           {form.kind === 'produto' && (
             <Texto
               id="url"
-              rotulo={t('linkProduto')}
-              nota={t('linkProdutoNota')}
+              rotulo={t('linkPagamento')}
+              opcional
               valor={form.url}
               aoMudar={(v) => mudar('url', v)}
-              placeholder="https://seusite.com/produto"
+              placeholder="Cole o link do Mercado Pago, PagSeguro, Stripe..."
             />
+          )}
+
+          {form.kind === 'produto' && (
+            <div>
+              <Texto
+                id="preco"
+                rotulo={t('preco')}
+                opcional
+                valor={form.price}
+                aoMudar={(v) => mudar('price', v)}
+                placeholder="R$ 25,00 · a partir de R$ 90 · R$ 40 por hora"
+              />
+              <p className="mt-2 text-xs text-muted">{t('precoVazio')}</p>
+            </div>
           )}
 
           {form.kind === 'link' && (
@@ -365,94 +373,11 @@ export function ItemEditor({
               </p>
             </div>
           )}
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {form.kind === 'produto' && (
-              <Texto
-                id="categoria"
-                rotulo={t('categoria')}
-                opcional
-                valor={form.category}
-                aoMudar={(v) => mudar('category', v)}
-                placeholder="Bolos, Consultoria, Camisetas..."
-              />
-            )}
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium">
-                {t('status')}
-              </label>
-              <select
-                id="status"
-                value={form.status}
-                onChange={(e) => mudar('status', e.target.value)}
-                className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
-              >
-                {statusDoTipo().map(([v]) => (
-                  <option key={v} value={v}>
-                    {ROTULO_STATUS[idioma][v]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
         </Secao>
 
-        <Secao titulo={t('valor')} somenteProduto kind={form.kind}>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="preco" className="block text-sm font-medium">
-                {t('preco')} <span className="font-normal text-muted">{t('opcional')}</span>
-              </label>
-              <div className="mt-2 flex items-center rounded-xl border border-border bg-bg focus-within:border-fg">
-                <span className="pl-4 text-sm text-muted">R$</span>
-                <input
-                  id="preco"
-                  value={form.price}
-                  inputMode="numeric"
-                  placeholder="0,00"
-                  onChange={(e) => mudar('price', maskCurrency(e.target.value))}
-                  className="w-full bg-transparent px-2 py-3 text-base outline-none"
-                />
-              </div>
-              <p className="mt-2 text-xs text-muted">
-                {t('precoVazio')}
-              </p>
-            </div>
-
-            <Texto
-              id="nota-preco"
-              rotulo={t('complementoPreco')}
-              opcional
-              valor={form.priceNote}
-              aoMudar={(v) => mudar('priceNote', v)}
-              placeholder="por hora, /mês, a partir de"
-            />
-          </div>
-        </Secao>
-
-        <Secao titulo={t('localizacao')} somenteProduto kind={form.kind}>
-          <Texto
-            id="local"
-            rotulo={t('onde')}
-            opcional
-            valor={form.location}
-            aoMudar={(v) => mudar('location', v)}
-            placeholder="Centro, Florianópolis — ou Atendimento online"
-          />
-        </Secao>
-
-        <Secao titulo={t('descricao')} somenteProduto kind={form.kind}>
-          <textarea
-            id="descricao"
-            value={form.description}
-            onChange={(e) => mudar('description', e.target.value)}
-            rows={6}
-            placeholder="Conte o que faz esse produto valer a mensagem."
-            className="w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
-          />
-        </Secao>
-
-        <Secao titulo={t('fotos')} visivelEm={['produto', 'galeria']} kind={form.kind}>
+        <Secao
+          titulo={form.kind === 'produto' ? t('fotosProduto') : t('fotos')}
+          visivelEm={['produto', 'galeria']} kind={form.kind}>
           <PhotoUploader
             itemId={form.id}
             iniciais={fotosIniciais}
@@ -463,6 +388,33 @@ export function ItemEditor({
             }}
           />
         </Secao>
+
+        {/* Status por ultimo: primeiro a pessoa monta a ferramenta, depois
+            decide se ela ja aparece no minisite. */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium">
+              {t('status')}
+            </label>
+            <select
+              id="status"
+              value={form.status}
+              onChange={(e) => mudar('status', e.target.value)}
+              className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
+            >
+              {statusDoTipo().map(([v]) => (
+                <option key={v} value={v}>
+                  {ROTULO_STATUS[idioma][v]}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {form.status === 'rascunho' && (
+          <p className="-mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            {t('avisoRascunho')}
+          </p>
+        )}
       </div>
     </div>
   )
@@ -504,7 +456,8 @@ function Secao({
   visivelEm,
   kind,
 }: {
-  titulo: string
+  // Sem titulo, a secao so agrupa os campos.
+  titulo?: string
   children: React.ReactNode
   somenteProduto?: boolean
   visivelEm?: TipoItem[]
@@ -514,7 +467,7 @@ function Secao({
   if (somenteProduto && kind !== 'produto') return null
   return (
     <section className="space-y-4">
-      <h2 className="text-sm font-semibold text-muted">{titulo}</h2>
+      {titulo && <h2 className="text-sm font-semibold text-muted">{titulo}</h2>}
       {children}
     </section>
   )
@@ -527,7 +480,6 @@ function Texto({
   aoMudar,
   placeholder,
   opcional,
-  nota,
 }: {
   id: string
   rotulo: string
@@ -535,15 +487,13 @@ function Texto({
   aoMudar: (v: string) => void
   placeholder?: string
   opcional?: boolean
-  nota?: string
 }) {
   const t = useT()
-  const observacao = nota ?? (opcional ? t('opcional') : null)
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium">
         {rotulo}
-        {observacao && <span className="ml-1 font-normal text-muted">{observacao}</span>}
+        {opcional && <span className="ml-1 font-normal text-muted">{t('opcional')}</span>}
       </label>
       <input
         id={id}

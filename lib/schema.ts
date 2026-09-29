@@ -73,11 +73,11 @@ export function montarSchema(
         position: i + 1,
         item: {
           '@type': 'Product',
-          name: p.title,
+          // Produto pode nao ter descricao; o schema.org exige um nome.
+          name: p.title || 'Produto',
           // Produto nao tem pagina propria: so o link informado pelo dono.
           ...(p.url ? { url: p.url } : {}),
           ...(p.cover_url ? { image: p.cover_url } : {}),
-          ...(p.category ? { category: p.category } : {}),
           ...(p.price_cents
             ? {
                 offers: {

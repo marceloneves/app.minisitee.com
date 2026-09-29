@@ -65,13 +65,13 @@ export function ItemCardAdmin({
         : nomeDoTipo
 
   return (
-    // O numero da ordem e um selo no canto superior esquerdo do cartao,
-    // metade para fora da borda. Fica fora da div do cartao, que corta o que
+    // O numero da ordem e um selo no meio da borda de cima do cartao, metade
+    // para fora. Fica fora da div do cartao, que corta o que
     // passa da borda (overflow-hidden).
     <li className={`relative ${pendente ? 'opacity-60' : ''}`}>
       <span
         aria-hidden="true"
-        className="absolute -left-2.5 -top-2.5 z-10 flex size-8 items-center justify-center rounded-full bg-fg text-sm font-bold text-bg shadow-sm ring-2 ring-bg"
+        className="absolute -top-4 left-1/2 z-10 flex size-8 -translate-x-1/2 items-center justify-center rounded-full bg-fg text-sm font-bold text-bg shadow-sm ring-2 ring-bg"
       >
         {posicao}
       </span>

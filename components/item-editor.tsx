@@ -6,8 +6,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { PhotoUploader, type Foto } from '@/components/photo-uploader'
 import { ArquivoUploader } from '@/components/arquivo-uploader'
 import { RedeIcone } from '@/components/rede-icone'
+import { IconeSecao } from '@/components/icone-secao'
 import { useIdioma, useT } from '@/lib/i18n/contexto'
-import { DIAS, ROTULO_STATUS, TITULO_EDITOR, type Dicionario } from '@/lib/i18n/dicionarios'
+import { DIAS, ROTULO_STATUS, TIPOS, TITULO_EDITOR, type Dicionario } from '@/lib/i18n/dicionarios'
 import { excluirItem, salvarItem, type PatchItem } from '@/lib/actions/items'
 import { precoDoTexto } from '@/lib/format'
 import {
@@ -164,7 +165,7 @@ export function ItemEditor({
   }
 
   return (
-    <div className="pb-24">
+    <div className="min-h-dvh bg-surface pb-24">
       <div className="sticky top-0 z-10 flex items-center justify-end border-b border-border bg-bg/90 px-4 py-2 backdrop-blur">
         <div className="flex items-center gap-3">
           <IndicadorSalvamento estado={estado} erro={erro} />
@@ -179,11 +180,23 @@ export function ItemEditor({
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-2xl space-y-8 px-4 py-6">
-        <h1 className="text-xl font-semibold tracking-tight">
-          {TITULO_EDITOR[idioma][form.kind]?.[nasceuAgora ? 0 : 1]}
-        </h1>
-        <Secao>
+      <div className="mx-auto w-full max-w-2xl space-y-4 px-4 py-6">
+        <header className="flex items-center gap-4 rounded-2xl border border-border bg-bg p-5 shadow-sm">
+          <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-surface">
+            <IconeDaFerramenta kind={form.kind} />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold tracking-tight">
+              {TITULO_EDITOR[idioma][form.kind]?.[nasceuAgora ? 0 : 1]}
+            </h1>
+            <p className="mt-0.5 text-sm text-muted">{TIPOS[idioma][form.kind].descricao}</p>
+          </div>
+        </header>
+
+        <Secao
+          titulo={form.kind === 'produto' ? t('edDescricao') : t('edInformacoes')}
+          icone={<IconeLapis />}
+        >
           <Texto
             id="titulo"
             rotulo={
@@ -211,31 +224,6 @@ export function ItemEditor({
                         : 'Ver meu Instagram'
             }
           />
-
-          {form.kind === 'produto' && (
-            <Texto
-              id="url"
-              rotulo={t('linkPagamento')}
-              opcional
-              valor={form.url}
-              aoMudar={(v) => mudar('url', v)}
-              placeholder="Cole o link do Mercado Pago, PagSeguro, Stripe..."
-            />
-          )}
-
-          {form.kind === 'produto' && (
-            <div>
-              <Texto
-                id="preco"
-                rotulo={t('preco')}
-                opcional
-                valor={form.price}
-                aoMudar={(v) => mudar('price', v)}
-                placeholder="R$ 25,00 · a partir de R$ 90 · R$ 40 por hora"
-              />
-              <p className="mt-2 text-xs text-muted">{t('precoVazio')}</p>
-            </div>
-          )}
 
           {form.kind === 'link' && (
             <Texto
@@ -390,9 +378,34 @@ export function ItemEditor({
           )}
         </Secao>
 
+        <Secao titulo={t('edPreco')} icone={<IconePreco />} somenteProduto kind={form.kind}>
+          <div>
+            <Texto
+              id="preco"
+              rotulo={t('preco')}
+              opcional
+              valor={form.price}
+              aoMudar={(v) => mudar('price', v)}
+              placeholder="R$ 25,00 · a partir de R$ 90 · R$ 40 por hora"
+            />
+            <p className="mt-2 text-xs text-muted">{t('precoVazio')}</p>
+          </div>
+          <Texto
+            id="url"
+            rotulo={t('linkPagamento')}
+            opcional
+            valor={form.url}
+            aoMudar={(v) => mudar('url', v)}
+            placeholder="Cole o link do Mercado Pago, PagSeguro, Stripe..."
+          />
+        </Secao>
+
         <Secao
           titulo={form.kind === 'produto' ? t('fotosProduto') : t('fotos')}
-          visivelEm={['produto', 'galeria']} kind={form.kind}>
+          icone={<IconeSecao tipo="galeria" tamanho="size-5" />}
+          visivelEm={['produto', 'galeria']}
+          kind={form.kind}
+        >
           <PhotoUploader
             itemId={form.id}
             iniciais={fotosIniciais}
@@ -406,30 +419,32 @@ export function ItemEditor({
 
         {/* Status por ultimo: primeiro a pessoa monta a ferramenta, depois
             decide se ela ja aparece no minisite. */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium">
-              {t('status')}
-            </label>
-            <select
-              id="status"
-              value={form.status}
-              onChange={(e) => mudar('status', e.target.value)}
-              className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
-            >
-              {statusDoTipo().map(([v]) => (
-                <option key={v} value={v}>
-                  {ROTULO_STATUS[idioma][v]}
-                </option>
-              ))}
-            </select>
+        <Secao titulo={t('edPublicacao')} icone={<IconeOlho />}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="status" className="block text-sm font-medium">
+                {t('status')}
+              </label>
+              <select
+                id="status"
+                value={form.status}
+                onChange={(e) => mudar('status', e.target.value)}
+                className="mt-2 w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-fg"
+              >
+                {statusDoTipo().map(([v]) => (
+                  <option key={v} value={v}>
+                    {ROTULO_STATUS[idioma][v]}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
-        {form.status === 'rascunho' && (
-          <p className="-mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            {t('avisoRascunho')}
-          </p>
-        )}
+          {form.status === 'rascunho' && (
+            <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              {t('avisoRascunho')}
+            </p>
+          )}
+        </Secao>
       </div>
     </div>
   )
@@ -466,6 +481,7 @@ function IndicadorSalvamento({ estado, erro }: { estado: Estado; erro: string | 
 
 function Secao({
   titulo,
+  icone,
   children,
   somenteProduto,
   visivelEm,
@@ -473,6 +489,7 @@ function Secao({
 }: {
   // Sem titulo, a secao so agrupa os campos.
   titulo?: string
+  icone?: React.ReactNode
   children: React.ReactNode
   somenteProduto?: boolean
   visivelEm?: TipoItem[]
@@ -481,8 +498,13 @@ function Secao({
   if (visivelEm && kind && !visivelEm.includes(kind)) return null
   if (somenteProduto && kind !== 'produto') return null
   return (
-    <section className="space-y-4">
-      {titulo && <h2 className="text-sm font-semibold text-muted">{titulo}</h2>}
+    <section className="space-y-4 rounded-2xl border border-border bg-bg p-5 shadow-sm">
+      {titulo && (
+        <h2 className="flex items-center gap-2 text-base font-semibold">
+          {icone && <span className="text-muted">{icone}</span>}
+          {titulo}
+        </h2>
+      )}
       {children}
     </section>
   )
@@ -1023,5 +1045,56 @@ function EditorFaq({
         {t('adicionarPergunta')}
       </button>
     </div>
+  )
+}
+
+// Icone grande do topo: WhatsApp e telefone usam o icone de rede, colorido;
+// as outras ferramentas, o mesmo icone das secoes do minisite.
+function IconeDaFerramenta({ kind }: { kind: TipoItem }) {
+  if (kind === 'whatsapp' || kind === 'telefone') return <RedeIcone rede={kind} tamanho="size-9" />
+  return <IconeSecao tipo={kind} tamanho="size-7" />
+}
+
+function IconeSvg({ children }: { children: React.ReactNode }) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-5"
+    >
+      {children}
+    </svg>
+  )
+}
+
+function IconeLapis() {
+  return (
+    <IconeSvg>
+      <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" />
+      <path d="m13.5 6.5 4 4" />
+    </IconeSvg>
+  )
+}
+
+function IconePreco() {
+  return (
+    <IconeSvg>
+      <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
+      <circle cx="7.5" cy="7.5" r="1.5" />
+    </IconeSvg>
+  )
+}
+
+function IconeOlho() {
+  return (
+    <IconeSvg>
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </IconeSvg>
   )
 }

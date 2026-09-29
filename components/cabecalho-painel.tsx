@@ -32,7 +32,7 @@ export function CabecalhoPainel({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="min-w-0 text-xl font-semibold tracking-tight">{titulo}</h1>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex max-w-full flex-wrap items-center gap-2">
           <Link
             href="/painel"
             className={`${base} ${emEdicao ? ativo : inativo}`}

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { CabecalhoPainel } from '@/components/cabecalho-painel'
+import { LinkIcone } from '@/components/link-icone'
 import { ItemCardAdmin, type ItemResumo } from '@/components/item-card-admin'
 import { getUserId } from '@/lib/auth'
 import { MAX_ITENS_FREE } from '@/lib/constants'
@@ -57,10 +58,9 @@ export default async function PainelPage() {
         // limite do plano free a Nova ferramenta leva a tela do plano Pro.
         acao={
           <div className="flex items-center gap-2">
-            <Link
+            <LinkIcone
               href={noLimite ? '/painel/plano-pro' : '/painel/novo'}
-              aria-label={t('novoItem')}
-              title={t('novoItem')}
+              rotulo={t('novoItem')}
               className="flex size-12 items-center justify-center rounded-xl bg-fg text-bg shadow-sm"
             >
               <svg
@@ -74,11 +74,10 @@ export default async function PainelPage() {
               >
                 <path d="M12 5.5v13M5.5 12h13" />
               </svg>
-            </Link>
-            <Link
+            </LinkIcone>
+            <LinkIcone
               href="/painel/visualizar"
-              aria-label={t('verSite')}
-              title={t('verSite')}
+              rotulo={t('verSite')}
               className="flex size-12 items-center justify-center rounded-xl border border-fg/25 bg-bg shadow-sm"
             >
               <svg
@@ -94,7 +93,7 @@ export default async function PainelPage() {
                 <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
-            </Link>
+            </LinkIcone>
           </div>
         }
         subtitulo={

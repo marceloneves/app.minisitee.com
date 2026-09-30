@@ -162,7 +162,9 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
 
   revalidatePath('/painel')
   await revalidarPublico(supabase, userId)
-  redirect(`/painel/item/${data.id}`)
+  // ?novo=1 marca a ferramenta que acabou de nascer: so ela e apagada se a
+  // pessoa voltar sem preencher nada (uma copia do Duplicar nunca).
+  redirect(`/painel/item/${data.id}?novo=1`)
 }
 
 export type PatchItem = {

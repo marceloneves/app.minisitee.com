@@ -7,10 +7,13 @@ import { createClient } from '@/lib/supabase/server'
 
 export default async function EditorItemPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ novo?: string }>
 }) {
   const { id } = await params
+  const { novo } = await searchParams
 
   const userId = await getUserId()
   if (!userId) redirect('/login')
@@ -57,7 +60,10 @@ export default async function EditorItemPage({
       inicial={inicial}
       fotosIniciais={(fotos ?? []) as Foto[]}
       whatsappDoPerfil={perfil?.whatsapp ?? null}
-      ehNovo={item.created_at === item.updated_at}
+      // Nova so quando veio da criacao (?novo=1) e ainda nao foi alterada: o
+      // Voltar apaga a ferramenta vazia. So a data nao bastava, porque uma
+      // copia do Duplicar que ninguem editou tambem tem as datas iguais.
+      ehNovo={novo === '1' && item.created_at === item.updated_at}
     />
   )
 }

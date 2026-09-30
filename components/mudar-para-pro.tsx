@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react'
 import { assinarPro } from '@/lib/actions/stripe'
-import { MAX_ITENS_FREE } from '@/lib/constants'
 import { useT } from '@/lib/i18n/contexto'
 
 export function MudarParaPro({ ehPro, stripeAtivo }: { ehPro: boolean; stripeAtivo: boolean }) {
@@ -22,7 +21,6 @@ export function MudarParaPro({ ehPro, stripeAtivo }: { ehPro: boolean; stripeAti
   }
 
   const linhas: [string, string, string][] = [
-    [t('proItemFerramentas'), t('proAte', { max: MAX_ITENS_FREE }), t('proIlimitadas')],
     [t('proItemMarca'), t('proSim'), t('proNao')],
     [t('proItemAgenda'), t('proNao'), t('proSim')],
   ]

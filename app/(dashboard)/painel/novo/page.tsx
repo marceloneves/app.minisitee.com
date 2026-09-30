@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation'
 import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { SeletorTipoItem } from '@/components/seletor-tipo-item'
 import { getUserId } from '@/lib/auth'
-import { MAX_ITENS_FREE } from '@/lib/constants'
 import { getIdioma, getT } from '@/lib/i18n/servidor'
 import { createClient } from '@/lib/supabase/server'
 
@@ -20,20 +19,11 @@ export default async function NovoItemPage() {
     .eq('id', userId)
     .maybeSingle()
 
-  const { count } = await supabase
-    .from('items')
-    .select('id', { count: 'exact', head: true })
-    .eq('profile_id', userId)
-
   const { count: agendas } = await supabase
     .from('items')
     .select('id', { count: 'exact', head: true })
     .eq('profile_id', userId)
     .eq('kind', 'agenda')
-
-  if ((profile?.plan ?? 'free') === 'free' && (count ?? 0) >= MAX_ITENS_FREE) {
-    redirect('/painel')
-  }
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6">

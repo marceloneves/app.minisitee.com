@@ -4,8 +4,8 @@ import { getUserId } from '@/lib/auth'
 import { stripeConfigurado } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 
-// Tela de mudar para o Pro. Nao esta em menu nenhum: o caminho e o link
-// "Mude para o plano Pro" da mensagem de limite do plano free, em /painel.
+// Tela de mudar para o Pro. Nao esta em menu nenhum nem tem link no painel:
+// so se chega pelo endereco direto.
 export default async function PlanoProPage() {
   const userId = await getUserId()
   if (!userId) redirect('/login')

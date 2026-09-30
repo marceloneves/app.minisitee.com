@@ -5,7 +5,6 @@ import { redirect } from 'next/navigation'
 import { agendarPublicacao } from '@/lib/html-estatico'
 import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
-import { MAX_ITENS_FREE } from '@/lib/constants'
 import { slugify } from '@/lib/slug'
 import { caminhoDaUrl } from '@/lib/storage'
 import { novoIdCampo } from '@/lib/formulario'
@@ -146,9 +145,6 @@ export async function criarRascunho(kind: TipoItem = 'produto') {
     .single()
 
   if (ehErroPro(error)) return { erro: ERRO_PRO }
-  if (error?.code === '54000') {
-    return { erro: `O plano free permite até ${MAX_ITENS_FREE} ferramentas. Mude para o plano Pro para adicionar mais ferramentas.`, limite: true as const }
-  }
   // O indice items_uma_agenda deixa uma agenda so por minisite.
   if (error?.code === '23505' && error.message.includes('items_uma_agenda')) {
     return { erro: 'Seu minisitee já tem uma agenda.' }
@@ -261,9 +257,6 @@ export async function duplicarItem(id: string) {
     .single()
 
   if (ehErroPro(error)) return { erro: ERRO_PRO }
-  if (error?.code === '54000') {
-    return { erro: `O plano free permite até ${MAX_ITENS_FREE} ferramentas. Mude para o plano Pro para adicionar mais ferramentas.`, limite: true as const }
-  }
   if (error?.code === '23505' && error.message.includes('items_uma_agenda')) {
     return { erro: 'Seu minisitee já tem uma agenda.' }
   }

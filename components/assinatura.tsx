@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react'
 import { abrirPortal, assinarPro, cancelarAssinatura } from '@/lib/actions/stripe'
-import { MAX_ITENS_FREE } from '@/lib/constants'
 import { useT } from '@/lib/i18n/contexto'
 
 export function Assinatura({
@@ -66,7 +65,7 @@ export function Assinatura({
         </div>
 
         <p className="mt-2 text-sm text-muted">
-          {ehPro ? t('proAtivo') : t('freeResumo', { max: MAX_ITENS_FREE })}
+          {ehPro ? t('proAtivo') : t('freeResumo')}
         </p>
 
         {ehPro && renovaEm && (

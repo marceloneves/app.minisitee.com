@@ -4,7 +4,6 @@ import { CabecalhoPainel } from '@/components/cabecalho-painel'
 import { LinkIcone } from '@/components/link-icone'
 import { ItemCardAdmin, type ItemResumo } from '@/components/item-card-admin'
 import { getUserId } from '@/lib/auth'
-import { MAX_ITENS_FREE } from '@/lib/constants'
 import { getT } from '@/lib/i18n/servidor'
 import { createClient } from '@/lib/supabase/server'
 
@@ -48,18 +47,16 @@ export default async function PainelPage() {
   })
 
   const ehFree = (profile?.plan ?? 'free') === 'free'
-  const noLimite = ehFree && itens.length >= MAX_ITENS_FREE
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
       <CabecalhoPainel
         titulo={t('meusItens')}
-        // Nova ferramenta e Ver minisitee: dois icones junto do titulo. No
-        // limite do plano free a Nova ferramenta leva a tela do plano Pro.
+        // Nova ferramenta e Ver minisitee: dois icones junto do titulo.
         acao={
           <div className="flex items-center gap-2">
             <LinkIcone
-              href={noLimite ? '/painel/plano-pro' : '/painel/novo'}
+              href="/painel/novo"
               rotulo={t('novoItem')}
               className="flex size-12 items-center justify-center rounded-xl bg-fg text-bg shadow-sm"
             >
@@ -96,21 +93,8 @@ export default async function PainelPage() {
             </LinkIcone>
           </div>
         }
-        subtitulo={
-          ehFree ? t('limiteContador', { n: itens.length, max: MAX_ITENS_FREE }) : undefined
-        }
       />
 
-      {noLimite ? (
-        <p className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {t('erroLimiteFree', { max: MAX_ITENS_FREE })}{' '}
-          {/* Unico caminho para a tela de mudar de plano: ela nao esta em menu. */}
-          <Link href="/painel/plano-pro" className="font-semibold underline underline-offset-2">
-            {t('erroLimiteLink')}
-          </Link>{' '}
-          {t('erroLimiteFim')}
-        </p>
-      ) : null}
 
       {itens.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-dashed border-border px-6 py-12 text-center">

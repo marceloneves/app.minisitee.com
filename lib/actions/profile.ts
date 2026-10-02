@@ -5,7 +5,9 @@ import { createClient } from '@/lib/supabase/server'
 import { getUserId } from '@/lib/auth'
 import { MAX_BIO } from '@/lib/constants'
 import { estiloValido } from '@/lib/estilo'
+import { enviarBoasVindas } from '@/lib/email-boas-vindas'
 import { agendarPublicacao } from '@/lib/html-estatico'
+import { idiomaValido } from '@/lib/i18n/dicionarios'
 import { caminhoDaUrl } from '@/lib/storage'
 
 const USERNAME_RE = /^[a-z0-9_-]{7,30}$/
@@ -93,6 +95,19 @@ export async function criarProfile(input: CriarProfileInput) {
 
   revalidatePath('/painel', 'layout')
   await agendarPublicacao(username)
+
+  // O e-mail vem do login (claims do Supabase Auth), nao de profiles.
+  const { data: sessao } = await supabase.auth.getClaims()
+  const email = typeof sessao?.claims?.email === 'string' ? sessao.claims.email : null
+  if (email) {
+    await enviarBoasVindas({
+      email,
+      nome: input.displayName.trim().split(/\s+/)[0],
+      username,
+      idioma: idiomaValido(input.locale),
+    })
+  }
+
   return { ok: true as const }
 }
 

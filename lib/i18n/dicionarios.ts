@@ -388,6 +388,12 @@ const pt = {
   agendaEmailAssunto: 'Seu código de acesso: {codigo}',
   agendaEmailTexto: 'Use o código abaixo para ver, remarcar ou cancelar seus agendamentos com {nome}. Ele vale por 10 minutos.',
   agendaEmailRodape: 'Se não foi você que pediu, ignore este e-mail.',
+  boasVindasAssunto: 'Seu minisitee está no ar',
+  boasVindasOla: 'Olá, {nome}!',
+  boasVindasTexto: 'Sua conta no minisitee foi criada. Este é o endereço do seu minisitee, pronto para colocar na bio do Instagram e mandar no WhatsApp:',
+  boasVindasProximo: 'Agora inclua suas ferramentas: botão de WhatsApp, produtos, horário, endereço, agenda e o que mais o seu negócio precisar.',
+  boasVindasBotao: 'Abrir meu painel',
+  boasVindasRodape: 'Você recebeu este e-mail porque criou uma conta no minisitee.',
 }
 
 export type Dicionario = typeof pt
@@ -763,6 +769,12 @@ const en: Dicionario = {
   agendaEmailAssunto: 'Your access code: {codigo}',
   agendaEmailTexto: 'Use the code below to see, reschedule or cancel your bookings with {nome}. It is valid for 10 minutes.',
   agendaEmailRodape: "If you didn't request it, ignore this email.",
+  boasVindasAssunto: 'Your minisitee is live',
+  boasVindasOla: 'Hi, {nome}!',
+  boasVindasTexto: 'Your minisitee account has been created. This is your minisitee address, ready for your Instagram bio and for sharing on WhatsApp:',
+  boasVindasProximo: 'Now add your tools: WhatsApp button, products, opening hours, address, booking and anything else your business needs.',
+  boasVindasBotao: 'Open my dashboard',
+  boasVindasRodape: 'You received this email because you created a minisitee account.',
 }
 
 const es: Dicionario = {
@@ -1136,6 +1148,12 @@ const es: Dicionario = {
   agendaEmailAssunto: 'Tu código de acceso: {codigo}',
   agendaEmailTexto: 'Usa el código de abajo para ver, reprogramar o cancelar tus reservas con {nome}. Vale por 10 minutos.',
   agendaEmailRodape: 'Si no lo pediste, ignora este e-mail.',
+  boasVindasAssunto: 'Tu minisitee ya está en línea',
+  boasVindasOla: '¡Hola, {nome}!',
+  boasVindasTexto: 'Tu cuenta en minisitee fue creada. Esta es la dirección de tu minisitee, lista para la bio de Instagram y para enviar por WhatsApp:',
+  boasVindasProximo: 'Ahora agrega tus herramientas: botón de WhatsApp, productos, horario, dirección, reservas y todo lo que tu negocio necesite.',
+  boasVindasBotao: 'Abrir mi panel',
+  boasVindasRodape: 'Recibiste este e-mail porque creaste una cuenta en minisitee.',
 }
 
 export const DICIONARIOS: Record<Idioma, Dicionario> = { pt, en, es }

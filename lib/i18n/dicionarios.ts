@@ -314,7 +314,6 @@ const pt = {
   as: 'às',
 
   emCidade: 'em',
-  nenhumItem: 'Nada publicado ainda.',
   verRota: 'Ver rota no mapa',
   feitoCom: 'Feito com minisitee.com',
   sessaoExpirada: 'Sessão expirada. Entre novamente.',
@@ -696,7 +695,6 @@ const en: Dicionario = {
   as: 'to',
 
   emCidade: 'in',
-  nenhumItem: 'Nothing published yet.',
   verRota: 'Get directions',
   feitoCom: 'Made with minisitee.com',
   sessaoExpirada: 'Session expired. Sign in again.',
@@ -1076,7 +1074,6 @@ const es: Dicionario = {
   as: 'a',
 
   emCidade: 'en',
-  nenhumItem: 'Todavía no hay nada publicado.',
   verRota: 'Cómo llegar',
   feitoCom: 'Hecho con minisitee.com',
   sessaoExpirada: 'La sesión expiró. Entra de nuevo.',

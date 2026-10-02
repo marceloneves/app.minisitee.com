@@ -83,9 +83,9 @@ export function MinisiteeConteudo({
             )}
           </header>
 
-          {items.length === 0 ? (
-            <p className="mt-12 text-center text-sm text-muted">{d.nenhumItem}</p>
-          ) : (
+          {/* Sem ferramenta ativa, o minisite mostra so o cabecalho: nada de
+              aviso de "nada publicado" para o visitante. */}
+          {items.length === 0 ? null : (
             <div className="mt-8 space-y-4">
               {agrupar(items).map((bloco, b) =>
                 bloco.tipo === 'grade' ? (

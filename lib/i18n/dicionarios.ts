@@ -393,6 +393,7 @@ const pt = {
   boasVindasTexto: 'Sua conta no minisitee foi criada. Este é o endereço do seu minisitee, pronto para colocar na bio do Instagram e mandar no WhatsApp:',
   boasVindasProximo: 'Agora inclua suas ferramentas: botão de WhatsApp, produtos, horário, endereço, agenda e o que mais o seu negócio precisar.',
   boasVindasBotao: 'Abrir meu painel',
+  boasVindasAssinatura: 'Equipe do minisitee.com',
   boasVindasRodape: 'Você recebeu este e-mail porque criou uma conta no minisitee.',
 }
 
@@ -774,6 +775,7 @@ const en: Dicionario = {
   boasVindasTexto: 'Your minisitee account has been created. This is your minisitee address, ready for your Instagram bio and for sharing on WhatsApp:',
   boasVindasProximo: 'Now add your tools: WhatsApp button, products, opening hours, address, booking and anything else your business needs.',
   boasVindasBotao: 'Open my dashboard',
+  boasVindasAssinatura: 'The minisitee.com team',
   boasVindasRodape: 'You received this email because you created a minisitee account.',
 }
 
@@ -1153,6 +1155,7 @@ const es: Dicionario = {
   boasVindasTexto: 'Tu cuenta en minisitee fue creada. Esta es la dirección de tu minisitee, lista para la bio de Instagram y para enviar por WhatsApp:',
   boasVindasProximo: 'Ahora agrega tus herramientas: botón de WhatsApp, productos, horario, dirección, reservas y todo lo que tu negocio necesite.',
   boasVindasBotao: 'Abrir mi panel',
+  boasVindasAssinatura: 'Equipo de minisitee.com',
   boasVindasRodape: 'Recibiste este e-mail porque creaste una cuenta en minisitee.',
 }
 

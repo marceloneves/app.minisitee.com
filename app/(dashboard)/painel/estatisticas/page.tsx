@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { getUserId } from '@/lib/auth'
 import { TIPOS, type Dicionario, type Idioma } from '@/lib/i18n/dicionarios'
 import { getIdioma, getT } from '@/lib/i18n/servidor'
-import { urlPublica } from '@/lib/site'
+import { SITE_PRODUCAO } from '@/lib/site'
 import { createClient } from '@/lib/supabase/server'
 
 // Tudo vem de uma RPC so (estatisticas_minisite), que soma no banco: a tela
@@ -83,7 +83,8 @@ export default async function EstatisticasPage({
   const e = data as Estatisticas | null
 
   const numero = new Intl.NumberFormat(locale)
-  const linkRef = perfil ? `${urlPublica(perfil.username)}?ref=instagram` : ''
+  // Link para o dono compartilhar: sempre o endereco de producao.
+  const linkRef = perfil ? `${SITE_PRODUCAO}/${perfil.username}?ref=instagram` : ''
 
   const chip = 'rounded-full border px-3 py-1.5 text-sm transition-colors'
   const chipAtivo = 'border-fg bg-fg font-medium text-bg'

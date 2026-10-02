@@ -17,6 +17,12 @@ export function urlPublica(username: string) {
   return `${basePublica()}/${username}`
 }
 
+// Para o que sai do app e chega a outra pessoa (e-mail, link para compartilhar):
+// o minisitee e sempre minisitee.com e o painel sempre app.minisitee.com, mesmo
+// quando quem dispara e o app rodando no computador, com as URLs do localhost.
+export const SITE_PRODUCAO = 'https://minisitee.com'
+export const PAINEL_PRODUCAO = 'https://app.minisitee.com'
+
 // Sem o protocolo, para mostrar na tela.
 export function enderecoPublico(username: string) {
   return `${basePublica().replace(/^https?:\/\//, '')}/${username}`

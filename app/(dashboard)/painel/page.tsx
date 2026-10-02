@@ -52,7 +52,7 @@ export default async function PainelPage() {
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
       <CabecalhoPainel
         titulo={t('meusItens')}
-        // Nova ferramenta e Ver minisitee: dois icones junto do titulo.
+        // Nova ferramenta, Ver minisitee e Estatisticas: icones junto do titulo.
         acao={
           <div className="flex items-center gap-2">
             <LinkIcone
@@ -89,6 +89,24 @@ export default async function PainelPage() {
               >
                 <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
                 <circle cx="12" cy="12" r="3" />
+              </svg>
+            </LinkIcone>
+            <LinkIcone
+              href="/painel/estatisticas"
+              rotulo={t('estatisticas')}
+              className="flex size-12 items-center justify-center rounded-xl border border-fg/25 bg-bg shadow-sm"
+            >
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-6"
+              >
+                <path d="M4 20h16M7 16v-4M12 16V7M17 16v-7" />
               </svg>
             </LinkIcone>
           </div>

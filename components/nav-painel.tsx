@@ -65,14 +65,12 @@ export function NavPainel({
     pathname.startsWith('/painel/item')
 
   function classe(href: string) {
-    // Assinatura e Estatisticas ficam dentro do Perfil: la, o Perfil continua marcado.
+    // Assinatura fica dentro do Perfil: la, o Perfil continua marcado.
     const selecionado =
       href === '/painel'
         ? configurando
         : href === '/painel/perfil'
-          ? pathname.startsWith(href) ||
-            pathname.startsWith('/painel/assinatura') ||
-            pathname.startsWith('/painel/estatisticas')
+          ? pathname.startsWith(href) || pathname.startsWith('/painel/assinatura')
           : pathname.startsWith(href)
     const marcado = indoPara ? indoPara === href : selecionado
     return `${base} shrink-0 gap-2 ${marcado ? ativo : inativo}`
@@ -97,14 +95,16 @@ export function NavPainel({
     )
   }
 
-  // Escolhendo ou configurando uma ferramenta, no plano Pro e no Ver minisitee, a linha do
+  // Escolhendo ou configurando uma ferramenta, no plano Pro, no Ver minisitee e nas
+  // Estatisticas, a linha do
   // menu vira so o Voltar, no mesmo lugar: a experiencia e uma so. Fica aqui,
   // no cliente, e nao no layout: o layout nao e desenhado de novo ao navegar.
   if (
     pathname.startsWith('/painel/novo') ||
     pathname.startsWith('/painel/item/') ||
     pathname.startsWith('/painel/plano-pro') ||
-    pathname.startsWith('/painel/visualizar')
+    pathname.startsWith('/painel/visualizar') ||
+    pathname.startsWith('/painel/estatisticas')
   ) {
     // O editor de ferramenta cuida da propria saida (salva o que falta e
     // apaga a ferramenta nova vazia): ele escuta o evento e o cancela.

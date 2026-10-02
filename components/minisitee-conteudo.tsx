@@ -101,14 +101,18 @@ export function MinisiteeConteudo({
                     ))}
                   </ul>
                 ) : (
-                  <BlocoItem
-                    key={bloco.item.id}
-                    item={bloco.item}
-                    whatsappDoPerfil={profile.whatsapp}
-                    plano={profile.plan}
-                    idioma={idioma}
-                    d={d}
-                  />
+                  // data-ferramenta: o rastreador de visitas descobre por ele qual
+                  // ferramenta foi tocada. empty:hidden tira a caixa da ferramenta
+                  // que nao desenha nada, senao o espacamento dobrava.
+                  <div key={bloco.item.id} data-ferramenta={bloco.item.id} className="empty:hidden">
+                    <BlocoItem
+                      item={bloco.item}
+                      whatsappDoPerfil={profile.whatsapp}
+                      plano={profile.plan}
+                      idioma={idioma}
+                      d={d}
+                    />
+                  </div>
                 )
               )}
             </div>

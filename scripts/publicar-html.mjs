@@ -117,26 +117,52 @@ if (SO_ESTES.length === 0) process.on('exit', () => {
   }
 })
 
-let feitos = 0
-for (const { username } of perfis) {
-  if (!/^[a-z0-9_-]+$/.test(username ?? '')) continue
-
-  const pagina = await fetch(`${ORIGEM}/${username}`, { cache: 'no-store' })
-  if (!pagina.ok) {
-    console.error(`${username}: ${pagina.status}`)
+// Um minisite por vez, cada um com suas tentativas. Antes, um erro de rede num
+// deles derrubava o script inteiro: os que vinham depois ficavam com o HTML do
+// build anterior, apontando para /_next que o deploy ja tinha apagado, e a
+// pagina abria em "Application error" (pmturbo, 30/09).
+async function gerar(username) {
+  const pagina = await fetch(`${ORIGEM}/${username}`, {
+    cache: 'no-store',
+    signal: AbortSignal.timeout(20000),
+  })
+  if (pagina.status === 404) {
     // Perfil apagado ou fora do ar: tira o arquivo em vez de deixar o
     // conteudo velho servindo para sempre.
-    if (pagina.status === 404) await rm(join(DIR, username), { force: true, recursive: true })
-    continue
+    await rm(join(DIR, username), { force: true, recursive: true })
+    return 'removido'
   }
+  if (!pagina.ok) throw new Error(`a pagina respondeu ${pagina.status}`)
 
+  const html = await pagina.text()
   const pasta = join(DIR, username)
   await mkdir(pasta, { recursive: true })
   const destino = join(pasta, 'index.html')
-  await writeFile(`${destino}.tmp`, await pagina.text(), 'utf8')
+  await writeFile(`${destino}.tmp`, html, 'utf8')
   await rename(`${destino}.tmp`, destino)
-  feitos++
+  return 'gerado'
 }
+
+const TENTATIVAS = 3
+let feitos = 0
+const falharam = []
+for (const { username } of perfis) {
+  if (!/^[a-z0-9_-]+$/.test(username ?? '')) continue
+
+  for (let tentativa = 1; tentativa <= TENTATIVAS; tentativa++) {
+    try {
+      if ((await gerar(username)) === 'gerado') feitos++
+      else console.error(`${username}: 404, arquivo removido`)
+      break
+    } catch (erro) {
+      console.error(`${username}: tentativa ${tentativa} falhou (${erro?.message ?? erro})`)
+      if (tentativa === TENTATIVAS) falharam.push(username)
+      else await new Promise((ok) => setTimeout(ok, 3000 * tentativa))
+    }
+  }
+}
+
+if (falharam.length) console.error(`NAO GERADOS: ${falharam.join(', ')}`)
 
 if (SO_ESTES.length === 0) await rm(TRAVA, { force: true })
 

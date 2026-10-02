@@ -17,7 +17,7 @@ export function ItemCard({
 }) {
   const d = DICIONARIOS[idioma]
   return (
-    <li>
+    <li data-ferramenta={item.id}>
       <Moldura url={item.url}>
         <div className="relative aspect-4/3 bg-border">
           {item.cover_url ? (

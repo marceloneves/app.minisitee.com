@@ -1,5 +1,6 @@
 import 'server-only'
 import { spawn } from 'node:child_process'
+import { createHmac } from 'node:crypto'
 import { openSync } from 'node:fs'
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -27,8 +28,48 @@ function pastaDe(username: string) {
 // sozinho e deixa o resultado em publicar-html.log. Sai em processo separado
 // e o salvamento nao espera: quando o script pede a pagina, o salvamento ja
 // terminou e a pagina sai com o que acabou de ser salvo.
+//
+// Sem HTML_DIR (o app rodando no computador), o arquivo nao mora aqui: mora na
+// VPS. Mas o banco e o mesmo de producao, entao salvar no localhost mudava o
+// minisite no banco e deixava o HTML do ar velho. Nesse caso o pedido vai para
+// a producao, que gera o arquivo la (app/api/publicar/route.ts).
 export async function agendarPublicacao(username: string) {
   if (!/^[a-z0-9_-]+$/.test(username)) return
+  if (DIR) gerarNestaMaquina(username)
+  else await pedirParaProducao(username)
+}
+
+const PRODUCAO = process.env.PUBLICAR_REMOTO ?? 'https://minisitee.com'
+
+// Assinado com a chave de servico do Supabase, que o computador e a VPS ja
+// tem: so quem tem a chave consegue mandar a producao regerar um minisite.
+export function assinatura(username: string, quando: string) {
+  const chave = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!chave) return null
+  return createHmac('sha256', chave).update(`publicar:${username}:${quando}`).digest('hex')
+}
+
+async function pedirParaProducao(username: string) {
+  const quando = String(Date.now())
+  const assinado = assinatura(username, quando)
+  if (!assinado) return
+
+  try {
+    const r = await fetch(`${PRODUCAO}/api/publicar`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ username, quando, assinatura: assinado }),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!r.ok) console.error(`[html-estatico] ${username}: a producao respondeu ${r.status}`)
+  } catch (erro) {
+    console.error(`[html-estatico] ${username}: nao consegui avisar a producao`, erro)
+  }
+}
+
+export function gerarNestaMaquina(username: string) {
+  if (!DIR || !/^[a-z0-9_-]+$/.test(username)) return
 
   try {
     const log = openSync(join(process.cwd(), 'publicar-html.log'), 'a')

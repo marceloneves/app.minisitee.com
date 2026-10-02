@@ -160,11 +160,20 @@ export function ItemEditor({
   // mudanca ainda esperando o salvamento automatico, salva antes de sair.
   async function voltar() {
     const pendente = JSON.stringify(form) !== ultimoSalvo.current
-    if (ehNovo && !mexeu.current && !pendente) {
-      setEstado('salvando')
-      await excluirItem(form.id)
-    } else if (pendente && !(await salvar(form))) {
-      // Nao saiu: o Voltar do menu deixa de mostrar "Voltando...".
+    try {
+      if (ehNovo && !mexeu.current && !pendente) {
+        setEstado('salvando')
+        await excluirItem(form.id)
+      } else if (pendente && !(await salvar(form))) {
+        // Nao saiu: o Voltar do menu deixa de mostrar "Voltando...".
+        window.dispatchEvent(new Event(EVENTO_VOLTAR_FALHOU))
+        return
+      }
+    } catch {
+      // Sem internet a action rejeita em vez de devolver erro: sem isto o
+      // Voltar ficava em "Voltando..." para sempre.
+      setEstado('erro')
+      setErro(t('erroSalvar'))
       window.dispatchEvent(new Event(EVENTO_VOLTAR_FALHOU))
       return
     }

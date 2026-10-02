@@ -35,6 +35,15 @@ export function NavPainel({
   // tela mudar. Clicar na tela atual nao dispara nada.
   const [indo, setIndo] = useState<{ href: string; de: string } | null>(null)
   const indoPara = indo?.de === pathname ? indo.href : null
+  // O menu mora no layout e nao e montado de novo ao navegar: sem apagar as
+  // marcas quando a tela muda, voltar mais tarde para a mesma tela mostrava o
+  // "Voltando..." (ou o link girando) de um clique antigo, e travava o botao.
+  const [telaAtual, setTelaAtual] = useState(pathname)
+  if (telaAtual !== pathname) {
+    setTelaAtual(pathname)
+    setVoltandoDe(null)
+    setIndo(null)
+  }
   useEffect(() => {
     function falhou() {
       setVoltandoDe(null)
@@ -56,12 +65,14 @@ export function NavPainel({
     pathname.startsWith('/painel/item')
 
   function classe(href: string) {
-    // Assinatura fica dentro do Perfil: la, o Perfil continua marcado.
+    // Assinatura e Estatisticas ficam dentro do Perfil: la, o Perfil continua marcado.
     const selecionado =
       href === '/painel'
         ? configurando
         : href === '/painel/perfil'
-          ? pathname.startsWith(href) || pathname.startsWith('/painel/assinatura')
+          ? pathname.startsWith(href) ||
+            pathname.startsWith('/painel/assinatura') ||
+            pathname.startsWith('/painel/estatisticas')
           : pathname.startsWith(href)
     const marcado = indoPara ? indoPara === href : selecionado
     return `${base} shrink-0 gap-2 ${marcado ? ativo : inativo}`

@@ -41,8 +41,21 @@ export default async function PerfilPage() {
       <h1 className="mb-6 text-xl font-semibold tracking-tight">{t('meuPerfil')}</h1>
       <EditorPerfil inicial={inicial} email={email} />
 
-      {/* A Assinatura saiu do menu do topo e mora aqui, no Perfil. */}
+      {/* Estatisticas e Assinatura moram aqui, no Perfil, e nao no menu do topo. */}
       <section className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-5">
+        <div>
+          <h2 className="text-base font-semibold">{t('estatisticas')}</h2>
+          <p className="mt-0.5 text-sm text-muted">{t('estatisticasDescricao')}</p>
+        </div>
+        <Link
+          href="/painel/estatisticas"
+          className="inline-flex min-h-11 items-center rounded-xl bg-fg px-5 text-sm font-semibold text-bg"
+        >
+          {t('verEstatisticas')}
+        </Link>
+      </section>
+
+      <section className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-5">
         <div>
           <h2 className="text-base font-semibold">{t('assinatura')}</h2>
           <p className="mt-0.5 text-sm text-muted">

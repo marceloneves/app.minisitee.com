@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import { MinisiteeConteudo } from '@/components/minisitee-conteudo'
+import { RastreadorVisitas } from '@/components/rastreador-visitas'
 import { buscarPagina } from '@/lib/catalogo'
 import { montarSchema, serializarSchema } from '@/lib/schema'
 import { ProvedorIdioma } from '@/lib/i18n/contexto'
@@ -134,6 +135,7 @@ export default async function CatalogoPage({
         }}
       />
       <MinisiteeConteudo profile={profile} items={items} idioma={idioma} />
+      <RastreadorVisitas perfil={profile.id} />
       </div>
     </ProvedorIdioma>
   )
